@@ -1,0 +1,873 @@
+#RightClickContextMenu.py (c) 2011 Tomislav Corak (tommy5)
+#
+# ##### BEGIN GPL LICENSE BLOCK #####
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software Foundation,
+#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+# ##### END GPL LICENSE BLOCK #####
+
+bl_info = {
+    "name": "Right Click Context Menu",
+    "author": "Tomislav Corak",
+    "version": (0, 1, 0),
+    "blender": (2, 5, 7),
+    "api": 35853,
+    "location": "View3D > RMB",
+    "description": "Right Click Context Menu",
+    "warning": "",
+    "wiki_url": "",
+    "tracker_url": "",
+    "category": "3D View"}
+
+"""
+Right Click Context Menu
+This adds a the Right Click Context Menu in the View3D, and other editors.
+Left mouse is SELECTION.
+Left Double click sets the 3D cursor.
+
+Usage:
+*  This script gives a basic menu with common simple tools for easy access.
+*  Very similar to the Spacebar menu in 2.49
+*  Context sensitive for Object, Edit, Sculpt, Pose, Weight/Texture/Vertex
+       Paint modes.
+* Object sensitive based on object selected in edit mode.
+
+Version history:
+v0.1 - various tests/contributions by various people and scripts
+    Devs: JayDez, Crouch, sim88, meta-androcto, Sam
+    Scripts: Dynamic Spacebar Menu in the View3D
+"""
+
+import bpy
+from bpy import *
+from mathutils import Vector, Matrix
+import math
+
+class SimpleOperatorSnap(bpy.types.Operator):
+    bl_idname = "object.simple_operator_snap"
+    bl_label = "Simple Object Operator Snap"
+    variable = bpy.props.StringProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        bpy.context.tool_settings.snap_element=self.variable
+        return {'FINISHED'} 
+
+# RCCM  - VIEW3D
+class VIEW3D_MT_Right_Click_Context_Menu(bpy.types.Menu):
+    bl_label = ""
+
+    def draw(self, context):
+        layout = self.layout
+        settings = context.tool_settings
+        layout.operator_context = 'INVOKE_REGION_WIN'
+
+        ob = context
+        if ob.mode == 'OBJECT':
+            # Object mode
+
+            layout.separator()
+            layout.menu("AddMenu", text="Add Objects", icon="OBJECT_DATA")
+            layout.operator("object.editmode_toggle", text="Enter Edit Mode",icon='EDITMODE_HLT')
+            layout.separator()
+            props = layout.operator("object.transform_apply", text="Freeze Transforms", icon='FREEZE')
+            props.location, props.rotation, props.scale = True, True, True
+            layout.menu("cursor", text="Cursor/Origin", icon='CURSOR')
+            layout.separator()
+            layout.operator("object.join", icon = 'ROTATECENTER')
+            layout.menu("VIEW3D_MT_ParentMenu", icon='ROTACTIVE')
+            layout.separator()
+            
+            layout.operator_menu_enum("object.modifier_add", "type", icon='MODIFIER')
+            
+            layout.separator()
+            layout.operator("object.delete", icon='CANCEL')
+            
+
+        elif ob.mode == 'EDIT_MESH':
+            # Edit mode
+
+            
+            layout.operator("mesh.select_mode", text="Vertex", icon='VERTEXSEL').type = 'VERT'
+            layout.operator("mesh.select_mode", text="Edge", icon='EDGESEL').type = 'EDGE'
+            layout.operator("mesh.select_mode", text="Face", icon='FACESEL').type = 'FACE'
+            layout.separator()
+            layout.operator("mesh.extrude_region_move",text="Extrude", icon='EDIT_VEC')
+            layout.operator("mesh.inset",text="Inset", icon='EDIT_VEC')
+            layout.operator("mesh.loopcut_slide",text="Loopcut", icon='EDIT_VEC')
+            layout.separator()
+            layout.menu("merge", text="Merge", icon='AUTOMERGE_ON')
+            layout.operator("mesh.flip_normals", icon = 'FULLSCREEN_ENTER')
+            layout.operator("mesh.normals_make_consistent", icon = 'MATCUBE')
+            layout.operator("mesh.remove_doubles",icon='X_VEC')
+            layout.separator()
+            layout.operator("mesh.separate", icon = 'ROTATECOLLECTION')
+            layout.operator("wm.context_toggle", text="X mirror", icon='X_VEC').data_path = "object.data.use_mirror_x"
+            layout.menu("Snap", text="Snap elements", icon='SNAP_INCREMENT')
+            layout.menu("cursor", text="Cursor/Origin", icon='CURSOR')
+            layout.prop_menu_enum(settings, "proportional_edit_falloff",icon="SMOOTHCURVE")
+            layout.separator()
+            layout.menu("VIEW3D_MT_edit_multi", icon='VERTEXSEL')
+            layout.operator("object.editmode_toggle", text="Enter Object Mode", icon='OBJECT_DATAMODE')
+            layout.operator("mesh.delete", icon='CANCEL')
+
+        if ob.mode == 'EDIT_CURVE':
+            # Curve menu
+
+            layout.menu("INFO_MT_curve_add", text="Add Curve",icon='OUTLINER_OB_CURVE')
+            layout.separator()
+            layout.menu("cursor", text="Cursor/Origin", icon='CURSOR')
+            layout.separator()
+            layout.prop_menu_enum(settings, "proportional_edit_falloff",icon="SMOOTHCURVE")
+            layout.separator()
+            layout.menu("VIEW3D_MT_EditCurveCtrlpoints",icon='CURVE_BEZCURVE')
+            layout.separator()
+            layout.operator("object.editmode_toggle", text="Enter Object Mode",icon='OBJECT_DATA')
+            layout.operator("curve.delete", text="Delete Object",icon='CANCEL')
+
+        if ob.mode == 'EDIT_SURFACE':
+            # Surface menu
+
+            layout.menu("INFO_MT_surface_add", text="Add Surface",icon='OUTLINER_OB_SURFACE')
+            layout.menu("cursor", text="Cursor/Origin", icon='CURSOR')
+            layout.separator()
+            layout.prop_menu_enum(settings, "proportional_edit_falloff",icon="SMOOTHCURVE")
+            layout.separator()
+            layout.menu("VIEW3D_MT_EditCurveSpecials",icon='MODIFIER')
+            layout.separator()
+            layout.operator("object.editmode_toggle", text="Enter Object Mode",icon='OBJECT_DATA')
+            layout.operator("curve.delete", text="Delete Object",icon='CANCEL')
+
+        if ob.mode == 'EDIT_METABALL':
+            # Metaball menu
+
+            layout.operator_menu_enum("object.metaball_add", "type",text="Add Metaball", icon='OUTLINER_OB_META')
+            layout.separator()
+            
+            layout.menu("cursor", text="Cursor/Origin", icon='CURSOR')
+            layout.separator()
+            layout.prop_menu_enum(settings, "proportional_edit_falloff",icon="SMOOTHCURVE")
+            layout.separator()
+            layout.operator("object.editmode_toggle", text="Enter Object Mode",icon='OBJECT_DATA')
+            layout.operator("mball.delete_metaelems", text="Delete Object",icon='CANCEL')
+
+        elif ob.mode == 'EDIT_LATTICE':
+            # Lattice menu
+
+            layout.menu("cursor", text="Cursor/Origin", icon='CURSOR')
+            layout.separator()
+            layout.prop_menu_enum(settings, "proportional_edit_falloff",icon= "SMOOTHCURVE")
+            layout.separator()
+            layout.operator("lattice.make_regular")
+            layout.separator()
+            layout.operator("object.editmode_toggle", text="Enter Object Mode",icon='OBJECT_DATA')
+			
+
+        if  context.mode == 'PARTICLE':
+            # Particle menu
+            
+            layout.menu("cursor", text="Cursor/Origin", icon='CURSOR')
+            layout.separator()
+            layout.prop_menu_enum(settings, "proportional_edit_falloff",icon= "SMOOTHCURVE")
+            layout.separator()
+            layout.menu("VIEW3D_MT_particle", icon='PARTICLEMODE')
+            layout.separator()
+            layout.operator("object.mode_set", text="Enter Object Mode",icon='OBJECT_DATA')
+            layout.operator("object.delete", text="Delete Object",icon='CANCEL')
+
+        ob = context
+        if ob.mode == 'PAINT_WEIGHT':
+            # Weight paint menu
+
+            layout.menu("cursor", text="Cursor/Origin", icon='CURSOR')
+            layout.separator()
+            layout.menu("VIEW3D_MT_paint_weight", icon='WPAINT_HLT')
+            layout.separator()
+            layout.operator("object.mode_set", text="Enter Object Mode",
+                icon='OBJECT_DATA')
+
+        elif ob.mode == 'PAINT_VERTEX':
+            # Vertex paint menu
+
+            layout.menu("cursor", text="Cursor/Origin", icon='CURSOR')
+            layout.separator()
+            layout.operator("paint.vertex_color_set", icon='VPAINT_HLT')
+            layout.separator()
+            layout.operator("object.mode_set", text="Enter Object Mode",
+                icon='OBJECT_DATA')
+
+        elif ob.mode == 'PAINT_TEXTURE':
+            # Texture paint menu
+
+            layout.operator("object.mode_set", text="Enter Object Mode",icon='OBJECT_DATA')
+
+        elif ob.mode == 'SCULPT':
+            # Sculpt menu
+
+            layout.menu("VIEW3D_MT_sculpt", icon='SCULPTMODE_HLT')
+            layout.operator("object.mode_set", text="Enter Object Mode",icon='OBJECT_DATA')
+
+        elif ob.mode == 'EDIT_ARMATURE':
+            # Armature menu
+
+            
+            layout.menu("VIEW3D_MT_MirrorMenu", icon='MOD_MIRROR')
+            layout.menu("cursor", text="Cursor/Origin", icon='CURSOR')
+            layout.separator()
+            layout.menu("VIEW3D_MT_edit_armature_roll",icon='BONE_DATA')
+            layout.separator()
+            layout.menu("VIEW3D_MT_EditArmatureTK",icon='ARMATURE_DATA')
+            layout.separator()
+            layout.menu("VIEW3D_MT_ArmatureName",icon='NEW')
+            layout.separator()
+            layout.menu("VIEW3D_MT_ParentMenu", icon='ROTACTIVE')
+            layout.separator()
+            layout.operator_menu_enum("armature.flags_set", "mode",text="Bone Settings")
+            layout.menu("VIEW3D_MT_armature_specials", icon='MODIFIER')
+            layout.separator()
+            layout.menu("VIEW3D_MT_SelectArmatureMenu",icon='RESTRICT_SELECT_OFF')
+            layout.operator("object.posemode_toggle", text="Enter Pose Mode",icon='POSE_HLT')
+            layout.operator("object.editmode_toggle", text="Enter Object Mode",icon='OBJECT_DATA')
+            layout.operator("armature.delete", text="Delete Object",icon='CANCEL')
+
+
+        if context.mode == 'POSE':
+            
+            arm = context.active_object.data
+
+            layout.menu("VIEW3D_MT_pose_transform")
+            layout.menu("cursor", text="Cursor/Origin", icon='CURSOR')
+            layout.separator()
+            layout.menu("VIEW3D_MT_PoseCopy", icon='FILE')
+            layout.separator()
+			
+
+            if arm.draw_type in ('BBONE', 'ENVELOPE'):
+                layout.operator("transform.transform",
+                    text="Scale Envelope Distance").mode = 'BONE_SIZE'
+
+            layout.menu("VIEW3D_MT_pose_apply")
+            layout.separator()
+            layout.operator("pose.relax")
+            layout.separator()
+            layout.menu("VIEW3D_MT_KeyframeMenu")
+            layout.separator()
+            layout.menu("VIEW3D_MT_pose_pose")
+            layout.menu("VIEW3D_MT_pose_motion")
+            layout.menu("VIEW3D_MT_pose_group")
+            layout.separator()
+            layout.menu("VIEW3D_MT_pose_ik")
+            layout.menu("VIEW3D_MT_PoseNames")
+            layout.separator()
+            layout.menu("VIEW3D_MT_pose_constraints")
+            layout.separator()
+            layout.operator("pose.quaternions_flip")
+            layout.separator()
+            layout.operator_context = 'INVOKE_AREA'
+            layout.operator("pose.armature_layers",
+                text="Change Armature Layers...")
+            layout.operator("pose.bone_layers", text="Change Bone Layers...")
+            layout.separator()
+            layout.menu("VIEW3D_MT_pose_showhide")
+            layout.operator_menu_enum("pose.flags_set", 'mode',
+                text="Bone Settings")
+            layout.separator()
+            layout.menu("VIEW3D_MT_SelectPoseMenu", icon='RESTRICT_SELECT_OFF')
+            layout.operator("object.editmode_toggle", text="Enter Edit Mode",
+                icon='EDITMODE_HLT')
+
+            layout.operator("object.mode_set", text="Enter Object Mode",
+                icon='OBJECT_DATA').mode='OBJECT'
+
+
+
+class cursor(bpy.types.Menu):
+    bl_label = "Cursor"
+
+    def draw(self, context):
+        layout = self.layout
+
+        
+        layout.operator("view3d.snap_selected_to_cursor", text="Selection to Cursor").use_offset = False
+        layout.operator("view3d.snap_cursor_to_selected", text="Cursor to Selected")
+
+        layout.separator()
+        
+        layout.operator("object.origin_set", text="Origin to Geometry").type = 'ORIGIN_GEOMETRY'
+        layout.operator("object.origin_set", text="Origin to 3D Cursor").type = 'ORIGIN_CURSOR'
+
+bpy.utils.register_class(cursor)
+
+# Add Mesh #
+class AddMenu(bpy.types.Menu):
+    bl_label = "Add Mesh"
+
+    # TODO: get rid of the custom text strings?
+    def draw(self, context):
+        layout = self.layout
+
+        
+        layout.operator("mesh.primitive_cube_add", text="Cube", icon='MESH_CUBE')
+        layout.operator("mesh.primitive_plane_add", text="Plane", icon='MESH_PLANE')
+        layout.operator("mesh.primitive_uv_sphere_add", text="UV Sphere", icon='MESH_UVSPHERE')
+        layout.operator("mesh.primitive_cylinder_add", text="Cylinder", icon='MESH_CYLINDER')
+        layout.operator("mesh.primitive_grid_add", text="Grid", icon='MESH_GRID')
+        layout.operator("mesh.primitive_ico_sphere_add", text="Ico Sphere", icon='MESH_ICOSPHERE')
+        layout.operator("mesh.primitive_circle_add", text="Circle", icon='MESH_CIRCLE')
+        layout.operator("mesh.primitive_cone_add", text="Cone", icon='MESH_CONE')
+        layout.operator("mesh.primitive_torus_add", text="Torus", icon='MESH_TORUS')
+        layout.operator("mesh.primitive_monkey_add", text="Monkey", icon='MESH_MONKEY')
+        
+        layout.separator()
+        
+        layout.operator("object.camera_add", icon='OUTLINER_OB_CAMERA')
+        
+        layout.separator()
+        
+        layout.operator("object.lamp_add", text="Area", icon='LAMP_AREA').type = 'AREA'
+        layout.operator("object.lamp_add", text="Sun", icon='LAMP_SUN').type = 'SUN'
+        layout.operator("object.lamp_add", text="Hemi", icon='LAMP_HEMI').type = 'HEMI'
+        layout.operator("object.lamp_add", text="Point", icon='LAMP_POINT').type = 'POINT'
+        layout.operator("object.lamp_add", text="Spot", icon='LAMP_SPOT').type = 'SPOT'
+        
+        layout.separator()
+
+        layout.operator("curve.primitive_bezier_circle_add", icon='CURVE_BEZCIRCLE')
+        layout.operator("curve.primitive_bezier_curve_add", icon='CURVE_BEZCURVE')
+        layout.operator("curve.primitive_nurbs_path_add", icon='CURVE_PATH')
+        
+        layout.separator()
+        
+        
+        layout.operator("object.empty_add", text="Empty AXE", icon='OUTLINER_OB_EMPTY').type = 'PLAIN_AXES'
+        layout.operator("object.empty_add", text="Empty CUBE", icon='OUTLINER_OB_EMPTY').type = 'CUBE'
+        layout.operator("object.add", text="Lattice", icon='OUTLINER_OB_LATTICE').type = 'LATTICE'
+        layout.operator("object.text_add", text="Text", icon='OUTLINER_OB_FONT')
+        layout.operator("object.armature_add", text="Armature", icon='OUTLINER_OB_ARMATURE')
+        
+        
+
+
+bpy.utils.register_class(AddMenu)
+
+
+class merge(bpy.types.Menu):
+    bl_label = "merge"
+    
+    
+    def draw(self, context):
+        layout = self.layout     
+          
+        layout.operator("mesh.merge", text="At Center").type = 'CENTER'
+        layout.operator("mesh.merge", text="At Last").type = 'LAST'
+        layout.operator("mesh.merge", text="At First").type = 'FIRST'
+
+bpy.utils.register_class(merge)
+
+class Snap(bpy.types.Menu):
+    bl_label = "merge"
+    
+    
+    def draw(self, context):
+        layout = self.layout          
+        
+        layout.operator("object.simple_operator_snap", text="Face", icon= 'SNAP_FACE').variable="FACE"
+        layout.operator("object.simple_operator_snap", text="Vertex", icon= 'SNAP_VERTEX').variable="VERTEX"
+        layout.operator("object.simple_operator_snap", text="Edge", icon= 'SNAP_EDGE').variable="EDGE"
+        layout.operator("object.simple_operator_snap", text="Increment", icon= 'SNAP_INCREMENT').variable="INCREMENT"
+        layout.operator("object.simple_operator_snap", text="Volume", icon= 'SNAP_VOLUME').variable="VOLUME"
+
+bpy.utils.register_class(Snap)
+
+
+class VIEW3D_MT_SelectMenu(bpy.types.Menu):
+    bl_label = "Select"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator_context = 'INVOKE_REGION_WIN'
+
+        layout.operator("view3d.select_border")
+        layout.operator("view3d.select_circle")
+        layout.separator()
+
+        layout.operator("object.select_all", text="Select/Deselect All")
+        layout.operator("object.select_inverse", text="Inverse")
+        layout.operator("object.select_random", text="Random")
+        layout.operator("object.select_mirror", text="Mirror")
+        layout.operator("object.select_by_layer", text="Select All by Layer")
+        layout.operator_menu_enum("object.select_by_type", "type",
+            text="Select All by Type...")
+        layout.operator("object.select_camera", text="Select Camera")
+        layout.separator()
+
+        layout.operator_menu_enum("object.select_grouped", "type",
+            text="Grouped")
+        layout.operator_menu_enum("object.select_linked", "type",
+            text="Linked")
+        layout.operator("object.select_pattern", text="Select Pattern...")
+
+
+
+class VIEW3D_MT_SelectCurveMenu(bpy.types.Menu):
+    bl_label = "Select Menu"
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.operator("view3d.select_border")
+        layout.operator("view3d.select_circle")
+        layout.separator()
+
+        layout.operator("curve.select_all", text="Select/Deselect All")
+        layout.operator("curve.select_inverse")
+        layout.operator("curve.select_random")
+        layout.operator("curve.select_nth")
+        layout.separator()
+
+        layout.operator("curve.de_select_first")
+        layout.operator("curve.de_select_last")
+        layout.operator("curve.select_next")
+        layout.operator("curve.select_previous")
+        layout.separator()
+
+        layout.operator("curve.select_more")
+        layout.operator("curve.select_less")
+
+class VIEW3D_MT_SelectArmatureMenu(bpy.types.Menu):
+    bl_label = "Select Menu"
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.operator("view3d.select_border")
+        layout.separator()
+
+        layout.operator("armature.select_all", text="Select/Deselect All")
+        layout.operator("armature.select_inverse", text="Inverse")
+        layout.separator()
+
+        layout.operator("armature.select_hierarchy",
+            text="Parent").direction = 'PARENT'
+        layout.operator("armature.select_hierarchy",
+            text="Child").direction = 'CHILD'
+        layout.separator()
+
+        props = layout.operator("armature.select_hierarchy",
+            text="Extend Parent")
+        props.extend = True
+        props.direction = 'PARENT'
+
+        props = layout.operator("armature.select_hierarchy",
+            text="Extend Child")
+        props.extend = True
+        props.direction = 'CHILD'
+
+        layout.operator("object.select_pattern", text="Select Pattern...")
+
+
+class VIEW3D_MT_SelectPoseMenu(bpy.types.Menu):
+    bl_label = "Select Menu"
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.operator("view3d.select_border")
+        layout.separator()
+
+        layout.operator("pose.select_all", text="Select/Deselect All")
+        layout.operator("pose.select_inverse", text="Inverse")
+        layout.operator("pose.select_constraint_target",
+            text="Constraint Target")
+        layout.operator("pose.select_linked", text="Linked")
+        layout.separator()
+
+        layout.operator("pose.select_hierarchy",
+            text="Parent").direction = 'PARENT'
+        layout.operator("pose.select_hierarchy",
+            text="Child").direction = 'CHILD'
+        layout.separator()
+
+        props = layout.operator("pose.select_hierarchy", text="Extend Parent")
+        props.extend = True
+        props.direction = 'PARENT'
+
+        props = layout.operator("pose.select_hierarchy", text="Extend Child")
+        props.extend = True
+        props.direction = 'CHILD'
+        layout.separator()
+
+        layout.operator_menu_enum("pose.select_grouped", "type",
+            text="Grouped")
+        layout.operator("object.select_pattern", text="Select Pattern...")
+
+class VIEW3D_MT_PoseCopy(bpy.types.Menu):
+    bl_label = "Pose Copy"
+
+    def draw(self, context):
+        layout = self.layout
+		 
+        layout.operator("pose.copy")
+        layout.operator("pose.paste")
+        layout.operator("pose.paste",
+           text="Paste X-Flipped Pose").flipped = True
+        layout.separator()
+
+class VIEW3D_MT_PoseNames(bpy.types.Menu):
+    bl_label = "Pose Copy"
+
+    def draw(self, context):
+        layout = self.layout
+		 
+        layout.operator_context = 'EXEC_AREA'
+        layout.operator("pose.autoside_names",
+            text="AutoName Left/Right").axis = 'XAXIS'
+        layout.operator("pose.autoside_names",
+            text="AutoName Front/Back").axis = 'YAXIS'
+        layout.operator("pose.autoside_names",
+            text="AutoName Top/Bottom").axis = 'ZAXIS'
+
+        layout.operator("pose.flip_names")
+
+
+
+class VIEW3D_MT_edit_TK(bpy.types.Menu):
+    bl_label = "Edit Mesh Tools"
+
+    def draw(self, context):
+        layout = self.layout
+        row = layout.row()
+
+        layout.operator_context = 'INVOKE_REGION_WIN'
+
+        layout.menu("VIEW3D_MT_edit_mesh_vertices", icon='VERTEXSEL')
+        layout.menu("VIEW3D_MT_edit_mesh_edges", icon='EDGESEL')
+        layout.menu("VIEW3D_MT_edit_mesh_faces", icon='FACESEL')
+        layout.separator()
+        layout.menu("VIEW3D_MT_edit_mesh_normals", icon='META_DATA')
+        layout.operator("mesh.loopcut_slide",
+            text="Loopcut", icon='EDIT_VEC')
+
+
+class VIEW3D_MT_edit_multi(bpy.types.Menu):
+    bl_label = "Multi Select"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator_context = 'INVOKE_REGION_WIN'
+
+        layout.separator()
+        prop = layout.operator("wm.context_set_value", text="Vertex Select",
+            icon='VERTEXSEL')
+        prop.value = "(True, False, False)"
+        prop.data_path = "tool_settings.mesh_select_mode"
+
+        prop = layout.operator("wm.context_set_value", text="Edge Select",
+            icon='EDGESEL')
+        prop.value = "(False, True, False)"
+        prop.data_path = "tool_settings.mesh_select_mode"
+
+        prop = layout.operator("wm.context_set_value", text="Face Select",
+            icon='FACESEL')
+        prop.value = "(False, False, True)"
+        prop.data_path = "tool_settings.mesh_select_mode"
+        layout.separator()
+
+        prop = layout.operator("wm.context_set_value",
+            text="Vertex & Edge Select", icon='EDITMODE_HLT')
+        prop.value = "(True, True, False)"
+        prop.data_path = "tool_settings.mesh_select_mode"
+
+        prop = layout.operator("wm.context_set_value",
+            text="Vertex & Face Select", icon='ORTHO')
+        prop.value = "(True, False, True)"
+        prop.data_path = "tool_settings.mesh_select_mode"
+
+        prop = layout.operator("wm.context_set_value",
+            text="Edge & Face Select", icon='SNAP_FACE')
+        prop.value = "(False, True, True)"
+        prop.data_path = "tool_settings.mesh_select_mode"
+        layout.separator()
+
+        prop = layout.operator("wm.context_set_value",
+            text="Vertex & Edge & Face Select", icon='SNAP_VOLUME')
+        prop.value = "(True, True, True)"
+        prop.data_path = "tool_settings.mesh_select_mode"
+
+
+class VIEW3D_MT_EditCurveCtrlpoints(bpy.types.Menu):
+    bl_label = "Control Points"
+
+    def draw(self, context):
+        layout = self.layout
+
+        edit_object = context.edit_object
+
+        if edit_object.type == 'CURVE':
+            layout.operator("transform.transform").mode = 'TILT'
+            layout.operator("curve.tilt_clear")
+            layout.operator("curve.separate")
+
+            layout.separator()
+
+            layout.operator_menu_enum("curve.handle_type_set", "type")
+
+            layout.separator()
+
+            layout.menu("VIEW3D_MT_hook")
+
+
+class VIEW3D_MT_EditCurveSegments(bpy.types.Menu):
+    bl_label = "Curve Segments"
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.operator("curve.subdivide")
+        layout.operator("curve.switch_direction")
+
+class VIEW3D_MT_EditCurveSpecials(bpy.types.Menu):
+    bl_label = "Specials"
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.operator("curve.subdivide")
+        layout.operator("curve.switch_direction")
+        layout.operator("curve.spline_weight_set")
+        layout.operator("curve.radius_set")
+        layout.operator("curve.smooth")
+        layout.operator("curve.smooth_radius")
+
+class VIEW3D_MT_EditArmatureTK(bpy.types.Menu):
+    bl_label = "Armature Tools"
+
+    def draw(self, context):
+        layout = self.layout
+
+        # Edit Armature
+
+        layout.operator("transform.transform",
+            text="Scale Envelope Distance").mode = 'BONE_SIZE'
+
+        layout.operator("transform.transform",
+            text="Scale B-Bone Width").mode = 'BONE_SIZE'
+        layout.separator()
+
+        layout.operator("armature.extrude_move")
+
+        layout.operator("armature.extrude_forked")
+
+        layout.operator("armature.duplicate_move")
+        layout.operator("armature.merge")
+        layout.operator("armature.fill")
+        layout.operator("armature.delete")
+        layout.operator("armature.separate")
+
+        layout.separator()
+
+        layout.operator("armature.subdivide", text="Subdivide")
+        layout.operator("armature.switch_direction", text="Switch Direction")
+
+class VIEW3D_MT_ArmatureName(bpy.types.Menu):
+    bl_label = "Armature Name"
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.operator_context = 'EXEC_AREA'
+        layout.operator("armature.autoside_names",
+            text="AutoName Left/Right").type = 'XAXIS'
+        layout.operator("armature.autoside_names",
+            text="AutoName Front/Back").type = 'YAXIS'
+        layout.operator("armature.autoside_names",
+            text="AutoName Top/Bottom").type = 'ZAXIS'
+        layout.operator("armature.flip_names")
+        layout.separator()
+
+class VIEW3D_MT_KeyframeMenu(bpy.types.Menu):
+    bl_label = "Keyframe Menu"
+
+    def draw(self, context):
+        layout = self.layout
+
+        # Keyframe Bleck
+        layout.operator("anim.keyframe_insert_menu",
+            text="Insert Keyframe...")
+        layout.operator("anim.keyframe_delete_v3d",
+            text="Delete Keyframe...")
+        layout.operator("anim.keying_set_active_set",
+            text="Change Keying Set...")
+        layout.separator()
+
+
+# Right Click - other windows spaces
+class TIME_MT_RightClickMenu(bpy.types.Menu):
+    bl_label = ""
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator_context = 'INVOKE_DEFAULT'
+
+        layout.operator("marker.add", text="Add Marker")
+        layout.operator("marker.delete", text="Delete Marker")
+        layout.separator()
+        layout.operator("marker.move", text="Grab/Move Marker")
+        layout.separator()
+        layout.operator("time.start_frame_set")
+        layout.operator("time.end_frame_set")
+        layout.prop_enum(tools, "auto_keying_mode", 'ADD_REPLACE_KEYS')
+        layout.prop_enum(tools, "auto_keying_mode", 'REPLACE_KEYS')
+
+
+class GRAPH_MT_RightClickMenu(bpy.types.Menu):
+    bl_label = "DooDoo"
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.column()
+        layout.menu("GRAPH_MT_key_transform", text="Transform")
+
+        layout.operator_menu_enum("graph.snap", "type", text="Snap")
+        layout.operator_menu_enum("graph.mirror", "type", text="Mirror")
+
+        layout.separator()
+        layout.operator("graph.keyframe_insert")
+        layout.operator("graph.fmodifier_add")
+        layout.operator("graph.sound_bake")
+
+        layout.separator()
+        layout.operator("graph.duplicate")
+        layout.operator("graph.delete")
+
+        layout.separator()
+        layout.operator_menu_enum("graph.handle_type", "type", text="Handle Type")
+        layout.operator_menu_enum("graph.interpolation_type", "type", text="Interpolation Mode")
+
+        layout.separator()
+        layout.operator("graph.clean")
+        layout.operator("graph.smooth")
+        layout.operator("graph.sample")
+        layout.operator("graph.bake")
+
+        layout.separator()
+        layout.operator("graph.copy")
+        layout.operator("graph.paste")
+
+        layout.separator()
+        layout.operator("graph.euler_filter", text="Discontinuity (Euler) Filter")
+
+class DOPESHEET_MT_RightClickMenu(bpy.types.Menu):
+    bl_label = "Dope"
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.column()
+        layout.menu("DOPESHEET_MT_key_transform", text="Transform")
+
+        layout.operator_menu_enum("action.snap", "type", text="Snap")
+        layout.operator_menu_enum("action.mirror", "type", text="Mirror")
+
+        layout.separator()
+        layout.operator("action.keyframe_insert")
+
+        layout.separator()
+        layout.operator("action.duplicate")
+        layout.operator("action.delete")
+
+        layout.separator()
+        layout.operator_menu_enum("action.keyframe_type", "type", text="Keyframe Type")
+        layout.operator_menu_enum("action.handle_type", "type", text="Handle Type")
+        layout.operator_menu_enum("action.interpolation_type", "type", text="Interpolation Mode")
+
+        layout.separator()
+        layout.operator("action.clean")
+        layout.operator("action.sample")
+
+        layout.separator()
+        layout.operator("action.copy")
+        layout.operator("action.paste")
+
+def register():
+    bpy.utils.register_class(SimpleOperatorSnap)
+    bpy.utils.register_module(__name__)
+    # Set LMB selection
+    bpy.context.user_preferences.inputs.select_mouse = 'LEFT'
+    # Map 3D view
+    km = bpy.context.window_manager.keyconfigs.addon.keymaps.new("3D View", space_type="VIEW_3D")
+    # Unset 3d cursor from LMB
+    for kmi in km.keymap_items:
+        if kmi.idname == 'view3d.cursor3d':
+                km.keymap_items.remove(kmi)
+    # Set 3d cursor with double click LMB
+    kmi = km.keymap_items.new('view3d.cursor3d', 'LEFTMOUSE', 'DOUBLE_CLICK')
+    # Set Menu to RMB
+    kmi = km.keymap_items.new('wm.call_menu', 'RIGHTMOUSE', 'PRESS')
+    kmi.properties.name = "VIEW3D_MT_Right_Click_Context_Menu"
+
+#km = wm.keyconfigs.addon.keymaps.new("3D View", space_type="VIEW_3D")
+#km.keymap_items.new('my.operator', 'ESC', 'PRESS')
+
+#km = wm.keyconfigs.addon.keymaps["3D View"]
+#km.keymap_items.remove(km.keymap_items["my.operator"])
+
+    # Map Animation
+    km = bpy.context.window_manager.keyconfigs.default.keymaps['Animation']
+    # Unset 3d cursor from LMB
+    for kmi in km.keymap_items:
+        if kmi.idname == 'anim.change_frame':
+                km.keymap_items.remove(kmi)
+    kmi = km.keymap_items.new('anim.change_frame', 'LEFTMOUSE', 'PRESS')
+
+    # Timeline
+    km = bpy.context.window_manager.keyconfigs.default.keymaps['Timeline']
+    kmi = km.keymap_items.new('wm.call_menu', 'RIGHTMOUSE', 'PRESS')
+    kmi.properties.name = "TIME_MT_RightClickMenu"
+
+    # Graph
+    km = bpy.context.window_manager.keyconfigs.default.keymaps['Graph Editor']
+    for kmi in km.keymap_items:
+        if kmi.idname == 'graph.cursor_set':
+                km.keymap_items.remove(kmi)
+    kmi = km.keymap_items.new('wm.call_menu', 'RIGHTMOUSE', 'PRESS')
+    kmi.properties.name = "GRAPH_MT_RightClickMenu"
+
+    # DopeSheet
+    km = bpy.context.window_manager.keyconfigs.default.keymaps['Dopesheet']
+    kmi = km.keymap_items.new('wm.call_menu', 'ACTIONMOUSE', 'PRESS')
+    kmi.properties.name = 'DOPESHEET_MT_RightClickMenu'
+
+
+def unregister():
+    bpy.utils.unregister_class(SimpleOperatorSnap)
+    bpy.utils.unregister_module(__name__)
+
+    # TODO set 3d view keys to default
+    km = wm.keyconfigs.addon.keymaps["3D View"]
+    #km = bpy.context.window_manager.keyconfigs.addon.keymaps.new("3D View", space_type="VIEW_3D")
+    for kmi in km.keymap_items:
+        if kmi.idname == 'wm.call_menu':
+            if kmi.properties.name == "VIEW3D_MT_Right_Click_Context_Menu":
+                km.keymap_items.remove(kmi)
+                break
+
+if __name__ == "__main__":
+    register()
+
