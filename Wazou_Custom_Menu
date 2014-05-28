@@ -1,0 +1,61 @@
+bl_info = {
+        "name": "Wazou_Custom_Menu",
+        "category": "3D View",
+        "author": "Cedric_Lepiller & PID"
+        }        
+ 
+import bpy
+
+
+
+
+class customMenu(bpy.types.Menu):
+    bl_label = ""
+    bl_idname = "View3D.wazoucustomMenu"
+ 
+    # Set the menu operators and draw functions
+    def draw(self, context):
+        layout = self.layout
+        
+        
+        #Wire block
+        
+        layout.operator("wm.context_toggle", text="Wire", icon='WIRE').data_path = "object.show_wire"
+        layout.operator("wm.context_toggle", text="show_all_edges", icon='WIRE').data_path = "object.show_all_edges"
+        layout.operator("wm.context_toggle", text="Xray", icon='META_CUBE').data_path = "object.show_x_ray"
+        layout.operator("wm.context_toggle", text="Hidden Wire", icon='GHOST_ENABLED').data_path = "space_data.show_occlude_wire"
+        layout.operator("wm.context_toggle", text="Limit 2 Visible", icon='ORTHO').data_path = "space_data.use_occlude_geometry"
+
+
+        layout.separator()
+        
+        #Cam block
+        
+        
+        layout.operator("wm.context_toggle", text="Only Render", icon='SOLID').data_path = "space_data.show_only_render"
+        layout.operator("wm.context_toggle", text="Lock Cam 2 view", icon='OUTLINER_DATA_CAMERA').data_path = "space_data.lock_camera"
+        layout.operator("wm.context_toggle", text="Matcaps", icon='MATCAP_02').data_path = "space_data.use_matcap"
+        
+        
+        layout.separator()
+        
+        #Normals block
+        
+        layout.operator("object.shade_smooth", icon = 'ANTIALIASED')
+        layout.operator("object.shade_flat", icon = 'ALIASED')
+        layout.operator("wm.context_toggle", text="Auto Smooth", icon='MESH_DATA').data_path = "object.data.use_auto_smooth"
+        layout.operator("wm.context_toggle", text="Show Normals", icon='FACESEL').data_path = "object.data.show_normal_face"
+        
+        
+        layout.operator("wm.context_toggle", text="Auto Merge", icon='AUTOMERGE_ON').data_path = "scene.tool_settings.use_mesh_automerge"
+        
+        
+        
+def register():
+    bpy.utils.register_class(customMenu)
+    #bpy.ops.wm.call_menu(name=customMenu.bl_idname)
+
+def unregister():
+    bpy.utils.unregister_class(customMenu)  
+
+if __name__ == "__main__":     register()
