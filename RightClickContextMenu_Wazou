@@ -111,9 +111,8 @@ class VIEW3D_MT_Right_Click_Context_Menu(bpy.types.Menu):
             layout.separator()
             layout.operator("screen.redo_last", text="F6")
             layout.separator()
-            #layout.operator("mesh.extrude_region_move",text="Extrude", icon='EDIT_VEC')
-            #layout.operator("mesh.inset",text="Inset", icon='EDIT_VEC')
-            #layout.operator("mesh.loopcut_slide",text="Loopcut", icon='EDIT_VEC')
+            layout.operator("mesh.inset",text="Inset", icon='EDIT_VEC').use_select_inset=False
+            layout.operator("mesh.loopcut", text="Loopcut smoothness", icon='EDIT_VEC').smoothness=1
             #layout.separator()
             layout.menu("merge", text="Merge", icon='AUTOMERGE_ON')
             layout.operator("mesh.flip_normals", icon = 'FULLSCREEN_ENTER')
