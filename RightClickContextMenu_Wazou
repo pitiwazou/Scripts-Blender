@@ -83,6 +83,7 @@ class VIEW3D_MT_Right_Click_Context_Menu(bpy.types.Menu):
 
             layout.separator()
             layout.menu("AddMenu", text="Add Objects", icon="OBJECT_DATA")
+            layout.operator("screen.redo_last", text="F6")
             layout.operator("object.editmode_toggle", text="Enter Edit Mode",icon='EDITMODE_HLT')
             layout.separator()
             props = layout.operator("object.transform_apply", text="Freeze Transforms", icon='FREEZE')
@@ -98,6 +99,7 @@ class VIEW3D_MT_Right_Click_Context_Menu(bpy.types.Menu):
             layout.separator()
             layout.operator("object.delete", icon='CANCEL')
             
+            
 
         elif ob.mode == 'EDIT_MESH':
             # Edit mode
@@ -107,10 +109,12 @@ class VIEW3D_MT_Right_Click_Context_Menu(bpy.types.Menu):
             layout.operator("mesh.select_mode", text="Edge", icon='EDGESEL').type = 'EDGE'
             layout.operator("mesh.select_mode", text="Face", icon='FACESEL').type = 'FACE'
             layout.separator()
-            layout.operator("mesh.extrude_region_move",text="Extrude", icon='EDIT_VEC')
-            layout.operator("mesh.inset",text="Inset", icon='EDIT_VEC')
-            layout.operator("mesh.loopcut_slide",text="Loopcut", icon='EDIT_VEC')
+            layout.operator("screen.redo_last", text="F6")
             layout.separator()
+            #layout.operator("mesh.extrude_region_move",text="Extrude", icon='EDIT_VEC')
+            #layout.operator("mesh.inset",text="Inset", icon='EDIT_VEC')
+            #layout.operator("mesh.loopcut_slide",text="Loopcut", icon='EDIT_VEC')
+            #layout.separator()
             layout.menu("merge", text="Merge", icon='AUTOMERGE_ON')
             layout.operator("mesh.flip_normals", icon = 'FULLSCREEN_ENTER')
             layout.operator("mesh.normals_make_consistent", icon = 'MATCUBE')
@@ -870,4 +874,6 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
+
 
