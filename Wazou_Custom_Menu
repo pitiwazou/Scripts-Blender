@@ -6,8 +6,130 @@ bl_info = {
  
 import bpy
 
+class SolidAll(bpy.types.Operator):
 
+    bl_idname = "object.solid_all"
+    bl_label = "Solid All"
 
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+    
+    def execute(self, context):
+        for obj in bpy.data.objects: 
+            if obj.draw_type == 'BOUNDS': 
+                obj.draw_type = 'SOLID'
+            elif obj.draw_type == 'SOLID':
+                obj.draw_type = 'SOLID' 
+            else:                       
+                obj.draw_type = 'BOUNDS'
+       
+        return {'FINISHED'}
+
+bpy.utils.register_class(SolidAll)
+
+#Bounds Unselected
+class BoundsUnselected(bpy.types.Operator):
+
+    bl_idname = "object.draw_bu"
+    bl_label = "bounds"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+    
+    def execute(self, context):
+        for obj in bpy.data.objects: 
+            if not obj.select:
+                
+                if obj.draw_type == 'SOLID':
+                    obj.draw_type = 'BOUNDS'
+                    obj.show_all_edges = False
+                    obj.show_wire = False
+                   
+                elif obj.draw_type == 'BOUNDS':
+                    obj.draw_type = 'BOUNDS'
+              
+                else:                       
+                    obj.draw_type = 'SOLID'
+        
+        for obj in bpy.data.objects:
+            if obj.select:
+                obj.draw_type = 'SOLID'
+
+        return {'FINISHED'}
+    
+bpy.utils.register_class(BoundsUnselected)
+
+#Wire on selected objects
+class WireSelected(bpy.types.Operator):
+    """Tooltip"""
+    bl_idname = "object.wire_selected"
+    bl_label = "Wire Selected"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+               
+        for obj in bpy.data.objects:
+            if obj.select:
+                if obj.show_wire:
+                    obj.show_all_edges = False
+                    obj.show_wire = False
+                else:
+                    obj.show_all_edges = True
+                    obj.show_wire = True
+      
+        return {'FINISHED'}
+
+bpy.utils.register_class(WireSelected)
+
+#Wire on all objects
+class Wire_All(bpy.types.Operator):
+    """Tooltip"""
+    bl_idname = "object.wire_all"
+    bl_label = "Wire on All Objects"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        
+        for obj in bpy.data.objects:
+            if obj.show_wire:
+                obj.show_all_edges = False
+                obj.show_wire = False
+            
+            else:
+                obj.show_all_edges = True
+                obj.show_wire = True
+               
+                
+        return {'FINISHED'}
+
+bpy.utils.register_class(Wire_All)
+
+#Grid show/hide with axes
+
+class ToogleGridAxis(bpy.types.Operator):
+    """Tooltip"""
+    bl_idname = "scene.tooglegridaxis"
+    bl_label = "Toogle Grid and Axis in 3D view"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        bpy.context.space_data.show_axis_y = not bpy.context.space_data.show_axis_y
+        bpy.context.space_data.show_axis_x = not bpy.context.space_data.show_axis_x
+        bpy.context.space_data.show_floor = not bpy.context.space_data.show_floor
+        return {'FINISHED'}
+    
+bpy.utils.register_class(ToogleGridAxis)
 
 class customMenu(bpy.types.Menu):
     bl_label = ""
@@ -20,36 +142,38 @@ class customMenu(bpy.types.Menu):
         
         #Wire block
         
-        layout.operator("wm.context_toggle", text="Wire", icon='WIRE').data_path = "object.show_wire"
-        layout.operator("wm.context_toggle", text="show_all_edges", icon='WIRE').data_path = "object.show_all_edges"
+        layout.operator("object.wire_all", text="Wire All", icon='WIRE')
+        layout.operator("object.wire_selected", text="Wire Selected", icon='WIRE')
+        layout.separator()
+        layout.operator("object.shade_smooth", icon = 'ANTIALIASED')
+        layout.operator("object.shade_flat", icon = 'ALIASED')
+        layout.separator()
         layout.operator("wm.context_toggle", text="Xray", icon='META_CUBE').data_path = "object.show_x_ray"
         layout.operator("wm.context_toggle", text="Hidden Wire", icon='GHOST_ENABLED').data_path = "space_data.show_occlude_wire"
         layout.operator("wm.context_toggle", text="Limit 2 Visible", icon='ORTHO').data_path = "space_data.use_occlude_geometry"
-
+        layout.separator()
+        layout.operator("object.draw_bu", text="Bounds Unselected", icon='GROUP_VERTEX')
+        layout.operator("object.solid_all", text="Solid All", icon='MESH_CUBE')
 
         layout.separator()
         
         #Cam block
         
-        
         layout.operator("wm.context_toggle", text="Only Render", icon='SOLID').data_path = "space_data.show_only_render"
         layout.operator("wm.context_toggle", text="Lock Cam 2 view", icon='OUTLINER_DATA_CAMERA').data_path = "space_data.lock_camera"
         layout.operator("wm.context_toggle", text="Matcaps", icon='MATCAP_02').data_path = "space_data.use_matcap"
+        layout.operator("scene.tooglegridaxis", text="Show/Hide Grid", icon="MESH_GRID")
         
         
         layout.separator()
         
         #Normals block
         
-        layout.operator("object.shade_smooth", icon = 'ANTIALIASED')
-        layout.operator("object.shade_flat", icon = 'ALIASED')
         layout.operator("wm.context_toggle", text="Auto Smooth", icon='MESH_DATA').data_path = "object.data.use_auto_smooth"
+        layout.operator("wm.context_toggle", text="Auto Merge", icon='AUTOMERGE_ON').data_path = "scene.tool_settings.use_mesh_automerge"
         layout.operator("wm.context_toggle", text="Show Normals", icon='FACESEL').data_path = "object.data.show_normal_face"
         
-        
-        layout.operator("wm.context_toggle", text="Auto Merge", icon='AUTOMERGE_ON').data_path = "scene.tool_settings.use_mesh_automerge"
-        
-        
+      
         
 def register():
     bpy.utils.register_class(customMenu)
@@ -59,3 +183,11 @@ def unregister():
     bpy.utils.unregister_class(customMenu)  
 
 if __name__ == "__main__":     register()
+
+
+
+
+
+
+
+
