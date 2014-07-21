@@ -1,5 +1,5 @@
 bl_info = {
-        "name": "Wazou_Custom_Menu",
+        "name": "Wazou_shading_Menu",
         "category": "3D View",
         "author": "Cedric_Lepiller & PID"
         }        
