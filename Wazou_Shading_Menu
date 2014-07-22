@@ -1,11 +1,73 @@
 bl_info = {
-        "name": "Wazou_shading_Menu",
+        "name": "Wazou_Custom_Menu",
         "category": "3D View",
         "author": "Cedric_Lepiller & PID"
         }        
  
 import bpy
 
+
+#auto smooth Menu
+class AutoSmoothMenu(bpy.types.Menu):
+    bl_idname = "auto.smooth_menu"
+    bl_label = "Auto_Smooth_Menu"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        layout.operator("auto.smooth_30", text="Auto Smooth 30", icon='MESH_DATA')
+        layout.operator("auto.smooth_45", text="Auto Smooth 45", icon='MESH_DATA')
+        layout.operator("auto.smooth_89", text="Auto Smooth 89", icon='MESH_DATA')
+
+bpy.utils.register_class(AutoSmoothMenu)
+
+#AutoSmooth_89
+class AutoSmooth89(bpy.types.Operator):
+    bl_idname = "auto.smooth_89"
+    bl_label = "Auto Smooth"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+        
+    def execute(self, context):
+        bpy.context.object.data.auto_smooth_angle = 1.55334
+        return {'FINISHED'}
+
+bpy.utils.register_class(AutoSmooth89)
+
+#AutoSmooth_30
+class AutoSmooth30(bpy.types.Operator):
+    bl_idname = "auto.smooth_30"
+    bl_label = "Auto Smooth"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+        
+    def execute(self, context):
+        bpy.context.object.data.auto_smooth_angle = 0.523599
+        return {'FINISHED'}
+
+bpy.utils.register_class(AutoSmooth30)
+
+#AutoSmooth_45
+class AutoSmooth45(bpy.types.Operator):
+    bl_idname = "auto.smooth_45"
+    bl_label = "Auto Smooth"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+        
+    def execute(self, context):
+        bpy.context.object.data.auto_smooth_angle = 0.785398
+        return {'FINISHED'}
+
+bpy.utils.register_class(AutoSmooth45)  
+
+
+#Solid All
 class SolidAll(bpy.types.Operator):
 
     bl_idname = "object.solid_all"
@@ -170,14 +232,14 @@ class customMenu(bpy.types.Menu):
         #Normals block
         
         layout.operator("wm.context_toggle", text="Auto Smooth", icon='MESH_DATA').data_path = "object.data.use_auto_smooth"
-        layout.operator("wm.context_toggle", text="Auto Merge", icon='AUTOMERGE_ON').data_path = "scene.tool_settings.use_mesh_automerge"
+        layout.menu("auto.smooth_menu", text="Auto Smooth Values", icon='MESH_DATA')
         layout.operator("wm.context_toggle", text="Show Normals", icon='FACESEL').data_path = "object.data.show_normal_face"
         
-      
+        
         
 def register():
     bpy.utils.register_class(customMenu)
-    #bpy.ops.wm.call_menu(name=customMenu.bl_idname)
+    bpy.ops.wm.call_menu(name=customMenu.bl_idname)
 
 def unregister():
     bpy.utils.unregister_class(customMenu)  
