@@ -230,11 +230,9 @@ class RetopologyTools(bpy.types.Panel):
         row.operator("mesh.normals_make_consistent", icon = 'MATCUBE')
         row = layout.row()
         row.operator("mesh.remove_doubles",icon='X_VEC')
-        split = layout.split()
-        split = layout.split()
         row = layout.row()
-        row.operator("object.join", icon = 'ROTATECENTER')
-        row.operator("mesh.separate", icon = 'ROTATECOLLECTION').type = "LOOSE"
+        #row.operator("object.join", icon = 'ROTATECENTER')
+        #row.operator("mesh.separate", icon = 'ROTATECOLLECTION').type = "LOOSE"
         row = layout.row()
         #Shading
         layout.label(text="Modifiers :")
@@ -243,8 +241,8 @@ class RetopologyTools(bpy.types.Panel):
         row.operator("object.modifier_apply", text="Apply Mirror", icon='MOD_MIRROR').modifier="Mirror"
         
         row = layout.row()
-        row.operator("object.modifier_remove", text="Remove Subsurf", icon='MOD_SUBSURF').modifier="Subsurf"
-        row.operator("object.modifier_remove", text="Remove Mirror", icon='MOD_MIRROR').modifier="Mirror"
+        row.operator("object.modifier_remove", text="Del Subsurf", icon='MOD_SUBSURF').modifier="Subsurf"
+        row.operator("object.modifier_remove", text="Del Mirror", icon='MOD_MIRROR').modifier="Mirror"
 
         #Shading
         layout.label(text="Shading :")
@@ -318,6 +316,7 @@ def unregister():
     
 if __name__ == "__main__": 
     register() 
+
 
 
 
