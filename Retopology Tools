@@ -255,8 +255,8 @@ class RetopologyTools(bpy.types.Panel):
         row.operator("object.wire_all", text="Wire All", icon='WIRE')
         row.operator("object.wire_selected", text="Wire Selected", icon='WIRE')
         row = layout.row()
-        row.operator("object.shade_smooth", text= "Smooth", icon = 'ANTIALIASED')
-        row.operator("object.shade_flat", text= "Flat", icon = 'ALIASED')
+        row.operator("mesh.faces_shade_smooth", text= "Smooth", icon = 'ANTIALIASED')
+        row.operator("mesh.faces_shade_flat", text= "Flat", icon = 'ALIASED')
         
         row = layout.row()
         view = context.space_data
