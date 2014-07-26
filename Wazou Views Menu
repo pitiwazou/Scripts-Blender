@@ -1,0 +1,62 @@
+bl_info = {
+        "name": "Views_Custom_Menu",
+        "category": "3D View",
+        "author": "Cedric_Lepiller & DoubleZ"
+        }  
+
+import bpy
+
+class ViewMenu(bpy.types.Operator):
+    """Tooltip"""
+    bl_idname = "object.view_menu"
+    bl_label = "View_Menu"
+    variable = bpy.props.StringProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        bpy.context.area.type=self.variable
+        return {'FINISHED'}    
+
+    
+class ViewCustomMenu(bpy.types.Menu):
+    bl_label = ""
+    bl_idname = "View_Custom_Menu"
+ 
+    
+    def draw(self, context):
+        layout = self.layout
+        
+        
+        layout.operator("object.view_menu", text="VIEW_3D", icon= 'VIEW3D').variable="VIEW_3D"
+        layout.operator("object.view_menu", text="Node_Editor", icon= 'NODETREE').variable="NODE_EDITOR"
+        layout.operator("object.view_menu", text="Image Editor", icon= 'IMAGE_COL').variable="IMAGE_EDITOR"
+        layout.operator("object.view_menu", text="Outliner", icon= 'OOPS').variable="OUTLINER"
+        layout.operator("object.view_menu", text="Graph Editor", icon= 'IPO').variable="GRAPH_EDITOR"
+        layout.operator("object.view_menu", text="Dope Sheet", icon= 'ACTION').variable="DOPESHEET_EDITOR"
+        layout.operator("object.view_menu", text="Properties", icon= 'BUTS').variable="PROPERTIES"
+        layout.operator("object.view_menu", text="Timeline", icon= 'TIME').variable="TIMELINE"
+        layout.operator("object.view_menu", text="NLA Editor", icon= 'NLA').variable="NLA_EDITOR"
+        layout.operator("object.view_menu", text="Texte editor", icon= 'TEXT').variable="TEXT_EDITOR"
+        
+        layout.separator()
+        
+        layout.operator("screen.area_split", text="Split Horizontal", icon= 'TRIA_DOWN').direction="HORIZONTAL"
+        layout.operator("screen.area_split", text="Split Vertical", icon= 'TRIA_RIGHT').direction="VERTICAL"
+        
+     
+     
+def register():
+    bpy.utils.register_class(ViewMenu)
+    bpy.utils.register_class(ViewCustomMenu)
+    #bpy.ops.wm.call_menu(name=View_Custom_Menu.bl_idname)
+
+
+def unregister():
+    bpy.utils.unregister_class(ViewMenu)
+    bpy.utils.unregister_class(ViewCustomMenu)  
+
+
+if __name__ == "__main__":     register()
