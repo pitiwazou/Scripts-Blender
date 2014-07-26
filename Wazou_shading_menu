@@ -1,0 +1,236 @@
+############# Add-on description (use by Blender)
+
+bl_info = {
+    "name": "Shading_menu",
+    "description": 'Add a menu with shading options in the 3Dview',
+    "author": "Cedric Lepiller",
+    "version": (0, 1, 0),
+    "blender": (2, 70, 0),
+    "location": "View3D > Header > Shading_menu",
+    "warning": "", # used for warning icon and text in addons panel
+    "wiki_url": "",
+    "tracker_url": "http://www.pitiwazou.com",
+    "category": "3D View"}
+
+##############
+
+import bpy
+
+#Solid All
+class SolidAll(bpy.types.Operator):
+
+    bl_idname = "object.solid_all"
+    bl_label = "Solid All"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+    
+    def execute(self, context):
+        for obj in bpy.data.objects: 
+            if obj.draw_type == 'BOUNDS': 
+                obj.draw_type = 'SOLID'
+            elif obj.draw_type == 'SOLID':
+                obj.draw_type = 'SOLID' 
+            else:                       
+                obj.draw_type = 'BOUNDS'
+       
+        return {'FINISHED'}
+
+bpy.utils.register_class(SolidAll)
+
+#Bounds Unselected
+class BoundsUnselected(bpy.types.Operator):
+
+    bl_idname = "object.draw_bu"
+    bl_label = "bounds"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+    
+    def execute(self, context):
+        for obj in bpy.data.objects: 
+            if not obj.select:
+                
+                if obj.draw_type == 'SOLID':
+                    obj.draw_type = 'BOUNDS'
+                    obj.show_all_edges = False
+                    obj.show_wire = False
+                   
+                elif obj.draw_type == 'BOUNDS':
+                    obj.draw_type = 'BOUNDS'
+              
+                else:                       
+                    obj.draw_type = 'SOLID'
+        
+        for obj in bpy.data.objects:
+            if obj.select:
+                obj.draw_type = 'SOLID'
+
+        return {'FINISHED'}
+    
+bpy.utils.register_class(BoundsUnselected)
+
+#auto smooth Menu
+class AutoSmoothMenu(bpy.types.Menu):
+    bl_idname = "auto.smooth_menu"
+    bl_label = "Auto_Smooth_Menu"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        layout.operator("auto.smooth_30", text="Auto Smooth 30", icon='MESH_DATA')
+        layout.operator("auto.smooth_45", text="Auto Smooth 45", icon='MESH_DATA')
+        layout.operator("auto.smooth_89", text="Auto Smooth 89", icon='MESH_DATA')
+
+bpy.utils.register_class(AutoSmoothMenu)
+
+#AutoSmooth_89
+class AutoSmooth89(bpy.types.Operator):
+    bl_idname = "auto.smooth_89"
+    bl_label = "Auto Smooth"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+        
+    def execute(self, context):
+        bpy.context.object.data.auto_smooth_angle = 1.55334
+        return {'FINISHED'}
+
+bpy.utils.register_class(AutoSmooth89)
+
+#AutoSmooth_30
+class AutoSmooth30(bpy.types.Operator):
+    bl_idname = "auto.smooth_30"
+    bl_label = "Auto Smooth"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+        
+    def execute(self, context):
+        bpy.context.object.data.auto_smooth_angle = 0.523599
+        return {'FINISHED'}
+
+bpy.utils.register_class(AutoSmooth30)
+
+#AutoSmooth_45
+class AutoSmooth45(bpy.types.Operator):
+    bl_idname = "auto.smooth_45"
+    bl_label = "Auto Smooth"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+        
+    def execute(self, context):
+        bpy.context.object.data.auto_smooth_angle = 0.785398
+        return {'FINISHED'}
+
+bpy.utils.register_class(AutoSmooth45) 
+
+#Wire on all objects
+class WireAll(bpy.types.Operator):
+    bl_idname = "object.wireall"
+    bl_label = "Wire All"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        
+        for obj in bpy.data.objects:
+            if obj.show_wire:
+                obj.show_all_edges = False
+                obj.show_wire = False
+            else:
+                obj.show_all_edges = True
+                obj.show_wire = True
+        return {'FINISHED'}
+
+bpy.utils.register_class(WireAll)
+
+#Grid show/hide with axes
+
+class ToogleGridAxis(bpy.types.Operator):
+    bl_idname = "scene.tooglegridaxis"
+    bl_label = "Toogle Grid and Axis in 3D view"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        bpy.context.space_data.show_axis_y = not bpy.context.space_data.show_axis_y
+        bpy.context.space_data.show_axis_x = not bpy.context.space_data.show_axis_x
+        bpy.context.space_data.show_floor = not bpy.context.space_data.show_floor
+        return {'FINISHED'}
+    
+bpy.utils.register_class(ToogleGridAxis)
+
+
+class Shading(bpy.types.Menu):
+    bl_label = "Shading"
+    
+    
+    def draw(self, context):
+        layout = self.layout     
+            
+        layout.operator("scene.tooglegridaxis", text="Show/Hide Grid", icon="MESH_GRID")
+        layout.operator("wm.context_toggle", text="Matcaps", icon='MATCAP_02').data_path = "space_data.use_matcap"
+        layout.operator("wm.context_toggle", text="Lock Cam 2 view", icon='OUTLINER_DATA_CAMERA').data_path = "space_data.lock_camera"
+        layout.operator("wm.context_toggle", text="Only Render", icon='SOLID').data_path = "space_data.show_only_render"
+        
+        layout.separator()
+        
+        layout.menu("auto.smooth_menu", text="Auto Smooth Values", icon='MESH_DATA')
+        layout.operator("wm.context_toggle", text="Auto Smooth", icon='SNAP_FACE').data_path = "object.data.use_auto_smooth"
+        layout.operator("wm.context_toggle", text="Show Normals", icon='FACESEL').data_path = "object.data.show_normal_face"
+        layout.operator("object.shade_flat", icon = 'ALIASED')
+        layout.operator("object.shade_smooth", icon = 'ANTIALIASED')
+        
+        layout.separator()
+       
+        layout.operator("wm.context_toggle", text="Double Sided", icon='MESH_CUBE').data_path = "object.data.show_double_sided"
+        layout.operator("wm.context_toggle", text="Backface culling", icon="SNAP_FACE").data_path = "space_data.show_backface_culling"
+        layout.operator("wm.context_toggle", text="Limit to Visible", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
+        layout.operator("wm.context_toggle", text="Hidden Wire", icon='GHOST_ENABLED').data_path = "space_data.show_occlude_wire"
+        layout.operator("wm.context_toggle", text="Xray", icon='META_CUBE').data_path = "object.show_x_ray"
+        
+        layout.separator()
+        
+        layout.operator("object.solid_all", text="Solid All", icon='MESH_CUBE')
+        layout.operator("object.draw_bu", text="Bounds Unselected", icon='GROUP_VERTEX')
+        layout.operator("object.wire_selected", text="Wire Selected", icon='WIRE')
+        layout.operator("object.wireall", text="Wire All", icon='WIRE')
+        
+        
+bpy.utils.register_class(Shading)
+
+# Define the UI items to add
+
+def view3d_Shading_menu(self, context):
+    layout = self.layout
+    layout.menu("Shading")
+    
+   
+# Fonction called by BLender on add-on start
+def register():
+    bpy.types.VIEW3D_HT_header.append(view3d_Shading_menu) # Add UI items to 3D View header
+    
+# Fonction called by BLender on add-on unistall
+def unregister():
+    bpy.types.VIEW3D_HT_header.remove(view3d_Shading_menu)
+    
+    
+if __name__ == "__main__":
+    register()
+
+
+
+
+
+
