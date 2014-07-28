@@ -258,31 +258,26 @@ class RetopologyTools(bpy.types.Panel):
         
         #Properties
         layout.label(text="Properties :")
-        ob = context.active_object
-
-        tool_settings = context.tool_settings
-        mesh = ob.data
-
-        col = layout.column(align=True)
-        col.prop(mesh, "use_mirror_x")
+        
+        col = layout.column()
+        Automerge = context.tool_settings
+        col.prop(Automerge, "use_mesh_automerge", text = "Auto Merge")
+        
         
         row = layout.row()
         row.operator("double.threshold01", text= "TSHD 0.1")
         row.operator("double.threshold0001", text= "TSHD 0.001")
         
+        tool_settings = context.tool_settings
         row = layout.row()
         col.label("Double Threshold:")
         col.prop(tool_settings, "double_threshold", text="")
         col = layout.column(align=True)
         
-        row = layout.row()
-        row.operator("wm.context_toggle", text="Auto Merge", icon='AUTOMERGE_ON').data_path = "scene.tool_settings.use_mesh_automerge"
-        
         
   
 def register(): 
-    bpy.utils.register_class(RetopologyTools) 
-    #bpy.utils.register_class(SelectNGons1)
+    bpy.utils.register_class(RetopologyTools)
     bpy.utils.register_class(AlignToX)
     bpy.utils.register_class(Wire_All)
     bpy.utils.register_class(LapRelax)
@@ -294,7 +289,6 @@ def register():
     
 def unregister(): 
     bpy.utils.unregister_class(RetopologyTools) 
-    #bpy.utils.unregister_class(SelectNGons1)
     bpy.utils.unregister_class(AlignToX)
     bpy.utils.unregister_class(Wire_All)
     bpy.utils.unregister_class(LapRelax)
@@ -304,9 +298,3 @@ def unregister():
     
 if __name__ == "__main__": 
     register() 
-
-
-
-
-
-
