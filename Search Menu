@@ -1,0 +1,35 @@
+############# Add-on description (use by Blender)
+
+bl_info = {
+    "name": "Search Menu",
+    "description": 'Add a search button in the 3Dview',
+    "author": "Cedric Lepiller",
+    "version": (0, 1, 0),
+    "blender": (2, 70, 0),
+    "location": "View3D > Header > Search_menu",
+    "warning": "", # used for warning icon and text in addons panel
+    "wiki_url": "",
+    "tracker_url": "http://www.pitiwazou.com",
+    "category": "3D View"}
+
+##############
+
+import bpy
+
+# Define the UI items to add
+def view3d_RechercheBlender(self, context):
+    layout = self.layout
+    #layout.menu("search")
+    layout.operator("wm.search_menu")
+   
+# Fonction called by BLender on add-on start
+def register():
+    bpy.types.VIEW3D_HT_header.append(view3d_RechercheBlender) # Add UI items to 3D View header
+    
+# Fonction called by BLender on add-on unistall
+def unregister():
+    bpy.types.VIEW3D_HT_header.remove(view3d_RechercheBlender)
+    
+    
+if __name__ == "__main__":
+    register()
