@@ -1,0 +1,315 @@
+bl_info = {
+    "name": "Wazou_Pie_Menus",
+    "author": "Cédric Lepiller & DavideDozza & Lapineige",
+    "version": (1, 0, 0),
+    "blender": (2, 71, 4),
+    "description": "Custom Pie Menus",
+    "category": "3D View",}
+    
+import bpy
+from bpy.types import Menu   
+from bpy.props import IntProperty, FloatProperty, BoolProperty
+
+# Define Class Object Mode
+class ClassObject(bpy.types.Operator):
+    bl_idname = "class.object"
+    bl_label = "Class Object"
+    
+    def execute(self, context):
+        layout = self.layout
+        
+        if bpy.context.object.mode == "OBJECT":
+            bpy.ops.object.mode_set(mode="EDIT")
+        else:
+            bpy.ops.object.mode_set(mode="OBJECT")  
+            
+            
+        return {'FINISHED'}
+
+# Define Class Vertex
+class ClassVertex(bpy.types.Operator):
+    bl_idname = "class.vertex"
+    bl_label = "Class Vertex"
+    
+    def execute(self, context):
+        layout = self.layout
+        
+        if bpy.context.object.mode != "EDIT":
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='VERT')
+        if bpy.ops.mesh.select_mode != "EDGE, FACE":
+            bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='VERT') 
+            
+            return {'FINISHED'}
+
+# Define Class Edge
+class ClassEdge(bpy.types.Operator):
+    bl_idname = "class.edge"
+    bl_label = "Class Edge"
+    
+    def execute(self, context):
+        layout = self.layout
+        
+        if bpy.context.object.mode != "EDIT":
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='EDGE')
+        if bpy.ops.mesh.select_mode != "VERT, FACE":
+            bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='EDGE') 
+            
+            return {'FINISHED'}
+
+# Define Class Face
+class ClassFace(bpy.types.Operator):
+    bl_idname = "class.face"
+    bl_label = "Class Face"
+    
+    def execute(self, context):
+        layout = self.layout
+        
+        if bpy.context.object.mode != "EDIT":
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE')
+        if bpy.ops.mesh.select_mode != "VERT, EDGE":
+            bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE') 
+            
+            return {'FINISHED'}
+        
+
+#Split area horizontal
+class SplitHorizontal(bpy.types.Operator):
+    bl_idname = "split.horizontal"
+    bl_label = "split horizontal"
+    
+    def execute(self, context):
+        layout = self.layout
+
+        bpy.ops.screen.area_split(direction='HORIZONTAL')
+        return {'FINISHED'}
+
+#Split area vertical
+class SplitVertical(bpy.types.Operator):
+    bl_idname = "split.vertical"
+    bl_label = "split vertical"
+    
+    def execute(self, context):
+        layout = self.layout
+
+        bpy.ops.screen.area_split(direction='VERTICAL')
+        return {'FINISHED'}
+        
+  
+#Class join area
+
+class JoinArea(bpy.types.Operator):
+    """Join 2 area, clic on the second area to join"""
+    bl_idname = "area.joinarea"
+    bl_label = "Join Area"
+
+    min_x = IntProperty()
+    min_y = IntProperty()
+
+    def modal(self, context, event):
+        if event.type == 'LEFTMOUSE':
+            self.max_x = event.mouse_x
+            self.max_y = event.mouse_y
+            bpy.ops.screen.area_join(min_x=self.min_x, min_y=self.min_y, max_x=self.max_x, max_y=self.max_y)
+            bpy.ops.screen.screen_full_area()
+            bpy.ops.screen.screen_full_area()
+            return {'FINISHED'}
+        return {'RUNNING_MODAL'}
+
+    def invoke(self, context, event):
+        self.min_x = event.mouse_x
+        self.min_y = event.mouse_y
+        context.window_manager.modal_handler_add(self)
+        return {'RUNNING_MODAL'}
+    
+#Class menu
+class ViewMenu(bpy.types.Operator):
+    """Menu to change views"""
+    bl_idname = "object.view_menu"
+    bl_label = "View_Menu"
+    variable = bpy.props.StringProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        bpy.context.area.type=self.variable
+        return {'FINISHED'} 
+   
+# Pie Menu Select Mode
+
+class WazouPieMenu(Menu):
+    # label is displayed at the center of the pie menu.
+    bl_label = "Select Mode"
+
+    def draw(self, context):
+        layout = self.layout
+           
+        ob = context
+        if ob.object.type == 'MESH':
+
+            pie = layout.menu_pie()
+            pie.operator("class.vertex", text="Vertex", icon='VERTEXSEL')
+            pie.operator("class.face", text="Face", icon='FACESEL')
+            pie.operator("class.edge", text="Edge", icon='EDGESEL')
+            
+            pie.operator("class.object", text="Edit/Object", icon='OBJECT_DATAMODE')
+            
+            pie.operator("paint.texture_paint_toggle", text="Texture Paint", icon='WPAINT_HLT')
+            pie.operator("sculpt.sculptmode_toggle", text="Sculpt", icon='SCULPTMODE_HLT')
+            pie.operator("paint.vertex_paint_toggle", text="Vertex Paint", icon='VPAINT_HLT')
+            pie.operator("paint.weight_paint_toggle", text="Weight Paint", icon='WPAINT_HLT')
+            
+  
+        elif ob.object.type == 'CURVE':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")
+            
+        elif ob.object.type == 'ARMATURE':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")  
+        
+        elif ob.object.type == 'FONT':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")      
+        
+        elif ob.object.type == 'SURFACE':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")  
+        
+        elif ob.object.type == 'ARMATURE':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")      
+        
+        elif ob.object.type == 'META':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")  
+        
+        elif ob.object.type == 'LATTICE':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")
+            
+        elif ob.object.type == 'ARMATURE':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")        
+
+
+class WazouViewsPieMenus(Menu):
+    # label is displayed at the center of the pie menu.
+    bl_label = "Views"
+    bl_idname = "scene.views_pie"
+
+    def draw(self, context):
+        layout = self.layout
+
+        pie = layout.menu_pie()
+        
+        #1
+        pie.operator("object.view_menu", text="Node Editor", icon= 'NODETREE').variable="NODE_EDITOR"
+                
+        #2
+        pie.operator("object.view_menu", text="Image Editor", icon= 'IMAGE_COL').variable="IMAGE_EDITOR"
+        
+        #3
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.operator("object.view_menu", text="Text Editor", icon= 'FILE_TEXT').variable="TEXT_EDITOR" 
+        #box.operator("object.view_menu", text="Outliner", icon= 'OOPS').variable="OUTLINER" 
+        #box.operator("object.view_menu", text="Properties", icon= 'BUTS').variable="PROPERTIES"
+        box.operator("object.view_menu", text="Graph Editor", icon= 'IPO').variable="GRAPH_EDITOR"
+        box.operator("object.view_menu", text="Dope Sheet", icon= 'ACTION').variable="DOPESHEET_EDITOR"
+        box.operator("object.view_menu", text="Timeline", icon= 'TIME').variable="TIMELINE"
+        #box.operator("object.view_menu", text="NLA Editor", icon= 'NLA').variable="NLA_EDITOR"
+        #box.operator("object.view_menu", text="Sequence Editor", icon= 'SEQUENCE').variable="SEQUENCE_EDITOR"
+        #box.operator("object.view_menu", text="Movie Clip Editor", icon= 'RENDER_ANIMATION').variable="CLIP_EDITOR"
+        #box.operator("object.view_menu", text="Python Console", icon= 'CONSOLE').variable="CONSOLE"
+        #box.operator("object.view_menu", text="File Browser", icon= 'FILESEL').variable="FILE_BROWSER" 
+        #box.operator("object.view_menu", text="Info", icon= 'INFO').variable="INFO"
+        #box.operator("object.view_menu", text="Logic Editor", icon= 'LOGIC').variable="LOGIC_EDITOR"
+        
+        #4
+        pie.operator("object.view_menu", text="VIEW 3D", icon= 'VIEW3D').variable="VIEW_3D"
+        
+        #5
+        pie.operator("split.vertical", text="Split Vertical", icon= 'TRIA_RIGHT')
+        
+         #6
+        pie.operator("split.horizontal", text="Split Horizontal", icon= 'TRIA_DOWN')
+        
+        #7
+        pie.operator("object.view_menu", text="User Preferences", icon= 'PREFERENCES').variable="USER_PREFERENCES" 
+        
+        #8
+        pie.operator_context="INVOKE_DEFAULT"
+        pie.operator("area.joinarea", icon='X', text="Join Area") 
+            
+addon_keymaps = []
+
+def register():
+    bpy.utils.register_class(WazouPieMenu)
+    bpy.utils.register_class(ClassObject)
+    bpy.utils.register_class(ClassVertex)
+    bpy.utils.register_class(ClassEdge)
+    bpy.utils.register_class(ClassFace)
+    bpy.utils.register_class(WazouViewsPieMenus)
+    bpy.utils.register_class(JoinArea)
+    bpy.utils.register_class(SplitHorizontal)
+    bpy.utils.register_class(SplitVertical)
+    bpy.utils.register_class(ViewMenu)
+    
+    wm = bpy.context.window_manager
+    
+    if wm.keyconfigs.addon:
+        #Select Mode
+        km = wm.keyconfigs.addon.keymaps.new(name='Object Non-modal')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS').properties.name = 'WazouPieMenu'
+        
+        #Views
+        km = wm.keyconfigs.addon.keymaps.new(name='Screen')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS').properties.name = "scene.views_pie"
+        
+        addon_keymaps.append(km)
+
+
+def unregister():
+    bpy.utils.unregister_class(WazouPieMenu)
+    bpy.utils.unregister_class(ClassObject)
+    bpy.utils.unregister_class(ClassVertex)
+    bpy.utils.unregister_class(ClassEdge)
+    bpy.utils.unregister_class(ClassFace)
+    bpy.utils.unregister_class(WazouViewsPieMenus)
+    bpy.utils.unregister_class(JoinArea)
+    bpy.utils.unregister_class(SplitHorizontal)
+    bpy.utils.unregister_class(SplitVertical)
+    bpy.utils.unregister_class(ViewMenu)
+
+    wm = bpy.context.window_manager
+
+    if wm.keyconfigs.addon:
+        for km in addon_keymaps:
+            for kmi in km.keymap_items:
+                km.keymap_items.remove(kmi)
+
+            wm.keyconfigs.addon.keymaps.remove(km)
+
+    # clear the list
+    del addon_keymaps[:]
+
+if __name__ == "__main__":
+    register()
+
+#bpy.ops.wm.call_menu_pie(name="VIEW3D_PIE_edit")
+
+
+
