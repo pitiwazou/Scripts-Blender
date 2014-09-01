@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Pie Edit Menu",
     "author": "Cédric Lepiller & DavideDozza",
-    "version": (0, 1, 0),
+    "version": (1, 0, 0),
     "blender": (2, 71, 4),
     "description": "Enable pie Menus Edit Mode",
     "category": "3D View",}
@@ -18,7 +18,11 @@ class ClassObject(bpy.types.Operator):
     def execute(self, context):
         layout = self.layout
         
-        bpy.ops.object.mode_set(mode="OBJECT")
+        if bpy.context.object.mode == "OBJECT":
+            bpy.ops.object.mode_set(mode="EDIT")
+        else:
+            bpy.ops.object.mode_set(mode="OBJECT")  
+            
             
         return {'FINISHED'}
 
@@ -83,22 +87,63 @@ class VIEW3D_PIE_edit(Menu):
 
     def draw(self, context):
         layout = self.layout
+           
+        ob = context
+        if ob.object.type == 'MESH':
 
-        pie = layout.menu_pie()
-        pie.operator("class.vertex", text="Vertex", icon='VERTEXSEL')
-        pie.operator("class.face", text="Face", icon='FACESEL')
-        pie.operator("class.edge", text="Edge", icon='EDGESEL')
+            pie = layout.menu_pie()
+            pie.operator("class.vertex", text="Vertex", icon='VERTEXSEL')
+            pie.operator("class.face", text="Face", icon='FACESEL')
+            pie.operator("class.edge", text="Edge", icon='EDGESEL')
+            
+            pie.operator("class.object", text="Object Mode", icon='OBJECT_DATAMODE')
+            
+            pie.operator("paint.texture_paint_toggle", text="Texture Paint Mode", icon='WPAINT_HLT')
+            pie.operator("sculpt.sculptmode_toggle", text="Sculpt Mode", icon='SCULPTMODE_HLT')
+            pie.operator("paint.vertex_paint_toggle", text="Vertex Paint Mode", icon='VPAINT_HLT')
+            pie.operator("paint.weight_paint_toggle", text="Weight Paint Mode", icon='WPAINT_HLT')
+            
+  
+        elif ob.object.type == 'CURVE':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")
+            
+        elif ob.object.type == 'ARMATURE':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")  
         
-        pie.operator("class.object", text="Object Mode", icon='OBJECT_DATAMODE')
+        elif ob.object.type == 'FONT':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")      
         
-        pie.operator("paint.texture_paint_toggle", text="Texture Paint Mode", icon='WPAINT_HLT')
-        pie.operator("sculpt.sculptmode_toggle", text="Sculpt Mode", icon='SCULPTMODE_HLT')
-        pie.operator("paint.vertex_paint_toggle", text="Vertex Paint Mode", icon='VPAINT_HLT')
-        pie.operator("paint.weight_paint_toggle", text="Weight Paint Mode", icon='WPAINT_HLT')
+        elif ob.object.type == 'SURFACE':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")  
         
-
+        elif ob.object.type == 'ARMATURE':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")      
         
-
+        elif ob.object.type == 'META':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")  
+        
+        elif ob.object.type == 'LATTICE':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")
+            
+        elif ob.object.type == 'ARMATURE':
+            
+            pie = layout.menu_pie()
+            pie.operator("object.editmode_toggle")        
+            
 addon_keymaps = []
 
 def register():
@@ -144,3 +189,7 @@ if __name__ == "__main__":
     register()
 
 #bpy.ops.wm.call_menu_pie(name="VIEW3D_PIE_edit")
+
+
+
+
