@@ -1,6 +1,6 @@
 bl_info = {
     "name": "Wazou_Pie_Menus",
-    "author": "Cédric Lepiller & DavideDozza & Lapineige",
+    "author": "Cedric Lepiller & DavideDozza & Lapineige",
     "version": (1, 0, 0),
     "blender": (2, 71, 4),
     "description": "Custom Pie Menus",
