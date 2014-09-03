@@ -36,7 +36,7 @@ class InflateBrush(bpy.types.Operator):
     
     def execute(self, context):
         layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Inflate'] 
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Inflate/Deflate'] 
         return {'FINISHED'}
     
 class DrawBrush(bpy.types.Operator):
@@ -63,7 +63,7 @@ class FlattenBrush(bpy.types.Operator):
     
     def execute(self, context):
         layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Flatten'] 
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Flatten/Contrast'] 
         return {'FINISHED'}
 
 class MaskBrush(bpy.types.Operator):
@@ -81,9 +81,117 @@ class FillBrush(bpy.types.Operator):
     
     def execute(self, context):
         layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Fill'] 
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Fill/Deepen'] 
         return {'FINISHED'}
-          
+#Sculpt menu 2
+class ClayStripsBrush(bpy.types.Operator):
+    bl_idname = "claystrips.brush"
+    bl_label = "ClayStrips Brush"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Clay Strips'] 
+        return {'FINISHED'}
+    
+class BlobBrush(bpy.types.Operator):
+    bl_idname = "blob.brush"
+    bl_label = "Blob Brush"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Blob'] 
+        return {'FINISHED'}
+
+class LayerBrush(bpy.types.Operator):
+    bl_idname = "layer.brush"
+    bl_label = "Layer Brush"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Layer'] 
+        return {'FINISHED'}
+
+class NudgeBrush(bpy.types.Operator):
+    bl_idname = "nudge.brush"
+    bl_label = "Nudge Brush"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Nudge'] 
+        return {'FINISHED'}
+
+class PinchMagnifyBrush(bpy.types.Operator):
+    bl_idname = "pinchmagnify.brush"
+    bl_label = "Pinch Magnify Brush"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Pinch/Magnify'] 
+        return {'FINISHED'}
+
+class PolishBrush(bpy.types.Operator):
+    bl_idname = "polish.brush"
+    bl_label = "Polish Brush"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Polish'] 
+        return {'FINISHED'}
+
+class SculptDrawBrush(bpy.types.Operator):
+    bl_idname = "sculptdraw.brush"
+    bl_label = "SculptDraw Brush"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['SculptDraw'] 
+        return {'FINISHED'}
+    
+class SmoothBrush(bpy.types.Operator):
+    bl_idname = "smooth.brush"
+    bl_label = "Smooth Brush"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Smooth'] 
+        return {'FINISHED'}
+
+class SnakeHookBrush(bpy.types.Operator):
+    bl_idname = "snakehook.brush"
+    bl_label = "Snake Hook Brush"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Snake Hook'] 
+        return {'FINISHED'}
+
+class ThumbBrush(bpy.types.Operator):
+    bl_idname = "thumb.brush"
+    bl_label = "Thumb Brush"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Thumb'] 
+        return {'FINISHED'}
+
+class TwistBrush(bpy.types.Operator):
+    bl_idname = "twist.brush"
+    bl_label = "Twist Brush"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Twist'] 
+        return {'FINISHED'}
+
+class ScrapePeaksBrush(bpy.types.Operator):
+    bl_idname = "scrapepeaks.brush"
+    bl_label = "Scrape/Peaks Brush"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Scrape/Peaks'] 
+        return {'FINISHED'}
+             
 ######################################################
 
 # Define Class Object Mode
@@ -149,8 +257,63 @@ class ClassFace(bpy.types.Operator):
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE') 
             
             return {'FINISHED'}
-######################################################        
-
+        
+######################################################
+# Components Selection Mode
+class VertsEdges(bpy.types.Operator):
+    bl_idname = "verts.edges"
+    bl_label = "Verts Edges"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.object.mode != "EDIT":
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.context.tool_settings.mesh_select_mode = (True, True, False)
+        if bpy.context.object.mode == "EDIT":
+            bpy.context.tool_settings.mesh_select_mode = (True, True, False)
+            return {'FINISHED'}
+        
+ 
+class EdgesFaces(bpy.types.Operator):
+    bl_idname = "edges.faces"
+    bl_label = "EdgesFaces"
+    
+    def execute(self, context):
+        layout = self.layout 
+        if bpy.context.object.mode != "EDIT":
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.context.tool_settings.mesh_select_mode = (False, True, True)
+        if bpy.context.object.mode == "EDIT":
+            bpy.context.tool_settings.mesh_select_mode = (False, True, True)
+            return {'FINISHED'}
+        
+class VertsFaces(bpy.types.Operator):
+    bl_idname = "verts.faces"
+    bl_label = "Verts Faces"
+    
+    def execute(self, context):
+        layout = self.layout  
+        if bpy.context.object.mode != "EDIT":
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.context.tool_settings.mesh_select_mode = (True, False, True)
+        if bpy.context.object.mode == "EDIT":
+            bpy.context.tool_settings.mesh_select_mode = (True, False, True)
+            return {'FINISHED'}
+    
+class VertsEdgesFaces(bpy.types.Operator):
+    bl_idname = "verts.edgesfaces"
+    bl_label = "Verts Edges Faces"
+    
+    def execute(self, context):
+        layout = self.layout  
+        if bpy.context.object.mode != "EDIT":
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.context.tool_settings.mesh_select_mode = (True, True, True)
+        if bpy.context.object.mode == "EDIT":
+            bpy.context.tool_settings.mesh_select_mode = (True, True, True)
+            return {'FINISHED'}
+        
+###################################################### 
 # Split area horizontal
 class SplitHorizontal(bpy.types.Operator):
     bl_idname = "split.horizontal"
@@ -226,46 +389,65 @@ class WazouPieMenu(Menu):
         if ob.object.type == 'MESH':
 
             pie = layout.menu_pie()
+            #4 - LEFT
             pie.operator("class.vertex", text="Vertex", icon='VERTEXSEL')
+            #6 - RIGHT
             pie.operator("class.face", text="Face", icon='FACESEL')
+            #2 - BOTTOM
             pie.operator("class.edge", text="Edge", icon='EDGESEL')
+            #8 - TOP
             pie.operator("class.object", text="Edit/Object", icon='OBJECT_DATAMODE')
+            #7 - TOP - LEFT 
             pie.operator("paint.texture_paint_toggle", text="Texture Paint", icon='WPAINT_HLT')
+            #6 - TOP - RIGHT
             pie.operator("sculpt.sculptmode_toggle", text="Sculpt", icon='SCULPTMODE_HLT')
-            pie.operator("paint.vertex_paint_toggle", text="Vertex Paint", icon='VPAINT_HLT')
-            pie.operator("paint.weight_paint_toggle", text="Weight Paint", icon='WPAINT_HLT')
+            #1 - BOTTOM - LEFT
+            box = pie.split().column()
+            row = box.row(align=True)
+            box.operator("paint.vertex_paint_toggle", text="Vertex Paint", icon='VPAINT_HLT')
+            box.operator("paint.weight_paint_toggle", text="Weight Paint", icon='WPAINT_HLT')
+            #3 - BOTTOM - RIGHT
+            box = pie.split().column()
+            row = box.row(align=True)
+            box.operator("verts.faces", text="Vertex/Faces")
+            box.operator("verts.edges", text="Vertex/Edges")
+            box.operator("edges.faces", text="Edges/Faces")
+            box.operator("verts.edgesfaces", text="Vertex/Edges/Faces")
+            
             
         elif ob.object.type == 'CURVE':
             pie = layout.menu_pie()
-            pie.operator("object.editmode_toggle")
-            
+            pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')
+          
         elif ob.object.type == 'ARMATURE':
             pie = layout.menu_pie()
-            pie.operator("object.editmode_toggle")  
+            pie.operator("class.object", text="Edit/Object", icon='OBJECT_DATAMODE')
+            pie.operator("object.posemode_toggle", text="Pose", icon='POSE_HLT')
+             
         
         elif ob.object.type == 'FONT':
             pie = layout.menu_pie()
-            pie.operator("object.editmode_toggle")      
+            pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')    
         
         elif ob.object.type == 'SURFACE':
             pie = layout.menu_pie()
-            pie.operator("object.editmode_toggle")  
+            pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')
         
         elif ob.object.type == 'ARMATURE':
             pie = layout.menu_pie()
-            pie.operator("object.editmode_toggle")      
+            pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')   
         
         elif ob.object.type == 'META':
             pie = layout.menu_pie()
-            pie.operator("object.editmode_toggle")  
+            pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE') 
         
         elif ob.object.type == 'LATTICE':
             pie = layout.menu_pie()
-            pie.operator("object.editmode_toggle")
+            pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')
             
         elif ob.object.type == 'ARMATURE':
             pie = layout.menu_pie()
-            pie.operator("object.editmode_toggle")        
+            pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')       
 
 # View Pie Menu
 class WazouViewsPieMenus(Menu):
@@ -313,7 +495,7 @@ class WazouViewsPieMenus(Menu):
         pie.operator("split.horizontal", text="Split Horizontal", icon= 'TRIA_DOWN')
          
 
-
+# Sculp Pie Menus
 class SculptPieMenu(Menu):
     bl_idname = "sculpt.pie"
     bl_label = "Sculpt Pie Menu"
@@ -339,7 +521,39 @@ class SculptPieMenu(Menu):
         #3 - BOTTOM - RIGHT
         pie.operator("fill.brush", text='Fill', icon='BRUSH_FILL')
         
-            
+class SculpttwoPieMenu(Menu):
+    bl_idname = "sculpttwo.pie"
+    bl_label = "Sculpt Pie Menu 2"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("claystrips.brush", text='Claystrips', icon='BRUSH_CREASE')
+        #6 - RIGHT
+        pie.operator("blob.brush", text='Blob', icon='BRUSH_BLOB')     
+        #2 - BOTTOM
+        pie.operator("snakehook.brush", text='Snakehook', icon='BRUSH_SNAKE_HOOK')
+        #8 - TOP
+        pie.operator("smooth.brush", text='Smooth', icon='BRUSH_SMOOTH')
+        #7 - TOP - LEFT 
+        pie.operator("pinchmagnify.brush", text='Pinch', icon='BRUSH_PINCH')
+        #6 - TOP - RIGHT
+        pie.operator("polish.brush", text='Polish', icon='BRUSH_FLATTEN')
+        #1 - BOTTOM - LEFT7
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.operator("twist.brush", text='Twist', icon='BRUSH_ROTATE')
+        box.operator("scrapepeaks.brush", text='Scrape/Peaks', icon='BRUSH_SCRAPE')
+        box.operator("twist.brush", text='Twist', icon='BRUSH_ROTATE')
+        #3 - BOTTOM - RIGHT
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.operator("layer.brush", text='Layer', icon='BRUSH_LAYER')
+        box.operator("nudge.brush", text='Nudge', icon='BRUSH_NUDGE')
+        box.operator("thumb.brush", text='Thumb', icon='BRUSH_THUMB')
+           
 addon_keymaps = []
 
 def register():
@@ -349,13 +563,13 @@ def register():
     bpy.utils.register_class(ClassVertex)
     bpy.utils.register_class(ClassEdge)
     bpy.utils.register_class(ClassFace)
-    #View Menu
+    # View Menu
     bpy.utils.register_class(WazouViewsPieMenus)
     bpy.utils.register_class(JoinArea)
     bpy.utils.register_class(SplitHorizontal)
     bpy.utils.register_class(SplitVertical)
     bpy.utils.register_class(ViewMenu)
-    #Sculpt Pie Menu
+    # Sculpt Pie Menu
     bpy.utils.register_class(SculptPieMenu)
     bpy.utils.register_class(InflateBrush)
     bpy.utils.register_class(ClayBrush)
@@ -365,6 +579,27 @@ def register():
     bpy.utils.register_class(FlattenBrush)
     bpy.utils.register_class(MaskBrush)
     bpy.utils.register_class(FillBrush)
+    # Sculpt Pie Menu 2
+    bpy.utils.register_class(SculpttwoPieMenu)
+    bpy.utils.register_class(ClayStripsBrush)
+    bpy.utils.register_class(BlobBrush)
+    bpy.utils.register_class(LayerBrush)
+    bpy.utils.register_class(NudgeBrush)
+    bpy.utils.register_class(PinchMagnifyBrush)
+    bpy.utils.register_class(PolishBrush)
+    bpy.utils.register_class(SculptDrawBrush)
+    bpy.utils.register_class(SmoothBrush)
+    bpy.utils.register_class(SnakeHookBrush)
+    bpy.utils.register_class(ThumbBrush)
+    bpy.utils.register_class(TwistBrush)
+    bpy.utils.register_class(ScrapePeaksBrush)
+    # Components Selection Mode
+    bpy.utils.register_class(VertsEdges)
+    bpy.utils.register_class(EdgesFaces)
+    bpy.utils.register_class(VertsFaces)
+    bpy.utils.register_class(VertsEdgesFaces)
+    
+    
     
     wm = bpy.context.window_manager
     
@@ -379,8 +614,12 @@ def register():
         
         #Sculpt Pie Menu
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'C', 'PRESS', alt=True).properties.name = "sculpt.pie"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS').properties.name = "sculpt.pie"
         
+        #Sculpt Pie Menu 2
+        #Sculpt Pie Menu
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS', alt=True).properties.name = "sculpttwo.pie"
         
         addon_keymaps.append(km)
 
@@ -392,13 +631,13 @@ def unregister():
     bpy.utils.unregister_class(ClassVertex)
     bpy.utils.unregister_class(ClassEdge)
     bpy.utils.unregister_class(ClassFace)
-    #View Menu
+    # View Menu
     bpy.utils.unregister_class(WazouViewsPieMenus)
     bpy.utils.unregister_class(JoinArea)
     bpy.utils.unregister_class(SplitHorizontal)
     bpy.utils.unregister_class(SplitVertical)
     bpy.utils.unregister_class(ViewMenu)
-    #Sculpt Pie Menu
+    # Sculpt Pie Menu
     bpy.utils.unregister_class(SculptPieMenu)
     bpy.utils.unregister_class(InflateBrush)
     bpy.utils.unregister_class(ClayBrush)
@@ -408,7 +647,27 @@ def unregister():
     bpy.utils.unregister_class(FlattenBrush)
     bpy.utils.unregister_class(MaskBrush)
     bpy.utils.unregister_class(FillBrush)
+    # Sculpt Pie Menu 2
+    bpy.utils.unregister_class(SculpttwoPieMenu)
+    bpy.utils.unregister_class(ClayStripsBrush)
+    bpy.utils.unregister_class(BlobBrush)
+    bpy.utils.unregister_class(LayerBrush)
+    bpy.utils.unregister_class(NudgeBrush)
+    bpy.utils.unregister_class(PinchMagnifyBrush)
+    bpy.utils.unregister_class(PolishBrush)
+    bpy.utils.unregister_class(SculptDrawBrush)
+    bpy.utils.unregister_class(SmoothBrush)
+    bpy.utils.unregister_class(SnakeHookBrush)
+    bpy.utils.unregister_class(ThumbBrush)
+    bpy.utils.unregister_class(TwistBrush)
+    bpy.utils.unregister_class(ScrapePeaksBrush)
+    # Components Selection Mode
+    bpy.utils.register_class(VertsEdges)
+    bpy.utils.register_class(EdgesFaces)
+    bpy.utils.register_class(VertsFaces)
+    bpy.utils.register_class(VertsEdgesFaces)
     
+        
     wm = bpy.context.window_manager
 
     if wm.keyconfigs.addon:
@@ -423,6 +682,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-
-#bpy.ops.wm.call_menu_pie(name="VIEW3D_PIE_edit")
-
