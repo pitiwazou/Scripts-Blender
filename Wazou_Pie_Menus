@@ -193,6 +193,56 @@ class ScrapePeaksBrush(bpy.types.Operator):
         return {'FINISHED'}
              
 ######################################################
+# Define Class Texture Paint
+class ClassTexturePaint(bpy.types.Operator):
+    bl_idname = "class.pietexturepaint"
+    bl_label = "Class Texture Paint"
+    
+    def execute(self, context):
+        layout = self.layout
+        
+        if bpy.context.object.mode == "EDIT":
+            bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.paint.texture_paint_toggle()
+        else:
+            bpy.ops.paint.texture_paint_toggle()
+            
+            
+        return {'FINISHED'}
+        
+# Define Class Weight Paint
+class ClassWeightPaint(bpy.types.Operator):
+    bl_idname = "class.pieweightpaint"
+    bl_label = "Class Weight Paint"
+    
+    def execute(self, context):
+        layout = self.layout
+        
+        if bpy.context.object.mode == "EDIT":
+            bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.paint.weight_paint_toggle()
+        else:
+            bpy.ops.paint.weight_paint_toggle()
+            
+            
+        return {'FINISHED'}
+    
+# Define Class Vertex Paint
+class ClassVertexPaint(bpy.types.Operator):
+    bl_idname = "class.pievertexpaint"
+    bl_label = "Class Vertex Paint"
+    
+    def execute(self, context):
+        layout = self.layout
+        
+        if bpy.context.object.mode == "EDIT":
+            bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.paint.vertex_paint_toggle()
+        else:
+            bpy.ops.paint.vertex_paint_toggle()
+            
+            
+        return {'FINISHED'}
 
 # Define Class Object Mode
 class ClassObject(bpy.types.Operator):
@@ -376,7 +426,46 @@ class ViewMenu(bpy.types.Operator):
     def execute(self, context):
         bpy.context.area.type=self.variable
         return {'FINISHED'} 
-    
+#Origin/Pivot    
+######################################################  
+
+#Pivot to selection
+class PivotToSelection(bpy.types.Operator):  
+    bl_idname = "object.pivot2selection"  
+    bl_label = "Pivot To Selection"  
+  
+    def execute(self, context):  
+        saved_location = bpy.context.scene.cursor_location.copy()
+        bpy.ops.view3d.snap_cursor_to_selected()
+        bpy.ops.object.mode_set(mode = 'OBJECT')
+        bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+        bpy.context.scene.cursor_location = saved_location 
+        return {'FINISHED'}  
+
+#Pivot to Bottom
+class PivotBottom(bpy.types.Operator):  
+    bl_idname = "object.pivotobottom"  
+    bl_label = "Pivot To Bottom"  
+  
+    def execute(self, context):
+        
+        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+        bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
+        o=bpy.context.active_object
+        init=0
+        for x in o.data.vertices:
+             if init==0:
+                 a=x.co.z
+                 init=1
+             elif x.co.z<a:
+                 a=x.co.z
+                 
+        for x in o.data.vertices:
+             x.co.z-=a
+
+        o.location.z+=a 
+        return {'FINISHED'}    
+         
 ######################################################   
 # Pie Menu Select Mode
 class WazouPieMenu(Menu):
@@ -398,14 +487,14 @@ class WazouPieMenu(Menu):
             #8 - TOP
             pie.operator("class.object", text="Edit/Object", icon='OBJECT_DATAMODE')
             #7 - TOP - LEFT 
-            pie.operator("paint.texture_paint_toggle", text="Texture Paint", icon='WPAINT_HLT')
+            pie.operator("class.pietexturepaint", text="Texture Paint", icon='WPAINT_HLT')
             #6 - TOP - RIGHT
             pie.operator("sculpt.sculptmode_toggle", text="Sculpt", icon='SCULPTMODE_HLT')
             #1 - BOTTOM - LEFT
             box = pie.split().column()
             row = box.row(align=True)
-            box.operator("paint.vertex_paint_toggle", text="Vertex Paint", icon='VPAINT_HLT')
-            box.operator("paint.weight_paint_toggle", text="Weight Paint", icon='WPAINT_HLT')
+            box.operator("class.pievertexpaint", text="Vertex Paint", icon='VPAINT_HLT')
+            box.operator("class.pieweightpaint", text="Weight Paint", icon='WPAINT_HLT')
             #3 - BOTTOM - RIGHT
             box = pie.split().column()
             row = box.row(align=True)
@@ -421,10 +510,10 @@ class WazouPieMenu(Menu):
           
         elif ob.object.type == 'ARMATURE':
             pie = layout.menu_pie()
-            pie.operator("class.object", text="Edit/Object", icon='OBJECT_DATAMODE')
+            pie.operator("object.editmode_toggle", text="Edit Mode", icon='OBJECT_DATAMODE')
             pie.operator("object.posemode_toggle", text="Pose", icon='POSE_HLT')
-             
-        
+            pie.operator("class.object", text="Object Mode", icon='OBJECT_DATAMODE')
+            
         elif ob.object.type == 'FONT':
             pie = layout.menu_pie()
             pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')    
@@ -476,25 +565,33 @@ class WazouViewsPieMenus(Menu):
         box.operator("object.view_menu", text="Outliner", icon= 'OOPS').variable="OUTLINER" 
         box.operator("object.view_menu", text="Properties", icon= 'BUTS').variable="PROPERTIES"
         box.operator("object.view_menu", text="User Preferences", icon= 'PREFERENCES').variable="USER_PREFERENCES" 
-        #box.operator("object.view_menu", text="Movie Clip Editor", icon= 'RENDER_ANIMATION').variable="CLIP_EDITOR"
-        #box.operator("object.view_menu", text="Python Console", icon= 'CONSOLE').variable="CONSOLE"
-        #box.operator("object.view_menu", text="File Browser", icon= 'FILESEL').variable="FILE_BROWSER"
-        #box.operator("object.view_menu", text="Info", icon= 'INFO').variable="INFO"
-        #box.operator("object.view_menu", text="Logic Editor", icon= 'LOGIC').variable="LOGIC_EDITOR" 
         #6 - TOP - RIGHT
         box = pie.split().column()
         row = box.row(align=True)
         box.operator("object.view_menu", text="Graph Editor", icon= 'IPO').variable="GRAPH_EDITOR"
         box.operator("object.view_menu", text="Dope Sheet", icon= 'ACTION').variable="DOPESHEET_EDITOR"
         box.operator("object.view_menu", text="Timeline", icon= 'TIME').variable="TIMELINE"
-        box.operator("object.view_menu", text="NLA Editor", icon= 'NLA').variable="NLA_EDITOR"
-        #box.operator("object.view_menu", text="Sequence Editor", icon= 'SEQUENCE').variable="SEQUENCE_EDITOR"
+        box.menu("oher.viewsmenu", text="Other Views", icon= 'FULLSCREEN')
         #1 - BOTTOM - LEFT
         pie.operator("split.vertical", text="Split Vertical", icon= 'TRIA_RIGHT')
         #3 - BOTTOM - RIGHT
         pie.operator("split.horizontal", text="Split Horizontal", icon= 'TRIA_DOWN')
          
+#Other views
+class OherViewsMenu(Menu):
+    bl_idname = "oher.viewsmenu"
+    bl_label = "Oher Views Menu"
 
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("object.view_menu", text="NLA Editor", icon= 'NLA').variable="NLA_EDITOR"
+        layout.operator("object.view_menu", text="Sequence Editor", icon= 'SEQUENCE').variable="SEQUENCE_EDITOR"
+        layout.operator("object.view_menu", text="Movie Clip Editor", icon= 'RENDER_ANIMATION').variable="CLIP_EDITOR"
+        layout.operator("object.view_menu", text="Python Console", icon= 'CONSOLE').variable="CONSOLE"
+        layout.operator("object.view_menu", text="File Browser", icon= 'FILESEL').variable="FILE_BROWSER"
+        layout.operator("object.view_menu", text="Info", icon= 'INFO').variable="INFO"
+        layout.operator("object.view_menu", text="Logic Editor", icon= 'LOGIC').variable="LOGIC_EDITOR" 
+        
 # Sculp Pie Menus
 class SculptPieMenu(Menu):
     bl_idname = "sculpt.pie"
@@ -541,7 +638,7 @@ class SculpttwoPieMenu(Menu):
         pie.operator("pinchmagnify.brush", text='Pinch', icon='BRUSH_PINCH')
         #6 - TOP - RIGHT
         pie.operator("polish.brush", text='Polish', icon='BRUSH_FLATTEN')
-        #1 - BOTTOM - LEFT7
+        #1 - BOTTOM - LEFT
         box = pie.split().column()
         row = box.row(align=True)
         box.operator("twist.brush", text='Twist', icon='BRUSH_ROTATE')
@@ -553,7 +650,50 @@ class SculpttwoPieMenu(Menu):
         box.operator("layer.brush", text='Layer', icon='BRUSH_LAYER')
         box.operator("nudge.brush", text='Nudge', icon='BRUSH_NUDGE')
         box.operator("thumb.brush", text='Thumb', icon='BRUSH_THUMB')
-           
+
+#Origin/Pivot
+class OriginPivot(Menu):
+    bl_idname = "origin.pivot"
+    bl_label = "Origin Pivot"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("view3d.snap_selected_to_cursor", text="Selection to Cursor").use_offset = False
+        #6 - RIGHT
+        pie.operator("view3d.snap_cursor_to_selected", text="Cursor to Selected")   
+        #2 - BOTTOM
+        pie.operator("object.origin_set", text="Origin To Geometry").type ='ORIGIN_GEOMETRY'
+        #8 - TOP
+        pie.operator("object.origin_set", text="Origin To 3D Cursor").type ='ORIGIN_CURSOR'
+        #7 - TOP - LEFT 
+        pie.operator("object.pivot2selection", text="Pivot To Selection")
+        #6 - TOP - RIGHT
+        pie.operator("object.origin_set", text="Geometry To Origin").type ='GEOMETRY_ORIGIN'
+        #1 - BOTTOM - LEFT
+        
+        #3 - BOTTOM - RIGHT
+        pie.operator("object.pivotobottom", text="Pivot to Bottom")
+        pie.menu("origin.pivotmenu", text="Others")
+#Origin/Pivot menu1
+class OriginPivotMenu(Menu):
+    bl_idname = "origin.pivotmenu"
+    bl_label = "Origin Pivot Menu"
+
+    def draw(self, context):
+        layout = self.layout        
+         
+        layout.operator("object.origin_set", text="Origin to Center of Mass").type = 'ORIGIN_CENTER_OF_MASS'
+        layout.operator("view3d.snap_selected_to_grid", text="Selection to Grid")
+        layout.operator("view3d.snap_selected_to_cursor", text="Selection to Cursor (Offset)").use_offset = True
+
+        layout.separator()
+        
+        layout.operator("view3d.snap_cursor_to_center", text="Cursor to Center")
+        layout.operator("view3d.snap_cursor_to_grid", text="Cursor to Grid")
+        layout.operator("view3d.snap_cursor_to_active", text="Cursor to Active")
 addon_keymaps = []
 
 def register():
@@ -563,12 +703,16 @@ def register():
     bpy.utils.register_class(ClassVertex)
     bpy.utils.register_class(ClassEdge)
     bpy.utils.register_class(ClassFace)
+    bpy.utils.register_class(ClassTexturePaint)
+    bpy.utils.register_class(ClassVertexPaint)
+    bpy.utils.register_class(ClassWeightPaint)
     # View Menu
     bpy.utils.register_class(WazouViewsPieMenus)
     bpy.utils.register_class(JoinArea)
     bpy.utils.register_class(SplitHorizontal)
     bpy.utils.register_class(SplitVertical)
     bpy.utils.register_class(ViewMenu)
+    bpy.utils.register_class(OherViewsMenu)
     # Sculpt Pie Menu
     bpy.utils.register_class(SculptPieMenu)
     bpy.utils.register_class(InflateBrush)
@@ -598,8 +742,15 @@ def register():
     bpy.utils.register_class(EdgesFaces)
     bpy.utils.register_class(VertsFaces)
     bpy.utils.register_class(VertsEdgesFaces)
+    # Origin/Pivot
+    bpy.utils.register_class(PivotToSelection)
+    bpy.utils.register_class(OriginPivot)
+    bpy.utils.register_class(OriginPivotMenu)
+    bpy.utils.register_class(PivotBottom)
     
     
+    
+# Keympa Config   
     
     wm = bpy.context.window_manager
     
@@ -617,13 +768,16 @@ def register():
         kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS').properties.name = "sculpt.pie"
         
         #Sculpt Pie Menu 2
-        #Sculpt Pie Menu
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS', alt=True).properties.name = "sculpttwo.pie"
         
+        #Origin/Pivot
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True).properties.name = "origin.pivot"
+        
         addon_keymaps.append(km)
 
-
+# Register / Unregister Classes
 def unregister():
     # Pie Menu Select Mode
     bpy.utils.unregister_class(WazouPieMenu)
@@ -631,12 +785,16 @@ def unregister():
     bpy.utils.unregister_class(ClassVertex)
     bpy.utils.unregister_class(ClassEdge)
     bpy.utils.unregister_class(ClassFace)
+    bpy.utils.unregister_class(ClassTexturePaint)
+    bpy.utils.unregister_class(ClassVertexPaint)
+    bpy.utils.unregister_class(ClassWeightPaint)
     # View Menu
     bpy.utils.unregister_class(WazouViewsPieMenus)
     bpy.utils.unregister_class(JoinArea)
     bpy.utils.unregister_class(SplitHorizontal)
     bpy.utils.unregister_class(SplitVertical)
     bpy.utils.unregister_class(ViewMenu)
+    bpy.utils.register_class(OherViewsMenu)
     # Sculpt Pie Menu
     bpy.utils.unregister_class(SculptPieMenu)
     bpy.utils.unregister_class(InflateBrush)
@@ -662,11 +820,15 @@ def unregister():
     bpy.utils.unregister_class(TwistBrush)
     bpy.utils.unregister_class(ScrapePeaksBrush)
     # Components Selection Mode
-    bpy.utils.register_class(VertsEdges)
-    bpy.utils.register_class(EdgesFaces)
-    bpy.utils.register_class(VertsFaces)
-    bpy.utils.register_class(VertsEdgesFaces)
-    
+    bpy.utils.unregister_class(VertsEdges)
+    bpy.utils.unregister_class(EdgesFaces)
+    bpy.utils.unregister_class(VertsFaces)
+    bpy.utils.unregister_class(VertsEdgesFaces)
+    # Origin/Pivot
+    bpy.utils.unregister_class(PivotToSelection)
+    bpy.utils.unregister_class(OriginPivot)
+    bpy.utils.unregister_class(OriginPivotMenu)
+    bpy.utils.unregister_class(PivotBottom)
         
     wm = bpy.context.window_manager
 
@@ -682,3 +844,4 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
