@@ -1,23 +1,3 @@
-#RightClickContextMenu.py (c) 2011 Tomislav Corak (tommy5)
-#
-# ##### BEGIN GPL LICENSE BLOCK #####
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software Foundation,
-#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-#
-# ##### END GPL LICENSE BLOCK #####
-
 
 bl_info = {
     "name": "Right Click Context Menu",
@@ -71,7 +51,7 @@ class VIEW3D_MT_Right_Click_Context_Menu(bpy.types.Menu):
             layout.menu("AddMenu", text="Add Objects", icon="OBJECT_DATA")
             layout.operator("screen.redo_last", text="F6")
             layout.operator("object.subsurf2", text="Subdiv Level 2", icon='MESH_UVSPHERE')
-            layout.operator("object.subdivision_set", text="Subdiv Level 0", icon='MESH_ICOSPHERE').level= 0
+            layout.operator("object.subdivision_set", text="Subdiv Level 0", icon='MESH_ICOSPHERE').level=0
             layout.separator()
             props = layout.operator("object.transform_apply", text="Freeze Transforms", icon='FREEZE')
             props.location, props.rotation, props.scale = True, True, True
@@ -91,14 +71,7 @@ class VIEW3D_MT_Right_Click_Context_Menu(bpy.types.Menu):
         elif ob.mode == 'EDIT_MESH':
             # Edit mode
 
-            
-            layout.operator("mesh.select_mode", text="Vertex", icon='VERTEXSEL').type = 'VERT'
-            layout.operator("mesh.select_mode", text="Edge", icon='EDGESEL').type = 'EDGE'
-            layout.operator("mesh.select_mode", text="Face", icon='FACESEL').type = 'FACE'
-            layout.separator()
             layout.operator("screen.redo_last", text="F6")
-            layout.operator("object.subdivision_set", text="Subdiv Level 2", icon='MESH_UVSPHERE').level= 2
-            layout.operator("object.subdivision_set", text="Subdiv Level 0", icon='MESH_ICOSPHERE').level= 0
             layout.separator()
             layout.operator("mesh.inset",text="Inset", icon='EDIT_VEC').use_select_inset=False
             layout.operator("mesh.loopcut", text="Loopcut smoothness", icon='EDIT_VEC').smoothness=1
@@ -128,7 +101,6 @@ class VIEW3D_MT_Right_Click_Context_Menu(bpy.types.Menu):
 
 
 #Subsurf 2
-
 class SubSurf2(bpy.types.Operator):  
     bl_idname = "object.subsurf2"  
     bl_label = "SubSurf 2"  
@@ -136,14 +108,8 @@ class SubSurf2(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.object.subdivision_set(level=2)
         bpy.context.object.modifiers["Subsurf"].show_only_control_edges = True
-
- 
+        bpy.ops.object.shade_smooth()
         return {'FINISHED'} 
-  
-  
-bpy.utils.register_class(SubSurf2)
-
-
 
 #Select Ngons
 
@@ -175,13 +141,8 @@ class SelectNGons(bpy.types.Operator):
                         
             bpy.ops.object.mode_set(mode = 'EDIT')
             return {'FINISHED'} 
-  
-  
-bpy.utils.register_class(SelectNGons)
-
-            
+          
 #Pivot down
-
 class PivotBottom(bpy.types.Operator):  
     bl_idname = "object.pivotobottom"  
     bl_label = "Pivot To Bottom"  
@@ -202,11 +163,7 @@ class PivotBottom(bpy.types.Operator):
         for x in o.data.vertices:
              x.co.z-=a
 
-        o.location.z+=a 
-  
-  
-bpy.utils.register_class(PivotBottom)          
-            
+        o.location.z+=a           
             
 #Align to X
 class AlignToX(bpy.types.Operator):  
@@ -222,11 +179,8 @@ class AlignToX(bpy.types.Operator):
                 vert.co[0] = 0
         bpy.ops.object.editmode_toggle() 
         return {'FINISHED'} 
-  
-  
-bpy.utils.register_class(AlignToX)
 
-#Pivot to selection
+#Add camera to View
 class AddCameraToView(bpy.types.Operator):  
     bl_idname = "object.camera_add_2_view"  
     bl_label = "Add Camera To View"  
@@ -239,9 +193,8 @@ class AddCameraToView(bpy.types.Operator):
         bpy.context.space_data.lock_camera = True
 
         return {'FINISHED'}  
-  
-bpy.utils.register_class(AddCameraToView)
 
+#Pivot to selection
 class PivotToSelection(bpy.types.Operator):  
     bl_idname = "object.pivot2selection"  
     bl_label = "Pivot To Selection"  
@@ -253,8 +206,6 @@ class PivotToSelection(bpy.types.Operator):
         bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
         bpy.context.scene.cursor_location = saved_location 
         return {'FINISHED'}  
-  
-bpy.utils.register_class(PivotToSelection)
         
 # Cursor
 class cursor(bpy.types.Menu):
@@ -275,9 +226,7 @@ class cursor(bpy.types.Menu):
         layout.separator()
         
         layout.operator("object.pivotobottom", text="Pivot To Bottom")
-
-bpy.utils.register_class(cursor)
-
+  
 # Add Mesh #
 class AddMenu(bpy.types.Menu):
     bl_label = "Add Mesh"
@@ -325,11 +274,6 @@ class AddMenu(bpy.types.Menu):
         layout.operator("object.text_add", text="Text", icon='OUTLINER_OB_FONT')
         layout.operator("object.armature_add", text="Armature", icon='OUTLINER_OB_ARMATURE')
   
-
-bpy.utils.register_class(AddMenu)
-
-
-
 #Merge
 class merge(bpy.types.Menu):
     bl_label = "merge"
@@ -341,9 +285,6 @@ class merge(bpy.types.Menu):
         layout.operator("mesh.merge", text="At Center").type = 'CENTER'
         layout.operator("mesh.merge", text="At Last").type = 'LAST'
         layout.operator("mesh.merge", text="At First").type = 'FIRST'
-
-bpy.utils.register_class(merge)
-
 
 #Snap
 class Snap(bpy.types.Menu):
@@ -359,10 +300,22 @@ class Snap(bpy.types.Menu):
         layout.operator("object.simple_operator_snap", text="Increment", icon= 'SNAP_INCREMENT').variable="INCREMENT"
         layout.operator("object.simple_operator_snap", text="Volume", icon= 'SNAP_VOLUME').variable="VOLUME"
 
-bpy.utils.register_class(Snap)
-
 def register():
     bpy.utils.register_class(SimpleOperatorSnap)
+    bpy.utils.register_class(Snap)
+    bpy.utils.register_class(merge)
+    bpy.utils.register_class(AddMenu)
+    bpy.utils.register_class(cursor)
+    bpy.utils.register_class(PivotToSelection)
+    bpy.utils.register_class(AlignToX)
+    bpy.utils.register_class(PivotBottom)          
+    bpy.utils.register_class(SelectNGons)
+    bpy.utils.register_class(SubSurf2)  
+    bpy.utils.register_class(AddCameraToView)
+    
+    
+    
+    
     bpy.utils.register_module(__name__)
     # Set LMB selection
     bpy.context.user_preferences.inputs.select_mouse = 'LEFT'
@@ -378,15 +331,20 @@ def register():
     kmi = km.keymap_items.new('wm.call_menu', 'RIGHTMOUSE', 'PRESS')
     kmi.properties.name = "VIEW3D_MT_Right_Click_Context_Menu"
 
-#km = wm.keyconfigs.addon.keymaps.new("3D View", space_type="VIEW_3D")
-#km.keymap_items.new('my.operator', 'ESC', 'PRESS')
-
-#km = wm.keyconfigs.addon.keymaps["3D View"]
-#km.keymap_items.remove(km.keymap_items["my.operator"])
-
 
 def unregister():
     bpy.utils.unregister_class(SimpleOperatorSnap)
+    bpy.utils.unregister_class(merge)
+    bpy.utils.unregister_class(AddMenu)
+    bpy.utils.unregister_class(cursor)
+    bpy.utils.unregister_class(PivotToSelection)
+    bpy.utils.unregister_class(AlignToX)
+    bpy.utils.unregister_class(PivotBottom)          
+    bpy.utils.unregister_class(SelectNGons)
+    bpy.utils.unregister_class(SubSurf2)  
+    bpy.utils.unregister_class(AddCameraToView)
+    
+    
     bpy.utils.unregister_module(__name__)
 
     # TODO set 3d view keys to default
@@ -400,6 +358,8 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
+
 
 
 
