@@ -16,14 +16,14 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-###################################
+###############################################################################################################################################################################
 #
-# This B version of the retopology tool needs Iceking's Addon and Auto mirror to work
-# Iceking's Addon > http://www.blenderartists.org/forum/showthread.php?343641-Iceking-s-Tools
-# Auto Mirror By Lapineige > http://le-terrier-de-lapineige.over-blog.com/2014/07/automirror-mon-add-on-pour-symetriser-vos-objets-rapidement.html
-# Bsurface 1.5 > http://www.blenderartists.org/forum/showthread.php?225190-Bsurfaces-v1-5&highlight=bsurface
+# This B version of the retopology tool needs Iceking's Addon, Bsurfaces, Looptools and Auto mirror to work
+# - Iceking's Addon > http://www.blenderartists.org/forum/showthread.php?343641-Iceking-s-Tools
+# - Auto Mirror By Lapineige > http://le-terrier-de-lapineige.over-blog.com/2014/07/automirror-mon-add-on-pour-symetriser-vos-objets-rapidement.html
+# - Bsurface 1.5 > http://www.blenderartists.org/forum/showthread.php?225190-Bsurfaces-v1-5&highlight=bsurface
 #
-###################################
+###############################################################################################################################################################################
 
 
 
@@ -42,6 +42,28 @@ import bpy
 import bmesh
 from mathutils import *
 import math
+
+#Gstretch
+class MeshGstretch(bpy.types.Operator):  
+    bl_idname = "mesh.gstretch"  
+    bl_label = "Mesh Gstretch"  
+  
+    def execute(self, context):
+        bpy.ops.mesh.looptools_gstretch(conversion='limit_vertices', conversion_distance=0.1, conversion_max=32, conversion_min=8, conversion_vertices=32, delete_strokes=False, influence=100, lock_x=False, lock_y=False, lock_z=False, method='regular')
+        bpy.ops.gpencil.active_frame_delete('INVOKE_REGION_WIN')
+        return {'FINISHED'} 
+
+
+#Setup Retopo Mesh
+class SetupRetopoMesh(bpy.types.Operator):  
+    bl_idname = "setup.retopomesh"  
+    bl_label = "Setup Retopo Mesh"  
+  
+    def execute(self, context):
+        bpy.ops.setup.retopo()
+        bpy.context.object.show_x_ray = True
+        bpy.context.space_data.show_occlude_wire = True
+        return {'FINISHED'} 
 
 #Double Threshold 0.001
 class DoubleThreshold0001(bpy.types.Operator):
@@ -197,7 +219,7 @@ class RetopologyTools(bpy.types.Panel):
         layout.label(text="Tools :")
         
         row = layout.row()
-        row.operator("setup.retopo", icon = 'UV_FACESEL')
+        row.operator("setup.retopomesh", icon = 'UV_FACESEL')
         row = layout.row()
         row.operator("gpencil.surfsk_add_surface", text="Add Bsurface", icon = 'MOD_DYNAMICPAINT')
         row = layout.row()
@@ -212,6 +234,9 @@ class RetopologyTools(bpy.types.Panel):
         row.operator("object.automirror", icon = 'MOD_MIRROR')
         row = layout.row()
         row.operator("object.align2x", icon='MOD_WIREFRAME')
+        row = layout.row()
+        row.operator("mesh.gstretch", text="GStretch", icon='GREASEPENCIL')
+        
         split = layout.split()
         split = layout.split()
         row = layout.row()
@@ -283,6 +308,8 @@ def register():
     bpy.utils.register_class(LapRelax)
     bpy.utils.register_class(DoubleThreshold01)
     bpy.utils.register_class(DoubleThreshold0001)
+    bpy.utils.register_class(SetupRetopoMesh)
+    bpy.utils.register_class(MeshGstretch)
     
     
     
@@ -294,7 +321,17 @@ def unregister():
     bpy.utils.unregister_class(LapRelax)
     bpy.utils.unregister_class(DoubleThreshold01)
     bpy.utils.unregister_class(DoubleThreshold0001)
-    
+    bpy.utils.unregister_class(SetupRetopoMesh)
+    bpy.utils.unregister_class(MeshGstretch)
     
 if __name__ == "__main__": 
     register() 
+
+
+
+
+
+
+
+
+
