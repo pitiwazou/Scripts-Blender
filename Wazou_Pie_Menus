@@ -958,9 +958,8 @@ class OriginPivot(Menu):
         #6 - TOP - RIGHT
         pie.operator("object.origin_set", text="Geometry To Origin").type ='GEOMETRY_ORIGIN'
         #1 - BOTTOM - LEFT
-        
-        #3 - BOTTOM - RIGHT
         pie.operator("object.pivotobottom", text="Origin to Bottom")
+        #3 - BOTTOM - RIGHT
         pie.menu("origin.pivotmenu", text="Others")
         
 #Origin/Pivot menu1
@@ -1018,16 +1017,12 @@ class PieSnaping(Menu):
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("snap.vertex", text="Vertex", icon='SNAP_VERTEX')
-        
         #6 - RIGHT
         pie.operator("snap.face", text="Face", icon='SNAP_FACE')
-        
         #2 - BOTTOM
         pie.operator("snap.edge", text="Edge", icon='SNAP_EDGE')
-        
         #8 - TOP
         pie.operator("snap.active", text="Snap On/Off", icon='SNAP_ON')
-        
         #7 - TOP - LEFT 
         pie.operator("snap.volume", text="Volume", icon='SNAP_VOLUME')
         #6 - TOP - RIGHT
@@ -1035,7 +1030,8 @@ class PieSnaping(Menu):
         #1 - BOTTOM - LEFT
         pie.operator("snap.alignrotation", text="Align rotation", icon='SNAP_NORMAL')
         #3 - BOTTOM - RIGHT
-        pie.menu("snap.targetmenu", text="Snap Target", icon='SNAP_SURFACE')       
+        pie.menu("snap.targetmenu", text="Snap Target", icon='SNAP_SURFACE')    
+           
 #Snap Target
 class SnapTargetMenu(Menu):
     bl_idname = "snap.targetmenu"
@@ -1151,7 +1147,7 @@ def register():
         
         #Origin/Pivot
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True).properties.name = "pie.origin.pivot"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True).properties.name = "origin.pivot"
         
         #Manipulators
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
@@ -1257,5 +1253,6 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
