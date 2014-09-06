@@ -16,11 +16,10 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-
 bl_info = {
     "name": "Wazou_Pie_Menus",
     "author": "Cédric Lepiller & DavideDozza & Lapineige",
-    "version": (0, 1, 1),
+    "version": (0, 1, 2),
     "blender": (2, 71, 4),
     "description": "Custom Pie Menus",
     "category": "3D View",}
@@ -29,6 +28,257 @@ import bpy
 from bpy.types import Menu   
 from bpy.props import IntProperty, FloatProperty, BoolProperty
 
+######################
+#      Snapping      #               
+######################
+class SnapActive(bpy.types.Operator):
+    bl_idname = "snap.active"
+    bl_label = "Snap Active"
+    
+    def execute(self, context):
+        layout = self.layout 
+        
+        if bpy.context.scene.tool_settings.use_snap == (True):
+            bpy.context.scene.tool_settings.use_snap = False
+            
+        elif bpy.context.scene.tool_settings.use_snap == (False) :
+             bpy.context.scene.tool_settings.use_snap = True
+
+        return {'FINISHED'}
+
+
+class SnapVolume(bpy.types.Operator):
+    bl_idname = "snap.volume"
+    bl_label = "Snap Volume"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.use_snap == (False) : 
+            bpy.context.scene.tool_settings.use_snap = True
+            bpy.context.scene.tool_settings.snap_element = 'VOLUME'
+            
+        if bpy.context.scene.tool_settings.snap_element != 'VOLUME': 
+            bpy.context.scene.tool_settings.snap_element = 'VOLUME' 
+        return {'FINISHED'}    
+
+class SnapFace(bpy.types.Operator):
+    bl_idname = "snap.face"
+    bl_label = "Snap Face"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.use_snap == (False) : 
+            bpy.context.scene.tool_settings.use_snap = True 
+            bpy.context.scene.tool_settings.snap_element = 'FACE'
+            
+        if bpy.context.scene.tool_settings.snap_element != 'FACE': 
+            bpy.context.scene.tool_settings.snap_element = 'FACE' 
+        return {'FINISHED'}    
+
+class SnapEdge(bpy.types.Operator):
+    bl_idname = "snap.edge"
+    bl_label = "Snap Edge"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.use_snap == (False) : 
+            bpy.context.scene.tool_settings.use_snap = True 
+            bpy.context.scene.tool_settings.snap_element = 'EDGE'
+        
+        if bpy.context.scene.tool_settings.snap_element != 'EDGE': 
+            bpy.context.scene.tool_settings.snap_element = 'EDGE' 
+        return {'FINISHED'}
+    
+class SnapVertex(bpy.types.Operator):
+    bl_idname = "snap.vertex"
+    bl_label = "Snap Vertex"
+    
+    def execute(self, context):
+        layout = self.layout 
+        if bpy.context.scene.tool_settings.use_snap == (False) : 
+            bpy.context.scene.tool_settings.use_snap = True
+            bpy.context.scene.tool_settings.snap_element = 'VERTEX'
+        
+        if bpy.context.scene.tool_settings.snap_element != 'VERTEX': 
+            bpy.context.scene.tool_settings.snap_element = 'VERTEX' 
+        return {'FINISHED'}
+    
+class SnapIncrement(bpy.types.Operator):
+    bl_idname = "snap.increment"
+    bl_label = "Snap Increment"
+    
+    def execute(self, context):
+        layout = self.layout 
+        if bpy.context.scene.tool_settings.use_snap == (False) : 
+            bpy.context.scene.tool_settings.use_snap = True
+            bpy.context.scene.tool_settings.snap_element = 'INCREMENT'
+            
+        if bpy.context.scene.tool_settings.snap_element != 'INCREMENT': 
+            bpy.context.scene.tool_settings.snap_element = 'INCREMENT'    
+        return {'FINISHED'}  
+
+class SnapAlignRotation(bpy.types.Operator):
+    bl_idname = "snap.alignrotation"
+    bl_label = "Snap Align rotation"
+    
+    def execute(self, context):
+        layout = self.layout 
+        if bpy.context.scene.tool_settings.use_snap_align_rotation == (True) :
+            bpy.context.scene.tool_settings.use_snap_align_rotation = False
+            
+        elif bpy.context.scene.tool_settings.use_snap_align_rotation == (False) :
+             bpy.context.scene.tool_settings.use_snap_align_rotation = True
+        
+        return {'FINISHED'} 
+    
+class SnapTargetActive(bpy.types.Operator):
+    bl_idname = "snap.targetactive"
+    bl_label = "Snap Target Active"
+    
+    def execute(self, context):
+        layout = self.layout 
+        bpy.context.scene.tool_settings.snap_target = 'ACTIVE'
+        return {'FINISHED'}  
+       
+class SnapTargetMedian(bpy.types.Operator):
+    bl_idname = "snap.targetmedian"
+    bl_label = "Snap Target Median"
+    
+    def execute(self, context):
+        layout = self.layout 
+        bpy.context.scene.tool_settings.snap_target = 'MEDIAN'
+        return {'FINISHED'} 
+    
+class SnapTargetCenter(bpy.types.Operator):
+    bl_idname = "snap.targetcenter"
+    bl_label = "Snap Target Center"
+    
+    def execute(self, context):
+        layout = self.layout 
+        bpy.context.scene.tool_settings.snap_target = 'CENTER'
+        return {'FINISHED'} 
+    
+class SnapTargetClosest(bpy.types.Operator):
+    bl_idname = "snap.targetclosest"
+    bl_label = "Snap Target Closest"
+    
+    def execute(self, context):
+        layout = self.layout 
+        bpy.context.scene.tool_settings.snap_target = 'CLOSEST'
+        return {'FINISHED'} 
+   
+######################
+#    Manipulators    #               
+######################
+class ManipTranslate(bpy.types.Operator):
+    bl_idname = "manip.translate"
+    bl_label = "Manip Translate"
+    
+    def execute(self, context):
+        layout = self.layout 
+        if bpy.context.space_data.show_manipulator == (False) :
+            bpy.context.space_data.show_manipulator = True
+            bpy.context.space_data.transform_manipulators = {'TRANSLATE'}
+        if bpy.context.space_data.transform_manipulators != {'TRANSLATE'}:
+            bpy.context.space_data.transform_manipulators = {'TRANSLATE'}
+        return {'FINISHED'}
+
+class ManipRotate(bpy.types.Operator):
+    bl_idname = "manip.rotate"
+    bl_label = "Manip Rotate"
+    
+    def execute(self, context):
+        layout = self.layout 
+        if bpy.context.space_data.show_manipulator == (False) :
+            bpy.context.space_data.show_manipulator = True
+            bpy.context.space_data.transform_manipulators = {'ROTATE'}
+        if bpy.context.space_data.transform_manipulators != {'ROTATE'}:
+            bpy.context.space_data.transform_manipulators = {'ROTATE'}
+        return {'FINISHED'}
+    
+class ManipScale(bpy.types.Operator):
+    bl_idname = "manip.scale"
+    bl_label = "Manip Scale"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.space_data.show_manipulator == (False) :
+            bpy.context.space_data.show_manipulator = True
+            bpy.context.space_data.transform_manipulators = {'SCALE'}
+        if bpy.context.space_data.transform_manipulators != {'SCALE'}:
+            bpy.context.space_data.transform_manipulators = {'SCALE'}
+        return {'FINISHED'}
+
+class TranslateRotate(bpy.types.Operator):
+    bl_idname = "translate.rotate"
+    bl_label = "Translate Rotate"
+    
+    def execute(self, context):
+        layout = self.layout 
+        if bpy.context.space_data.show_manipulator == (False) :
+            bpy.context.space_data.show_manipulator = True
+            bpy.context.space_data.transform_manipulators = {'TRANSLATE', 'ROTATE'}
+        if bpy.context.space_data.transform_manipulators != {'TRANSLATE', 'ROTATE'}:
+            bpy.context.space_data.transform_manipulators = {'TRANSLATE', 'ROTATE'}
+        return {'FINISHED'}
+    
+class TranslateScale(bpy.types.Operator):
+    bl_idname = "translate.scale"
+    bl_label = "Translate Scale"
+    
+    def execute(self, context):
+        layout = self.layout 
+        if bpy.context.space_data.show_manipulator == (False) :
+            bpy.context.space_data.show_manipulator = True
+            bpy.context.space_data.transform_manipulators = {'TRANSLATE', 'SCALE'}
+        if bpy.context.space_data.transform_manipulators != {'TRANSLATE', 'SCALE'}:
+            bpy.context.space_data.transform_manipulators = {'TRANSLATE', 'SCALE'}
+        return {'FINISHED'}
+
+class RotateScale(bpy.types.Operator):
+    bl_idname = "rotate.scale"
+    bl_label = "Rotate Scale"
+    
+    def execute(self, context):
+        layout = self.layout 
+        if bpy.context.space_data.show_manipulator == (False) :
+            bpy.context.space_data.show_manipulator = True
+            bpy.context.space_data.transform_manipulators = {'ROTATE', 'SCALE'}
+        if bpy.context.space_data.transform_manipulators != {'ROTATE', 'SCALE'}:
+            bpy.context.space_data.transform_manipulators = {'ROTATE', 'SCALE'}
+        return {'FINISHED'}
+    
+class TranslateRotateScale(bpy.types.Operator):
+    bl_idname = "translate.rotatescale"
+    bl_label = "Translate Rotate Scale"
+    
+    def execute(self, context):
+        layout = self.layout 
+        if bpy.context.space_data.show_manipulator == (False) :
+            bpy.context.space_data.show_manipulator = True
+            bpy.context.space_data.transform_manipulators = {'TRANSLATE', 'ROTATE', 'SCALE'}
+        if bpy.context.space_data.transform_manipulators != {'TRANSLATE', 'ROTATE', 'SCALE'}:
+            bpy.context.space_data.transform_manipulators = {'TRANSLATE', 'ROTATE', 'SCALE'}
+        return {'FINISHED'}
+        
+class WManupulators(bpy.types.Operator):
+    bl_idname = "w.manupulators"
+    bl_label = "W Manupulators"
+    
+    def execute(self, context):
+        layout = self.layout 
+        
+        if bpy.context.space_data.show_manipulator == (True):
+            bpy.context.space_data.show_manipulator = False
+            
+        elif bpy.context.space_data.show_manipulator == (False):
+             bpy.context.space_data.show_manipulator = True
+
+        return {'FINISHED'}
+    
+######################
+#       Sculpt       #               
+######################
 
 # Brushes Classes
 class CreaseBrush(bpy.types.Operator):
@@ -210,8 +460,11 @@ class ScrapePeaksBrush(bpy.types.Operator):
         layout = self.layout
         bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Scrape/Peaks'] 
         return {'FINISHED'}
-             
-######################################################
+    
+######################
+#       Modes        #               
+######################
+
 # Define Class Texture Paint
 class ClassTexturePaint(bpy.types.Operator):
     bl_idname = "class.pietexturepaint"
@@ -326,8 +579,12 @@ class ClassFace(bpy.types.Operator):
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE') 
             
             return {'FINISHED'}
-        
-######################################################
+
+
+######################
+#   Selection Mode   #               
+######################        
+
 # Components Selection Mode
 class VertsEdges(bpy.types.Operator):
     bl_idname = "verts.edges"
@@ -382,7 +639,10 @@ class VertsEdgesFaces(bpy.types.Operator):
             bpy.context.tool_settings.mesh_select_mode = (True, True, True)
             return {'FINISHED'}
         
-###################################################### 
+######################
+#       Views        #               
+######################
+
 # Split area horizontal
 class SplitHorizontal(bpy.types.Operator):
     bl_idname = "split.horizontal"
@@ -445,8 +705,10 @@ class ViewMenu(bpy.types.Operator):
     def execute(self, context):
         bpy.context.area.type=self.variable
         return {'FINISHED'} 
-#Origin/Pivot    
-######################################################  
+    
+######################
+#   Cursor/Origin    #               
+###################### 
 
 #Pivot to selection
 class PivotToSelection(bpy.types.Operator):  
@@ -485,7 +747,10 @@ class PivotBottom(bpy.types.Operator):
         o.location.z+=a 
         return {'FINISHED'}    
          
-######################################################   
+######################
+#     Pie Menus      #               
+######################
+  
 # Pie Menu Select Mode
 class WazouPieMenu(Menu):
     bl_label = "Select Mode"
@@ -636,7 +901,8 @@ class SculptPieMenu(Menu):
         pie.operator("mask.brush", text='Mask', icon='BRUSH_MASK')
         #3 - BOTTOM - RIGHT
         pie.operator("fill.brush", text='Fill', icon='BRUSH_FILL')
-        
+
+# Sculp Pie Menus 2        
 class SculpttwoPieMenu(Menu):
     bl_idname = "sculpttwo.pie"
     bl_label = "Sculpt Pie Menu 2"
@@ -688,14 +954,15 @@ class OriginPivot(Menu):
         #8 - TOP
         pie.operator("object.origin_set", text="Origin To 3D Cursor").type ='ORIGIN_CURSOR'
         #7 - TOP - LEFT 
-        pie.operator("object.pivot2selection", text="Pivot To Selection")
+        pie.operator("object.pivot2selection", text="Origin To Selection")
         #6 - TOP - RIGHT
         pie.operator("object.origin_set", text="Geometry To Origin").type ='GEOMETRY_ORIGIN'
         #1 - BOTTOM - LEFT
         
         #3 - BOTTOM - RIGHT
-        pie.operator("object.pivotobottom", text="Pivot to Bottom")
+        pie.operator("object.pivotobottom", text="Origin to Bottom")
         pie.menu("origin.pivotmenu", text="Others")
+        
 #Origin/Pivot menu1
 class OriginPivotMenu(Menu):
     bl_idname = "origin.pivotmenu"
@@ -713,6 +980,75 @@ class OriginPivotMenu(Menu):
         layout.operator("view3d.snap_cursor_to_center", text="Cursor to Center")
         layout.operator("view3d.snap_cursor_to_grid", text="Cursor to Grid")
         layout.operator("view3d.snap_cursor_to_active", text="Cursor to Active")
+
+#Pie Manipulators
+class PieManipulators(Menu):
+    bl_idname = "pie.manipulators"
+    bl_label = "Pie Manipulators"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("manip.translate", text="Translate", icon='MAN_TRANS')
+        #6 - RIGHT
+        pie.operator("manip.scale", text="scale", icon='MAN_SCALE')
+        #2 - BOTTOM
+        pie.operator("manip.rotate", text="Rotate", icon='MAN_ROT')
+        #8 - TOP
+        pie.operator("w.manupulators", text="Manipulator", icon='MANIPUL')
+        #7 - TOP - LEFT 
+        pie.operator("translate.rotate", text="Translate/Rotate")
+        #6 - TOP - RIGHT
+        pie.operator("translate.scale", text="Translate/Scale")
+        #1 - BOTTOM - LEFT
+        pie.operator("rotate.scale", text="Rotate/Scale")
+        #3 - BOTTOM - RIGHT
+        pie.operator("translate.rotatescale", text="Translate/Rotate/Scale")
+
+#Pie Snapping
+class PieSnaping(Menu):
+    bl_idname = "pie.snapping"
+    bl_label = "Pie Snapping"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("snap.vertex", text="Vertex", icon='SNAP_VERTEX')
+        
+        #6 - RIGHT
+        pie.operator("snap.face", text="Face", icon='SNAP_FACE')
+        
+        #2 - BOTTOM
+        pie.operator("snap.edge", text="Edge", icon='SNAP_EDGE')
+        
+        #8 - TOP
+        pie.operator("snap.active", text="Snap On/Off", icon='SNAP_ON')
+        
+        #7 - TOP - LEFT 
+        pie.operator("snap.volume", text="Volume", icon='SNAP_VOLUME')
+        #6 - TOP - RIGHT
+        pie.operator("snap.increment", text="Increment", icon='SNAP_INCREMENT')
+        #1 - BOTTOM - LEFT
+        pie.operator("snap.alignrotation", text="Align rotation", icon='SNAP_NORMAL')
+        #3 - BOTTOM - RIGHT
+        pie.menu("snap.targetmenu", text="Snap Target", icon='SNAP_SURFACE')       
+#Snap Target
+class SnapTargetMenu(Menu):
+    bl_idname = "snap.targetmenu"
+    bl_label = "Snap Target Menu"
+
+    def draw(self, context):
+        layout = self.layout       
+         
+        layout.operator("snap.targetactive", text="Active") 
+        layout.operator("snap.targetmedian", text="Median") 
+        layout.operator("snap.targetcenter", text="Center") 
+        layout.operator("snap.targetclosest", text="Closest")
+        
 addon_keymaps = []
 
 def register():
@@ -766,7 +1102,30 @@ def register():
     bpy.utils.register_class(OriginPivot)
     bpy.utils.register_class(OriginPivotMenu)
     bpy.utils.register_class(PivotBottom)
-    
+    # Manipulators
+    bpy.utils.register_class(PieManipulators)
+    bpy.utils.register_class(WManupulators)
+    bpy.utils.register_class(ManipTranslate)
+    bpy.utils.register_class(ManipRotate)
+    bpy.utils.register_class(ManipScale)
+    bpy.utils.register_class(TranslateRotate)
+    bpy.utils.register_class(TranslateScale)
+    bpy.utils.register_class(RotateScale) 
+    bpy.utils.register_class(TranslateRotateScale)
+    #Snapping
+    bpy.utils.register_class(PieSnaping)
+    bpy.utils.register_class(SnapActive)
+    bpy.utils.register_class(SnapVolume)
+    bpy.utils.register_class(SnapFace)
+    bpy.utils.register_class(SnapEdge)
+    bpy.utils.register_class(SnapVertex)
+    bpy.utils.register_class(SnapIncrement)
+    bpy.utils.register_class(SnapAlignRotation)
+    bpy.utils.register_class(SnapTargetActive)
+    bpy.utils.register_class(SnapTargetMedian)
+    bpy.utils.register_class(SnapTargetCenter)
+    bpy.utils.register_class(SnapTargetClosest)
+    bpy.utils.register_class(SnapTargetMenu)
     
     
 # Keympa Config   
@@ -792,8 +1151,18 @@ def register():
         
         #Origin/Pivot
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True).properties.name = "origin.pivot"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True).properties.name = "pie.origin.pivot"
         
+        #Manipulators
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', ctrl=True).properties.name = "pie.manipulators"
+        
+        #Snapping
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS', shift=True, ctrl=True).properties.name = "pie.snapping"
+        
+    
+    
         addon_keymaps.append(km)
 
 # Register / Unregister Classes
@@ -848,6 +1217,31 @@ def unregister():
     bpy.utils.unregister_class(OriginPivot)
     bpy.utils.unregister_class(OriginPivotMenu)
     bpy.utils.unregister_class(PivotBottom)
+    # Manipulators
+    bpy.utils.unregister_class(PieManipulators)
+    bpy.utils.unregister_class(WManupulators)
+    bpy.utils.unregister_class(ManipTranslate)
+    bpy.utils.unregister_class(ManipRotate)
+    bpy.utils.unregister_class(ManipScale)
+    bpy.utils.unregister_class(TranslateRotate)
+    bpy.utils.unregister_class(TranslateScale)
+    bpy.utils.unregister_class(RotateScale) 
+    bpy.utils.unregister_class(TranslateRotateScale)
+    #Snapping
+    bpy.utils.unregister_class(PieSnaping)
+    bpy.utils.unregister_class(SnapActive)
+    bpy.utils.unregister_class(SnapVolume)
+    bpy.utils.unregister_class(SnapFace)
+    bpy.utils.unregister_class(SnapEdge)
+    bpy.utils.unregister_class(SnapVertex)
+    bpy.utils.unregister_class(SnapIncrement)
+    bpy.utils.unregister_class(SnapAlignRotation)
+    bpy.utils.unregister_class(SnapTargetActive)
+    bpy.utils.unregister_class(SnapTargetMedian)
+    bpy.utils.unregister_class(SnapTargetCenter)
+    bpy.utils.unregister_class(SnapTargetClosest)
+    bpy.utils.unregister_class(SnapTargetMenu)
+    
         
     wm = bpy.context.window_manager
 
@@ -863,4 +1257,5 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
