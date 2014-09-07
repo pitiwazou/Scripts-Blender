@@ -582,15 +582,26 @@ class RetopoSpace(bpy.types.Operator):
     bl_label = "Retopo Space"  
   
     def execute(self, context):
-        bpy.ops.mesh.looptools_space(influence=100, input='selected', interpolation='cubic', lock_x=False, lock_y=False, lock_z=False) 
+        bpy.ops.mesh.looptools_space(influence=100, input='selected', interpolation='cubic', lock_x=False, lock_y=False, lock_z=False)
         return {'FINISHED'} 
 
+######################
+#    Views Ortho     #               
+######################
+#Persp/Ortho
+class PerspOrthoView(bpy.types.Operator):  
+    bl_idname = "persp.orthoview"  
+    bl_label = "Persp/Ortho"  
+  
+    def execute(self, context):
+        bpy.ops.view3d.view_persportho()
+        return {'FINISHED'} 
          
 ######################
 #     Pie Menus      #               
 ######################
   
-# Pie Menu Select Mode
+# Pie Select Mode
 class WazouPieMenu(Menu):
     bl_label = "Select Mode"
 
@@ -661,7 +672,7 @@ class WazouPieMenu(Menu):
             pie = layout.menu_pie()
             pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')       
 
-# View Pie Menu
+#Pie Views
 class WazouViewsPieMenus(Menu):
     # label is displayed at the center of the pie menu.
     bl_label = "Views"
@@ -700,7 +711,7 @@ class WazouViewsPieMenus(Menu):
         #3 - BOTTOM - RIGHT
         pie.operator("split.horizontal", text="Split Horizontal", icon= 'TRIA_DOWN')
          
-#Other views
+#Menu Other views
 class OherViewsMenu(Menu):
     bl_idname = "oher.viewsmenu"
     bl_label = "Oher Views Menu"
@@ -715,7 +726,7 @@ class OherViewsMenu(Menu):
         layout.operator("object.view_menu", text="Info", icon= 'INFO').variable="INFO"
         layout.operator("object.view_menu", text="Logic Editor", icon= 'LOGIC').variable="LOGIC_EDITOR" 
         
-# Sculp Pie Menus
+#Pie Sculp Pie Menus
 class SculptPieMenu(Menu):
     bl_idname = "sculpt.pie"
     bl_label = "Sculpt Pie Menu"
@@ -741,7 +752,7 @@ class SculptPieMenu(Menu):
         #3 - BOTTOM - RIGHT
         pie.operator("paint.brush_select", text='Fill', icon='BRUSH_FILL').sculpt_tool='FILL'
 
-# Sculp Pie Menus 2        
+#Pie Sculp Pie Menus 2        
 class SculpttwoPieMenu(Menu):
     bl_idname = "sculpttwo.pie"
     bl_label = "Sculpt Pie Menu 2"
@@ -775,7 +786,7 @@ class SculpttwoPieMenu(Menu):
         box.operator("paint.brush_select", text='Nudge', icon='BRUSH_NUDGE').sculpt_tool= 'NUDGE'
         box.operator("paint.brush_select", text='Thumb', icon='BRUSH_THUMB').sculpt_tool= 'THUMB'
 
-#Origin/Pivot
+#Pie Origin/Pivot
 class OriginPivot(Menu):
     bl_idname = "origin.pivot"
     bl_label = "Origin Pivot"
@@ -871,7 +882,7 @@ class PieSnaping(Menu):
         #3 - BOTTOM - RIGHT
         pie.menu("snap.targetmenu", text="Snap Target", icon='SNAP_SURFACE')    
            
-#Snap Target
+#Menu Snap Target
 class SnapTargetMenu(Menu):
     bl_idname = "snap.targetmenu"
     bl_label = "Snap Target Menu"
@@ -907,7 +918,9 @@ class PieOrientation(Menu):
         #9 - TOP - RIGHT
         #1 - BOTTOM - LEFT
         #3 - BOTTOM - RIGHT
-
+        
+        
+#Pi Shading
 class ShadingMenuPie(Menu):
     bl_idname = "pie.shading"
     bl_label = "Pie Shading"
@@ -932,7 +945,36 @@ class ShadingMenuPie(Menu):
         pie.operator("object.shade_smooth", text="Shade Smooth", icon='SOLID')
         #3 - BOTTOM - RIGHT
         pie.operator("object.shade_flat", text="Shade Flat", icon='MESH_ICOSPHERE')
-               
+
+#Pie views numpad
+class PieViewNumpad(Menu):
+    bl_idname = "pie.viewnumpad"
+    bl_label = "Pie Shading"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("view3d.viewnumpad", text="Left", icon='TRIA_LEFT').type='LEFT'
+        #6 - RIGHT
+        pie.operator("view3d.viewnumpad", text="Right", icon='TRIA_RIGHT').type='RIGHT'
+        #2 - BOTTOM
+        pie.operator("view3d.viewnumpad", text="Bottom", icon='TRIA_DOWN').type='BOTTOM'
+        #8 - TOP
+        pie.operator("view3d.viewnumpad", text="Top", icon='TRIA_UP').type='TOP'
+        #7 - TOP - LEFT 
+        pie.operator("view3d.viewnumpad", text="Front").type='FRONT'
+        #9 - TOP - RIGHT
+        pie.operator("view3d.viewnumpad", text="Back").type='BACK'
+        #1 - BOTTOM - LEFT
+        pie.operator("view3d.viewnumpad", text="Camera", icon='CAMERA_DATA').type='CAMERA'
+        #3 - BOTTOM - RIGHT
+        #pie.operator("view3d.view.persportho", text="Persp/Ortho", icon='RESTRICT_VIEW_OFF')
+        pie.operator("persp.orthoview", text="Persp/Ortho", icon='RESTRICT_VIEW_OFF')
+        
+        
+#Pie Retopo               
 class PieRetopo(Menu):
     bl_idname = "pie.retopo"
     bl_label = "Pie Retopo"
@@ -950,7 +992,7 @@ class PieRetopo(Menu):
         #8 - TOP
         pie.operator("gpencil.surfsk_add_surface", text="Add Bsurface", icon = 'MOD_DYNAMICPAINT')
         #7 - TOP - LEFT 
-        pie.operator("retopo.space", icon='ALIGN')
+        pie.operator("retopo.space", icon='ALIGN', text="Space")
         #9 - TOP - RIGHT
         pie.operator("shrink.update", icon = 'MOD_SHRINKWRAP')
         #1 - BOTTOM - LEFT
@@ -1020,8 +1062,10 @@ def register():
     bpy.utils.register_class(RetopoSpace)
     # Shading
     bpy.utils.register_class(ShadingVariable)
-    bpy.utils.register_class(ShadingMenuPie) 
-    
+    bpy.utils.register_class(ShadingMenuPie)
+    # View numpad
+    bpy.utils.register_class(PieViewNumpad)
+    bpy.utils.register_class(PerspOrthoView)
     
     
 # Keympa Config   
@@ -1068,6 +1112,10 @@ def register():
         #Shading
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS', shift=True).properties.name = "pie.shading"
+        
+        #Views numpad
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS').properties.name = "pie.viewnumpad"
         
         addon_keymaps.append(km)
 
@@ -1133,8 +1181,11 @@ def unregister():
     # Shading
     bpy.utils.unregister_class(ShadingVariable)
     bpy.utils.unregister_class(ShadingMenuPie)  
+    # View numpad
+    bpy.utils.unregister_class(PieViewNumpad)
+    bpy.utils.unregister_class(PerspOrthoView) 
     
-     
+    
     wm = bpy.context.window_manager
 
     if wm.keyconfigs.addon:
