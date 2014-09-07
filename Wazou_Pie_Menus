@@ -19,7 +19,7 @@
 bl_info = {
     "name": "Wazou_Pie_Menus",
     "author": "Cédric Lepiller & DavideDozza & Lapineige",
-    "version": (0, 1, 2),
+    "version": (0, 1, 3),
     "blender": (2, 71, 4),
     "description": "Custom Pie Menus",
     "category": "3D View",}
@@ -142,6 +142,22 @@ class SnapTargetVariable(bpy.types.Operator):
 
     def execute(self, context):
         bpy.context.scene.tool_settings.snap_target=self.variable
+        return {'FINISHED'} 
+######################
+#    Orientation     #               
+######################
+
+class OrientationVariable(bpy.types.Operator):
+    bl_idname = "object.orientationvariable"
+    bl_label = "Orientation Variable"
+    variable = bpy.props.StringProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        bpy.context.space_data.transform_orientation=self.variable
         return {'FINISHED'} 
 
 ######################
@@ -1030,22 +1046,36 @@ class SnapTargetMenu(Menu):
 
     def draw(self, context):
         layout = self.layout       
+        
          
         layout.operator("object.snaptargetvariable", text="Active").variable='ACTIVE'
         layout.operator("object.snaptargetvariable", text="Median").variable='MEDIAN'
         layout.operator("object.snaptargetvariable", text="Center").variable='CENTER' 
         layout.operator("object.snaptargetvariable", text="Closest").variable='CLOSEST'
 
-#Pie Retopo
-class PieManipulators(Menu):
-    bl_idname = "pie.manipulators"
-    bl_label = "Pie Manipulators"
+#Pie Orientation
+class PieOrientation(Menu):
+    bl_idname = "pie.orientation"
+    bl_label = "Pie Orientation"
 
     def draw(self, context):
         layout = self.layout
         
         pie = layout.menu_pie()
-
+        #4 - LEFT
+        pie.operator("object.orientationvariable", text="View").variable = 'VIEW'
+        #6 - RIGHT
+        pie.operator("object.orientationvariable", text="Local").variable = 'LOCAL'
+        #2 - BOTTOM
+        pie.operator("object.orientationvariable", text="Normal").variable = 'NORMAL'
+        #8 - TOP
+        pie.operator("object.orientationvariable", text="Global").variable = 'GLOBAL'
+        #7 - TOP - LEFT 
+        pie.operator("object.orientationvariable", text="Gimbal").variable = 'GIMBAL'
+        #9 - TOP - RIGHT
+        #1 - BOTTOM - LEFT
+        #3 - BOTTOM - RIGHT
+               
 class PieRetopo(Menu):
     bl_idname = "pie.retopo"
     bl_label = "Pie Retopo"
@@ -1134,7 +1164,7 @@ def register():
     bpy.utils.register_class(TranslateScale)
     bpy.utils.register_class(RotateScale) 
     bpy.utils.register_class(TranslateRotateScale)
-    #Snapping
+    # Snapping
     bpy.utils.register_class(PieSnaping)
     bpy.utils.register_class(SnapActive)
     bpy.utils.register_class(SnapVolume)
@@ -1145,7 +1175,10 @@ def register():
     bpy.utils.register_class(SnapAlignRotation)
     bpy.utils.register_class(SnapTargetMenu)
     bpy.utils.register_class(SnapTargetVariable)
-    #Retopo
+    # Orientation
+    bpy.utils.register_class(PieOrientation)
+    bpy.utils.register_class(OrientationVariable)
+    # Retopo
     bpy.utils.register_class(PieRetopo)
     bpy.utils.register_class(AlignToX)
     bpy.utils.register_class(RetopoSpace)
@@ -1183,6 +1216,10 @@ def register():
         #Snapping
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS', shift=True, ctrl=True).properties.name = "pie.snapping"
+        
+        #Orientation
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', alt=True).properties.name = "pie.orientation"
         
         #Retopo
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
@@ -1253,7 +1290,7 @@ def unregister():
     bpy.utils.unregister_class(TranslateScale)
     bpy.utils.unregister_class(RotateScale) 
     bpy.utils.unregister_class(TranslateRotateScale)
-    #Snapping
+    # Snapping
     bpy.utils.unregister_class(PieSnaping)
     bpy.utils.unregister_class(SnapActive)
     bpy.utils.unregister_class(SnapVolume)
@@ -1264,6 +1301,9 @@ def unregister():
     bpy.utils.unregister_class(SnapAlignRotation)
     bpy.utils.unregister_class(SnapTargetMenu)
     bpy.utils.unregister_class(SnapTargetVariable)
+    # Orientation
+    bpy.utils.unregister_class(PieOrientation)
+    bpy.utils.unregister_class(OrientationVariable)
     #Retopo
     bpy.utils.unregister_class(PieRetopo)
     bpy.utils.unregister_class(AlignToX)
