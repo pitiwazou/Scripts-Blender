@@ -996,7 +996,10 @@ class PieRetopo(Menu):
         #9 - TOP - RIGHT
         pie.operator("shrink.update", icon = 'MOD_SHRINKWRAP')
         #1 - BOTTOM - LEFT
-        pie.operator("object.automirror", icon = 'MOD_MIRROR')
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.operator("setup.retopomesh", icon = 'UV_FACESEL')
+        box.operator("object.automirror", icon = 'MOD_MIRROR')
         #3 - BOTTOM - RIGHT
         pie.operator("polysculpt.retopo", text = "Sculpt Mesh", icon = 'SCULPTMODE_HLT')
               
