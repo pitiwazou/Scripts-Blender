@@ -130,43 +130,20 @@ class SnapAlignRotation(bpy.types.Operator):
              bpy.context.scene.tool_settings.use_snap_align_rotation = True
         
         return {'FINISHED'} 
-    
-class SnapTargetActive(bpy.types.Operator):
-    bl_idname = "snap.targetactive"
-    bl_label = "Snap Target Active"
-    
+
+class SnapTargetVariable(bpy.types.Operator):
+    bl_idname = "object.snaptargetvariable"
+    bl_label = "Snap Target Variable"
+    variable = bpy.props.StringProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
     def execute(self, context):
-        layout = self.layout 
-        bpy.context.scene.tool_settings.snap_target = 'ACTIVE'
-        return {'FINISHED'}  
-       
-class SnapTargetMedian(bpy.types.Operator):
-    bl_idname = "snap.targetmedian"
-    bl_label = "Snap Target Median"
-    
-    def execute(self, context):
-        layout = self.layout 
-        bpy.context.scene.tool_settings.snap_target = 'MEDIAN'
+        bpy.context.scene.tool_settings.snap_target=self.variable
         return {'FINISHED'} 
-    
-class SnapTargetCenter(bpy.types.Operator):
-    bl_idname = "snap.targetcenter"
-    bl_label = "Snap Target Center"
-    
-    def execute(self, context):
-        layout = self.layout 
-        bpy.context.scene.tool_settings.snap_target = 'CENTER'
-        return {'FINISHED'} 
-    
-class SnapTargetClosest(bpy.types.Operator):
-    bl_idname = "snap.targetclosest"
-    bl_label = "Snap Target Closest"
-    
-    def execute(self, context):
-        layout = self.layout 
-        bpy.context.scene.tool_settings.snap_target = 'CLOSEST'
-        return {'FINISHED'} 
-   
+
 ######################
 #    Manipulators    #               
 ######################
@@ -478,8 +455,6 @@ class ClassTexturePaint(bpy.types.Operator):
             bpy.ops.paint.texture_paint_toggle()
         else:
             bpy.ops.paint.texture_paint_toggle()
-            
-            
         return {'FINISHED'}
         
 # Define Class Weight Paint
@@ -495,8 +470,6 @@ class ClassWeightPaint(bpy.types.Operator):
             bpy.ops.paint.weight_paint_toggle()
         else:
             bpy.ops.paint.weight_paint_toggle()
-            
-            
         return {'FINISHED'}
     
 # Define Class Vertex Paint
@@ -512,8 +485,6 @@ class ClassVertexPaint(bpy.types.Operator):
             bpy.ops.paint.vertex_paint_toggle()
         else:
             bpy.ops.paint.vertex_paint_toggle()
-            
-            
         return {'FINISHED'}
 
 # Define Class Object Mode
@@ -527,9 +498,7 @@ class ClassObject(bpy.types.Operator):
         if bpy.context.object.mode == "OBJECT":
             bpy.ops.object.mode_set(mode="EDIT")
         else:
-            bpy.ops.object.mode_set(mode="OBJECT")  
-            
-            
+            bpy.ops.object.mode_set(mode="OBJECT") 
         return {'FINISHED'}
 
 # Define Class Vertex
@@ -545,7 +514,6 @@ class ClassVertex(bpy.types.Operator):
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='VERT')
         if bpy.ops.mesh.select_mode != "EDGE, FACE":
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='VERT') 
-            
             return {'FINISHED'}
 
 # Define Class Edge
@@ -561,7 +529,6 @@ class ClassEdge(bpy.types.Operator):
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='EDGE')
         if bpy.ops.mesh.select_mode != "VERT, FACE":
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='EDGE') 
-            
             return {'FINISHED'}
 
 # Define Class Face
@@ -576,8 +543,7 @@ class ClassFace(bpy.types.Operator):
             bpy.ops.object.mode_set(mode="EDIT")
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE')
         if bpy.ops.mesh.select_mode != "VERT, EDGE":
-            bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE') 
-            
+            bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE')
             return {'FINISHED'}
 
 
@@ -746,6 +712,31 @@ class PivotBottom(bpy.types.Operator):
 
         o.location.z+=a 
         return {'FINISHED'}    
+
+#Align to X
+class AlignToX(bpy.types.Operator):  
+    bl_idname = "object.align2x"  
+    bl_label = "Align To X"  
+  
+    def execute(self, context):
+        bpy.ops.object.mode_set(mode = 'OBJECT')
+        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+
+        for vert in bpy.context.object.data.vertices:
+            if vert.select: 
+                vert.co[0] = 0
+        bpy.ops.object.editmode_toggle() 
+        return {'FINISHED'} 
+
+#Space
+class RetopoSpace(bpy.types.Operator):  
+    bl_idname = "retopo.space"  
+    bl_label = "Retopo Space"  
+  
+    def execute(self, context):
+        bpy.ops.mesh.looptools_space(influence=100, input='selected', interpolation='cubic', lock_x=False, lock_y=False, lock_z=False) 
+        return {'FINISHED'} 
+
          
 ######################
 #     Pie Menus      #               
@@ -772,7 +763,7 @@ class WazouPieMenu(Menu):
             pie.operator("class.object", text="Edit/Object", icon='OBJECT_DATAMODE')
             #7 - TOP - LEFT 
             pie.operator("class.pietexturepaint", text="Texture Paint", icon='WPAINT_HLT')
-            #6 - TOP - RIGHT
+            #9 - TOP - RIGHT
             pie.operator("sculpt.sculptmode_toggle", text="Sculpt", icon='SCULPTMODE_HLT')
             #1 - BOTTOM - LEFT
             box = pie.split().column()
@@ -849,7 +840,7 @@ class WazouViewsPieMenus(Menu):
         box.operator("object.view_menu", text="Outliner", icon= 'OOPS').variable="OUTLINER" 
         box.operator("object.view_menu", text="Properties", icon= 'BUTS').variable="PROPERTIES"
         box.operator("object.view_menu", text="User Preferences", icon= 'PREFERENCES').variable="USER_PREFERENCES" 
-        #6 - TOP - RIGHT
+        #9 - TOP - RIGHT
         box = pie.split().column()
         row = box.row(align=True)
         box.operator("object.view_menu", text="Graph Editor", icon= 'IPO').variable="GRAPH_EDITOR"
@@ -895,7 +886,7 @@ class SculptPieMenu(Menu):
         pie.operator("draw.brush", text='Draw', icon='BRUSH_SCULPT_DRAW')
         #7 - TOP - LEFT 
         pie.operator("inflate.brush", text='Inflate', icon='BRUSH_INFLATE')
-        #6 - TOP - RIGHT
+        #9 - TOP - RIGHT
         pie.operator("grab.brush", text='Grab', icon='BRUSH_GRAB')
         #1 - BOTTOM - LEFT
         pie.operator("mask.brush", text='Mask', icon='BRUSH_MASK')
@@ -921,7 +912,7 @@ class SculpttwoPieMenu(Menu):
         pie.operator("smooth.brush", text='Smooth', icon='BRUSH_SMOOTH')
         #7 - TOP - LEFT 
         pie.operator("pinchmagnify.brush", text='Pinch', icon='BRUSH_PINCH')
-        #6 - TOP - RIGHT
+        #9 - TOP - RIGHT
         pie.operator("polish.brush", text='Polish', icon='BRUSH_FLATTEN')
         #1 - BOTTOM - LEFT
         box = pie.split().column()
@@ -946,21 +937,21 @@ class OriginPivot(Menu):
         
         pie = layout.menu_pie()
         #4 - LEFT
-        pie.operator("view3d.snap_selected_to_cursor", text="Selection to Cursor").use_offset = False
+        pie.operator("object.pivotobottom", text="Origin to Bottom", icon='TRIA_DOWN')
         #6 - RIGHT
-        pie.operator("view3d.snap_cursor_to_selected", text="Cursor to Selected")   
+        pie.operator("view3d.snap_cursor_to_selected", text="Cursor to Selected", icon='ROTACTIVE')   
         #2 - BOTTOM
-        pie.operator("object.origin_set", text="Origin To Geometry").type ='ORIGIN_GEOMETRY'
+        pie.operator("view3d.snap_selected_to_cursor", text="Selection to Cursor", icon='CLIPUV_HLT').use_offset = False
         #8 - TOP
-        pie.operator("object.origin_set", text="Origin To 3D Cursor").type ='ORIGIN_CURSOR'
+        pie.operator("object.origin_set", text="Origin To 3D Cursor", icon='CURSOR').type ='ORIGIN_CURSOR'
         #7 - TOP - LEFT 
-        pie.operator("object.pivot2selection", text="Origin To Selection")
-        #6 - TOP - RIGHT
-        pie.operator("object.origin_set", text="Geometry To Origin").type ='GEOMETRY_ORIGIN'
+        pie.operator("object.pivot2selection", text="Origin To Selection", icon='SNAP_INCREMENT')
+        #9 - TOP - RIGHT
+        pie.operator("object.origin_set", text="Origin To Geometry", icon='ROTATE').type ='ORIGIN_GEOMETRY'
         #1 - BOTTOM - LEFT
-        pie.operator("object.pivotobottom", text="Origin to Bottom")
+        pie.operator("object.origin_set", text="Geometry To Origin", icon='BBOX').type ='GEOMETRY_ORIGIN'
         #3 - BOTTOM - RIGHT
-        pie.menu("origin.pivotmenu", text="Others")
+        pie.menu("origin.pivotmenu", text="Others", icon='CURSOR')
         
 #Origin/Pivot menu1
 class OriginPivotMenu(Menu):
@@ -981,9 +972,9 @@ class OriginPivotMenu(Menu):
         layout.operator("view3d.snap_cursor_to_active", text="Cursor to Active")
 
 #Pie Manipulators
-class PieManipulators(Menu):
-    bl_idname = "pie.manipulators"
-    bl_label = "Pie Manipulators"
+class PieManipulator(Menu):
+    bl_idname = "pie.manipulator"
+    bl_label = "Pie Manipulator"
 
     def draw(self, context):
         layout = self.layout
@@ -999,7 +990,7 @@ class PieManipulators(Menu):
         pie.operator("w.manupulators", text="Manipulator", icon='MANIPUL')
         #7 - TOP - LEFT 
         pie.operator("translate.rotate", text="Translate/Rotate")
-        #6 - TOP - RIGHT
+        #9 - TOP - RIGHT
         pie.operator("translate.scale", text="Translate/Scale")
         #1 - BOTTOM - LEFT
         pie.operator("rotate.scale", text="Rotate/Scale")
@@ -1025,7 +1016,7 @@ class PieSnaping(Menu):
         pie.operator("snap.active", text="Snap On/Off", icon='SNAP_ON')
         #7 - TOP - LEFT 
         pie.operator("snap.volume", text="Volume", icon='SNAP_VOLUME')
-        #6 - TOP - RIGHT
+        #9 - TOP - RIGHT
         pie.operator("snap.increment", text="Increment", icon='SNAP_INCREMENT')
         #1 - BOTTOM - LEFT
         pie.operator("snap.alignrotation", text="Align rotation", icon='SNAP_NORMAL')
@@ -1040,11 +1031,46 @@ class SnapTargetMenu(Menu):
     def draw(self, context):
         layout = self.layout       
          
-        layout.operator("snap.targetactive", text="Active") 
-        layout.operator("snap.targetmedian", text="Median") 
-        layout.operator("snap.targetcenter", text="Center") 
-        layout.operator("snap.targetclosest", text="Closest")
+        layout.operator("object.snaptargetvariable", text="Active").variable='ACTIVE'
+        layout.operator("object.snaptargetvariable", text="Median").variable='MEDIAN'
+        layout.operator("object.snaptargetvariable", text="Center").variable='CENTER' 
+        layout.operator("object.snaptargetvariable", text="Closest").variable='CLOSEST'
+
+#Pie Retopo
+class PieManipulators(Menu):
+    bl_idname = "pie.manipulators"
+    bl_label = "Pie Manipulators"
+
+    def draw(self, context):
+        layout = self.layout
         
+        pie = layout.menu_pie()
+
+class PieRetopo(Menu):
+    bl_idname = "pie.retopo"
+    bl_label = "Pie Retopo"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("mesh.gstretch", text="GStretch", icon='GREASEPENCIL')
+        #6 - RIGHT
+        pie.operator("object.align2x", icon='MOD_WIREFRAME')
+        #2 - BOTTOM
+        pie.operator("mesh.laprelax", icon = 'MOD_LATTICE')
+        #8 - TOP
+        pie.operator("gpencil.surfsk_add_surface", text="Add Bsurface", icon = 'MOD_DYNAMICPAINT')
+        #7 - TOP - LEFT 
+        pie.operator("retopo.space", icon='ALIGN')
+        #9 - TOP - RIGHT
+        pie.operator("shrink.update", icon = 'MOD_SHRINKWRAP')
+        #1 - BOTTOM - LEFT
+        pie.operator("object.automirror", icon = 'MOD_MIRROR')
+        #3 - BOTTOM - RIGHT
+        pie.operator("polysculpt.retopo", text = "Sculpt Mesh", icon = 'SCULPTMODE_HLT')
+              
 addon_keymaps = []
 
 def register():
@@ -1099,7 +1125,7 @@ def register():
     bpy.utils.register_class(OriginPivotMenu)
     bpy.utils.register_class(PivotBottom)
     # Manipulators
-    bpy.utils.register_class(PieManipulators)
+    bpy.utils.register_class(PieManipulator)
     bpy.utils.register_class(WManupulators)
     bpy.utils.register_class(ManipTranslate)
     bpy.utils.register_class(ManipRotate)
@@ -1117,11 +1143,12 @@ def register():
     bpy.utils.register_class(SnapVertex)
     bpy.utils.register_class(SnapIncrement)
     bpy.utils.register_class(SnapAlignRotation)
-    bpy.utils.register_class(SnapTargetActive)
-    bpy.utils.register_class(SnapTargetMedian)
-    bpy.utils.register_class(SnapTargetCenter)
-    bpy.utils.register_class(SnapTargetClosest)
     bpy.utils.register_class(SnapTargetMenu)
+    bpy.utils.register_class(SnapTargetVariable)
+    #Retopo
+    bpy.utils.register_class(PieRetopo)
+    bpy.utils.register_class(AlignToX)
+    bpy.utils.register_class(RetopoSpace)
     
     
 # Keympa Config   
@@ -1151,13 +1178,16 @@ def register():
         
         #Manipulators
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', ctrl=True).properties.name = "pie.manipulators"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', ctrl=True).properties.name = "pie.manipulator"
         
         #Snapping
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS', shift=True, ctrl=True).properties.name = "pie.snapping"
         
-    
+        #Retopo
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', shift=True).properties.name = "pie.retopo"
+        
     
         addon_keymaps.append(km)
 
@@ -1178,7 +1208,7 @@ def unregister():
     bpy.utils.unregister_class(SplitHorizontal)
     bpy.utils.unregister_class(SplitVertical)
     bpy.utils.unregister_class(ViewMenu)
-    bpy.utils.register_class(OherViewsMenu)
+    bpy.utils.unregister_class(OherViewsMenu)
     # Sculpt Pie Menu
     bpy.utils.unregister_class(SculptPieMenu)
     bpy.utils.unregister_class(InflateBrush)
@@ -1214,7 +1244,7 @@ def unregister():
     bpy.utils.unregister_class(OriginPivotMenu)
     bpy.utils.unregister_class(PivotBottom)
     # Manipulators
-    bpy.utils.unregister_class(PieManipulators)
+    bpy.utils.unregister_class(PieManipulator)
     bpy.utils.unregister_class(WManupulators)
     bpy.utils.unregister_class(ManipTranslate)
     bpy.utils.unregister_class(ManipRotate)
@@ -1232,12 +1262,12 @@ def unregister():
     bpy.utils.unregister_class(SnapVertex)
     bpy.utils.unregister_class(SnapIncrement)
     bpy.utils.unregister_class(SnapAlignRotation)
-    bpy.utils.unregister_class(SnapTargetActive)
-    bpy.utils.unregister_class(SnapTargetMedian)
-    bpy.utils.unregister_class(SnapTargetCenter)
-    bpy.utils.unregister_class(SnapTargetClosest)
     bpy.utils.unregister_class(SnapTargetMenu)
-    
+    bpy.utils.unregister_class(SnapTargetVariable)
+    #Retopo
+    bpy.utils.unregister_class(PieRetopo)
+    bpy.utils.unregister_class(AlignToX)
+    bpy.utils.unregister_class(RetopoSpace)
         
     wm = bpy.context.window_manager
 
