@@ -161,6 +161,23 @@ class OrientationVariable(bpy.types.Operator):
         return {'FINISHED'} 
 
 ######################
+#      Shading       #               
+######################
+
+class ShadingVariable(bpy.types.Operator):
+    bl_idname = "object.shadingvariable"
+    bl_label = "Shading Variable"
+    variable = bpy.props.StringProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        bpy.context.space_data.viewport_shade=self.variable
+        return {'FINISHED'} 
+
+######################
 #    Manipulators    #               
 ######################
 class ManipTranslate(bpy.types.Operator):
@@ -268,19 +285,7 @@ class WManupulators(bpy.types.Operator):
              bpy.context.space_data.show_manipulator = True
 
         return {'FINISHED'}
-
-######################
-#       Sculpt       #               
-######################
-
-class PolishBrush(bpy.types.Operator):
-    bl_idname = "polish.brush"
-    bl_label = "Polish Brush"
     
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Polish'] 
-        return {'FINISHED'}    
 ######################
 #       Modes        #               
 ######################
@@ -756,7 +761,7 @@ class SculpttwoPieMenu(Menu):
         #7 - TOP - LEFT 
         pie.operator("paint.brush_select", text='Pinch', icon='BRUSH_PINCH').sculpt_tool= 'PINCH'
         #9 - TOP - RIGHT
-        pie.operator("polish.brush", text='Polish', icon='BRUSH_FLATTEN')
+        pie.operator("paint.brush_select", text='Polish', icon='BRUSH_FLATTEN').sculpt_tool= 'SIMPLIFY'
         #1 - BOTTOM - LEFT
         box = pie.split().column()
         row = box.row(align=True)
@@ -902,6 +907,31 @@ class PieOrientation(Menu):
         #9 - TOP - RIGHT
         #1 - BOTTOM - LEFT
         #3 - BOTTOM - RIGHT
+
+class ShadingMenuPie(Menu):
+    bl_idname = "pie.shading"
+    bl_label = "Pie Shading"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("object.shadingvariable", text="Material", icon='MATERIAL').variable = 'MATERIAL'
+        #6 - RIGHT
+        pie.operator("object.shadingvariable", text="Wireframe", icon='WIRE').variable = 'WIREFRAME'
+        #2 - BOTTOM
+        pie.operator("object.shadingvariable", text="Texture", icon='TEXTURE_SHADED').variable = 'TEXTURED'
+        #8 - TOP
+        pie.operator("object.shadingvariable", text="Solid", icon='SOLID').variable = 'SOLID'
+        #7 - TOP - LEFT 
+        pie.operator("object.shadingvariable", text="Bounding box", icon='BBOX').variable = 'BOUNDBOX'
+        #9 - TOP - RIGHT
+        pie.operator("object.shadingvariable", text="Render", icon='SMOOTH').variable = 'RENDERED'
+        #1 - BOTTOM - LEFT
+        pie.operator("object.shade_smooth", text="Shade Smooth", icon='SOLID')
+        #3 - BOTTOM - RIGHT
+        pie.operator("object.shade_flat", text="Shade Flat", icon='MESH_ICOSPHERE')
                
 class PieRetopo(Menu):
     bl_idname = "pie.retopo"
@@ -950,7 +980,6 @@ def register():
     # Sculpt Pie Menu
     bpy.utils.register_class(SculptPieMenu)
     bpy.utils.register_class(SculpttwoPieMenu)
-    bpy.utils.register_class(PolishBrush)
     # Components Selection Mode
     bpy.utils.register_class(VertsEdges)
     bpy.utils.register_class(EdgesFaces)
@@ -989,6 +1018,10 @@ def register():
     bpy.utils.register_class(PieRetopo)
     bpy.utils.register_class(AlignToX)
     bpy.utils.register_class(RetopoSpace)
+    # Shading
+    bpy.utils.register_class(ShadingVariable)
+    bpy.utils.register_class(ShadingMenuPie) 
+    
     
     
 # Keympa Config   
@@ -1032,7 +1065,10 @@ def register():
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', shift=True).properties.name = "pie.retopo"
         
-    
+        #Shading
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS', shift=True).properties.name = "pie.shading"
+        
         addon_keymaps.append(km)
 
 # Register / Unregister Classes
@@ -1056,7 +1092,6 @@ def unregister():
     # Sculpt Pie Menu
     bpy.utils.unregister_class(SculptPieMenu)
     bpy.utils.unregister_class(SculpttwoPieMenu)
-    bpy.utils.unregister_class(PolishBrush)
     # Components Selection Mode
     bpy.utils.unregister_class(VertsEdges)
     bpy.utils.unregister_class(EdgesFaces)
@@ -1095,7 +1130,11 @@ def unregister():
     bpy.utils.unregister_class(PieRetopo)
     bpy.utils.unregister_class(AlignToX)
     bpy.utils.unregister_class(RetopoSpace)
-        
+    # Shading
+    bpy.utils.unregister_class(ShadingVariable)
+    bpy.utils.unregister_class(ShadingMenuPie)  
+    
+     
     wm = bpy.context.window_manager
 
     if wm.keyconfigs.addon:
@@ -1110,6 +1149,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
 
