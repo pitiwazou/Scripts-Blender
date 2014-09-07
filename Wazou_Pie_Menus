@@ -268,128 +268,10 @@ class WManupulators(bpy.types.Operator):
              bpy.context.space_data.show_manipulator = True
 
         return {'FINISHED'}
-    
+
 ######################
 #       Sculpt       #               
 ######################
-
-# Brushes Classes
-class CreaseBrush(bpy.types.Operator):
-    bl_idname = "crease.brush"
-    bl_label = "Crease Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Crease']
-        return {'FINISHED'}
-    
-class ClayBrush(bpy.types.Operator):
-    bl_idname = "clay.brush"
-    bl_label = "Clay Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Clay'] 
-        return {'FINISHED'}
-
-class InflateBrush(bpy.types.Operator):
-    bl_idname = "inflate.brush"
-    bl_label = "Inflate Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Inflate/Deflate'] 
-        return {'FINISHED'}
-    
-class DrawBrush(bpy.types.Operator):
-    bl_idname = "draw.brush"
-    bl_label = "Draw Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Draw'] 
-        return {'FINISHED'}
-
-class GrabBrush(bpy.types.Operator):
-    bl_idname = "grab.brush"
-    bl_label = "Grab Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Grab'] 
-        return {'FINISHED'}
-
-class FlattenBrush(bpy.types.Operator):
-    bl_idname = "flatten.brush"
-    bl_label = "Flatten Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Flatten/Contrast'] 
-        return {'FINISHED'}
-
-class MaskBrush(bpy.types.Operator):
-    bl_idname = "mask.brush"
-    bl_label = "Mask Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Mask'] 
-        return {'FINISHED'}
-    
-class FillBrush(bpy.types.Operator):
-    bl_idname = "fill.brush"
-    bl_label = "Fill Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Fill/Deepen'] 
-        return {'FINISHED'}
-#Sculpt menu 2
-class ClayStripsBrush(bpy.types.Operator):
-    bl_idname = "claystrips.brush"
-    bl_label = "ClayStrips Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Clay Strips'] 
-        return {'FINISHED'}
-    
-class BlobBrush(bpy.types.Operator):
-    bl_idname = "blob.brush"
-    bl_label = "Blob Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Blob'] 
-        return {'FINISHED'}
-
-class LayerBrush(bpy.types.Operator):
-    bl_idname = "layer.brush"
-    bl_label = "Layer Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Layer'] 
-        return {'FINISHED'}
-
-class NudgeBrush(bpy.types.Operator):
-    bl_idname = "nudge.brush"
-    bl_label = "Nudge Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Nudge'] 
-        return {'FINISHED'}
-
-class PinchMagnifyBrush(bpy.types.Operator):
-    bl_idname = "pinchmagnify.brush"
-    bl_label = "Pinch Magnify Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Pinch/Magnify'] 
-        return {'FINISHED'}
 
 class PolishBrush(bpy.types.Operator):
     bl_idname = "polish.brush"
@@ -398,62 +280,7 @@ class PolishBrush(bpy.types.Operator):
     def execute(self, context):
         layout = self.layout
         bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Polish'] 
-        return {'FINISHED'}
-
-class SculptDrawBrush(bpy.types.Operator):
-    bl_idname = "sculptdraw.brush"
-    bl_label = "SculptDraw Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['SculptDraw'] 
-        return {'FINISHED'}
-    
-class SmoothBrush(bpy.types.Operator):
-    bl_idname = "smooth.brush"
-    bl_label = "Smooth Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Smooth'] 
-        return {'FINISHED'}
-
-class SnakeHookBrush(bpy.types.Operator):
-    bl_idname = "snakehook.brush"
-    bl_label = "Snake Hook Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Snake Hook'] 
-        return {'FINISHED'}
-
-class ThumbBrush(bpy.types.Operator):
-    bl_idname = "thumb.brush"
-    bl_label = "Thumb Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Thumb'] 
-        return {'FINISHED'}
-
-class TwistBrush(bpy.types.Operator):
-    bl_idname = "twist.brush"
-    bl_label = "Twist Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Twist'] 
-        return {'FINISHED'}
-
-class ScrapePeaksBrush(bpy.types.Operator):
-    bl_idname = "scrapepeaks.brush"
-    bl_label = "Scrape/Peaks Brush"
-    
-    def execute(self, context):
-        layout = self.layout
-        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Scrape/Peaks'] 
-        return {'FINISHED'}
-    
+        return {'FINISHED'}    
 ######################
 #       Modes        #               
 ######################
@@ -893,21 +720,21 @@ class SculptPieMenu(Menu):
         
         pie = layout.menu_pie()
         #4 - LEFT
-        pie.operator("crease.brush", text='Crease', icon='BRUSH_CREASE')
+        pie.operator("paint.brush_select", text="Crease", icon='BRUSH_CREASE').sculpt_tool='CREASE'
         #6 - RIGHT
-        pie.operator("clay.brush", text='Clay', icon='BRUSH_CLAY')     
+        pie.operator("paint.brush_select", text="Clay", icon='BRUSH_CLAY').sculpt_tool='CLAY'
         #2 - BOTTOM
-        pie.operator("flatten.brush", text='Flatten', icon='BRUSH_FLATTEN')
+        pie.operator("paint.brush_select", text='Flatten', icon='BRUSH_FLATTEN').sculpt_tool='FLATTEN'
         #8 - TOP
-        pie.operator("draw.brush", text='Draw', icon='BRUSH_SCULPT_DRAW')
+        pie.operator("paint.brush_select", text='Draw', icon='BRUSH_SCULPT_DRAW').sculpt_tool='DRAW'
         #7 - TOP - LEFT 
-        pie.operator("inflate.brush", text='Inflate', icon='BRUSH_INFLATE')
+        pie.operator("paint.brush_select", text='Inflate', icon='BRUSH_INFLATE').sculpt_tool='INFLATE'
         #9 - TOP - RIGHT
-        pie.operator("grab.brush", text='Grab', icon='BRUSH_GRAB')
+        pie.operator("paint.brush_select", text='Grab', icon='BRUSH_GRAB').sculpt_tool='GRAB'
         #1 - BOTTOM - LEFT
-        pie.operator("mask.brush", text='Mask', icon='BRUSH_MASK')
+        pie.operator("paint.brush_select", text='Mask', icon='BRUSH_MASK').sculpt_tool='MASK'
         #3 - BOTTOM - RIGHT
-        pie.operator("fill.brush", text='Fill', icon='BRUSH_FILL')
+        pie.operator("paint.brush_select", text='Fill', icon='BRUSH_FILL').sculpt_tool='FILL'
 
 # Sculp Pie Menus 2        
 class SculpttwoPieMenu(Menu):
@@ -919,29 +746,29 @@ class SculpttwoPieMenu(Menu):
         
         pie = layout.menu_pie()
         #4 - LEFT
-        pie.operator("claystrips.brush", text='Claystrips', icon='BRUSH_CREASE')
+        pie.operator("paint.brush_select", text='Claystrips', icon='BRUSH_CREASE').sculpt_tool= 'CLAY_STRIPS'
         #6 - RIGHT
-        pie.operator("blob.brush", text='Blob', icon='BRUSH_BLOB')     
+        pie.operator("paint.brush_select", text='Blob', icon='BRUSH_BLOB').sculpt_tool= 'BLOB'
         #2 - BOTTOM
-        pie.operator("snakehook.brush", text='Snakehook', icon='BRUSH_SNAKE_HOOK')
+        pie.operator("paint.brush_select", text='Snakehook', icon='BRUSH_SNAKE_HOOK').sculpt_tool= 'SNAKE_HOOK'
         #8 - TOP
-        pie.operator("smooth.brush", text='Smooth', icon='BRUSH_SMOOTH')
+        pie.operator("paint.brush_select", text='Smooth', icon='BRUSH_SMOOTH').sculpt_tool= 'SMOOTH'
         #7 - TOP - LEFT 
-        pie.operator("pinchmagnify.brush", text='Pinch', icon='BRUSH_PINCH')
+        pie.operator("paint.brush_select", text='Pinch', icon='BRUSH_PINCH').sculpt_tool= 'PINCH'
         #9 - TOP - RIGHT
         pie.operator("polish.brush", text='Polish', icon='BRUSH_FLATTEN')
         #1 - BOTTOM - LEFT
         box = pie.split().column()
         row = box.row(align=True)
-        box.operator("twist.brush", text='Twist', icon='BRUSH_ROTATE')
-        box.operator("scrapepeaks.brush", text='Scrape/Peaks', icon='BRUSH_SCRAPE')
-        box.operator("twist.brush", text='Twist', icon='BRUSH_ROTATE')
+        box.operator("paint.brush_select", text='Twist', icon='BRUSH_ROTATE').sculpt_tool= 'ROTATE'
+        box.operator("paint.brush_select", text='Scrape/Peaks', icon='BRUSH_SCRAPE').sculpt_tool= 'SCRAPE'
+        box.operator("paint.brush_select", text='Twist', icon='BRUSH_ROTATE').sculpt_tool= 'ROTATE'
         #3 - BOTTOM - RIGHT
         box = pie.split().column()
         row = box.row(align=True)
-        box.operator("layer.brush", text='Layer', icon='BRUSH_LAYER')
-        box.operator("nudge.brush", text='Nudge', icon='BRUSH_NUDGE')
-        box.operator("thumb.brush", text='Thumb', icon='BRUSH_THUMB')
+        box.operator("paint.brush_select", text='Layer', icon='BRUSH_LAYER').sculpt_tool= 'LAYER'
+        box.operator("paint.brush_select", text='Nudge', icon='BRUSH_NUDGE').sculpt_tool= 'NUDGE'
+        box.operator("paint.brush_select", text='Thumb', icon='BRUSH_THUMB').sculpt_tool= 'THUMB'
 
 #Origin/Pivot
 class OriginPivot(Menu):
@@ -1122,28 +949,8 @@ def register():
     bpy.utils.register_class(OherViewsMenu)
     # Sculpt Pie Menu
     bpy.utils.register_class(SculptPieMenu)
-    bpy.utils.register_class(InflateBrush)
-    bpy.utils.register_class(ClayBrush)
-    bpy.utils.register_class(CreaseBrush)
-    bpy.utils.register_class(DrawBrush)
-    bpy.utils.register_class(GrabBrush)
-    bpy.utils.register_class(FlattenBrush)
-    bpy.utils.register_class(MaskBrush)
-    bpy.utils.register_class(FillBrush)
-    # Sculpt Pie Menu 2
     bpy.utils.register_class(SculpttwoPieMenu)
-    bpy.utils.register_class(ClayStripsBrush)
-    bpy.utils.register_class(BlobBrush)
-    bpy.utils.register_class(LayerBrush)
-    bpy.utils.register_class(NudgeBrush)
-    bpy.utils.register_class(PinchMagnifyBrush)
     bpy.utils.register_class(PolishBrush)
-    bpy.utils.register_class(SculptDrawBrush)
-    bpy.utils.register_class(SmoothBrush)
-    bpy.utils.register_class(SnakeHookBrush)
-    bpy.utils.register_class(ThumbBrush)
-    bpy.utils.register_class(TwistBrush)
-    bpy.utils.register_class(ScrapePeaksBrush)
     # Components Selection Mode
     bpy.utils.register_class(VertsEdges)
     bpy.utils.register_class(EdgesFaces)
@@ -1248,28 +1055,8 @@ def unregister():
     bpy.utils.unregister_class(OherViewsMenu)
     # Sculpt Pie Menu
     bpy.utils.unregister_class(SculptPieMenu)
-    bpy.utils.unregister_class(InflateBrush)
-    bpy.utils.unregister_class(ClayBrush)
-    bpy.utils.unregister_class(CreaseBrush)
-    bpy.utils.unregister_class(DrawBrush)
-    bpy.utils.unregister_class(GrabBrush)
-    bpy.utils.unregister_class(FlattenBrush)
-    bpy.utils.unregister_class(MaskBrush)
-    bpy.utils.unregister_class(FillBrush)
-    # Sculpt Pie Menu 2
     bpy.utils.unregister_class(SculpttwoPieMenu)
-    bpy.utils.unregister_class(ClayStripsBrush)
-    bpy.utils.unregister_class(BlobBrush)
-    bpy.utils.unregister_class(LayerBrush)
-    bpy.utils.unregister_class(NudgeBrush)
-    bpy.utils.unregister_class(PinchMagnifyBrush)
     bpy.utils.unregister_class(PolishBrush)
-    bpy.utils.unregister_class(SculptDrawBrush)
-    bpy.utils.unregister_class(SmoothBrush)
-    bpy.utils.unregister_class(SnakeHookBrush)
-    bpy.utils.unregister_class(ThumbBrush)
-    bpy.utils.unregister_class(TwistBrush)
-    bpy.utils.unregister_class(ScrapePeaksBrush)
     # Components Selection Mode
     bpy.utils.unregister_class(VertsEdges)
     bpy.utils.unregister_class(EdgesFaces)
@@ -1323,6 +1110,8 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
+
 
 
 
