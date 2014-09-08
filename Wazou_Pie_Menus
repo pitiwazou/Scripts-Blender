@@ -19,7 +19,7 @@
 bl_info = {
     "name": "Wazou_Pie_Menus",
     "author": "Cédric Lepiller & DavideDozza & Lapineige & Leafar",
-    "version": (0, 1, 4),
+    "version": (0, 1, 5),
     "blender": (2, 71, 4),
     "description": "Custom Pie Menus",
     "category": "3D View",}
@@ -27,6 +27,9 @@ bl_info = {
 import bpy
 from bpy.types import Menu   
 from bpy.props import IntProperty, FloatProperty, BoolProperty
+import bmesh
+from mathutils import *
+import math
 
 ######################
 #      Snapping      #               
@@ -606,6 +609,81 @@ class AlignToX(bpy.types.Operator):
         bpy.ops.object.editmode_toggle() 
         return {'FINISHED'} 
 
+#LapRelax
+class LapRelax(bpy.types.Operator):
+	bl_idname = "mesh.laprelax"
+	bl_label = "LapRelax"
+	bl_description = "Smoothing mesh keeping volume"
+	bl_options = {'REGISTER', 'UNDO'}
+	
+	Repeat = bpy.props.IntProperty(
+		name = "Repeat", 
+		description = "Repeat how many times",
+		default = 1,
+		min = 1,
+		max = 100)
+
+
+	@classmethod
+	def poll(cls, context):
+		obj = context.active_object
+		return (obj and obj.type == 'MESH' and context.mode == 'EDIT_MESH')
+
+	def invoke(self, context, event):
+		
+		# smooth #Repeat times
+		for i in range(self.Repeat):
+			self.do_laprelax()
+		
+		return {'FINISHED'}
+
+
+	def do_laprelax(self):
+	
+		context = bpy.context
+		region = context.region  
+		area = context.area
+		selobj = bpy.context.active_object
+		mesh = selobj.data
+		bm = bmesh.from_edit_mesh(mesh)
+		bmprev = bm.copy()
+	
+		for v in bmprev.verts:
+			if v.select:
+				tot = Vector((0, 0, 0))
+				cnt = 0
+				for e in v.link_edges:
+					for f in e.link_faces:
+						if not(f.select):
+							cnt = 1
+					if len(e.link_faces) == 1:
+						cnt = 1
+						break
+				if cnt:
+					# dont affect border edges: they cause shrinkage
+					continue
+					
+				# find Laplacian mean
+				for e in v.link_edges:
+					tot += e.other_vert(v).co
+				tot /= len(v.link_edges)
+				
+				# cancel movement in direction of vertex normal
+				delta = (tot - v.co)
+				if delta.length != 0:
+					ang = delta.angle(v.normal)
+					deltanor = math.cos(ang) * delta.length
+					nor = v.normal
+					nor.length = abs(deltanor)
+					bm.verts[v.index].co = tot + nor
+			
+			
+		mesh.update()
+		bm.free()
+		bmprev.free()
+		bpy.ops.object.editmode_toggle()
+		bpy.ops.object.editmode_toggle()
+
 #Space
 class RetopoSpace(bpy.types.Operator):  
     bl_idname = "retopo.space"  
@@ -1047,7 +1125,7 @@ class PieRetopo(Menu):
         
         pie = layout.menu_pie()
         #4 - LEFT
-        pie.operator("mesh.gstretch", text="GStretch", icon='GREASEPENCIL')
+        pie.operator("mesh.looptools_gstretch", text="GStretch", icon='GREASEPENCIL')
         #6 - RIGHT
         pie.operator("object.align2x", icon='MOD_WIREFRAME')
         #2 - BOTTOM
@@ -1126,6 +1204,7 @@ def register():
     bpy.utils.register_class(PieRetopo)
     bpy.utils.register_class(AlignToX)
     bpy.utils.register_class(RetopoSpace)
+    bpy.utils.register_class(LapRelax)
     # Shading
     bpy.utils.register_class(ShadingVariable)
     bpy.utils.register_class(PieShadingMenu)
@@ -1250,6 +1329,7 @@ def unregister():
     bpy.utils.unregister_class(PieRetopo)
     bpy.utils.unregister_class(AlignToX)
     bpy.utils.unregister_class(RetopoSpace)
+    bpy.utils.unregister_class(LapRelax)
     # Shading
     bpy.utils.unregister_class(ShadingVariable)
     bpy.utils.unregister_class(ShadingMenuPie)  
@@ -1275,11 +1355,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-
-
-
-
-
-
-
-
