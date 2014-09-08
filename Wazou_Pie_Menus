@@ -998,11 +998,20 @@ class PieViewNumpad(Menu):
         #9 - TOP - RIGHT
         pie.operator("view3d.viewnumpad", text="Back").type='BACK'
         #1 - BOTTOM - LEFT
-        pie.operator("view3d.viewnumpad", text="Camera", icon='CAMERA_DATA').type='CAMERA'
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.operator("persp.orthoview", text="Persp/Ortho", icon='RESTRICT_VIEW_OFF')
+        box.operator("view3d.viewnumpad", text="Camera", icon='CAMERA_DATA').type='CAMERA'
+        box.operator("screen.region_quadview", text="Toggle Quad View", icon='SPLITSCREEN')
+        box.operator("screen.screen_full_area", text="Full Screen", icon='FULLSCREEN_ENTER')
         #3 - BOTTOM - RIGHT
-        #pie.operator("view3d.view.persportho", text="Persp/Ortho", icon='RESTRICT_VIEW_OFF')
-        pie.operator("persp.orthoview", text="Persp/Ortho", icon='RESTRICT_VIEW_OFF')
-
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.operator("view3d.view_all", text="View All").center = True
+        box.operator("view3d.view_selected", text="View Selected")
+        box.operator("view3d.localview", text="Local/Global")
+        box.operator("screen.area_dupli", text="Duplicate area")
+        
 #Pie Pivot Point           
 class PiePivotPoint(Menu):
     bl_idname = "pie.pivotpoint"
@@ -1266,6 +1275,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
 
