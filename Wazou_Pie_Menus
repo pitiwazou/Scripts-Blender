@@ -632,7 +632,8 @@ class PerspOrthoView(bpy.types.Operator):
 ######################
   
 # Pie Select Mode
-class WazouPieMenu(Menu):
+class PieObjectEditMode(Menu):
+    bl_idname = "pie.objecteditmode"
     bl_label = "Select Mode"
 
     def draw(self, context):
@@ -703,10 +704,9 @@ class WazouPieMenu(Menu):
             pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')       
 
 #Pie Views
-class WazouViewsPieMenus(Menu):
-    # label is displayed at the center of the pie menu.
-    bl_label = "Views"
-    bl_idname = "scene.views_pie"
+class PieAreaViews(Menu):
+    bl_idname = "pie.areaviews"
+    bl_label = "Pie Views"
 
     def draw(self, context):
         layout = self.layout
@@ -757,9 +757,9 @@ class OherViewsMenu(Menu):
         layout.operator("object.view_menu", text="Logic Editor", icon= 'LOGIC').variable="LOGIC_EDITOR" 
         
 #Pie Sculp Pie Menus
-class SculptPieMenu(Menu):
-    bl_idname = "sculpt.pie"
-    bl_label = "Sculpt Pie Menu"
+class PieSculptPie(Menu):
+    bl_idname = "pie.sculpt"
+    bl_label = "Pie Sculpt"
 
     def draw(self, context):
         layout = self.layout
@@ -783,9 +783,9 @@ class SculptPieMenu(Menu):
         pie.operator("paint.brush_select", text='Fill', icon='BRUSH_FILL').sculpt_tool='FILL'
 
 #Pie Sculp Pie Menus 2        
-class SculpttwoPieMenu(Menu):
-    bl_idname = "sculpttwo.pie"
-    bl_label = "Sculpt Pie Menu 2"
+class PieSculpttwo(Menu):
+    bl_idname = "pie.sculpttwo"
+    bl_label = "Pie Sculpt 2"
 
     def draw(self, context):
         layout = self.layout
@@ -817,9 +817,9 @@ class SculpttwoPieMenu(Menu):
         box.operator("paint.brush_select", text='Thumb', icon='BRUSH_THUMB').sculpt_tool= 'THUMB'
 
 #Pie Origin/Pivot
-class OriginPivot(Menu):
-    bl_idname = "origin.pivot"
-    bl_label = "Origin Pivot"
+class PieOriginPivot(Menu):
+    bl_idname = "pie.originpivot"
+    bl_label = "Pie Origin/Cursor"
 
     def draw(self, context):
         layout = self.layout
@@ -951,7 +951,7 @@ class PieOrientation(Menu):
         
         
 #Pi Shading
-class ShadingMenuPie(Menu):
+class PieShadingMenu(Menu):
     bl_idname = "pie.shading"
     bl_label = "Pie Shading"
 
@@ -979,7 +979,7 @@ class ShadingMenuPie(Menu):
 #Pie views numpad
 class PieViewNumpad(Menu):
     bl_idname = "pie.viewnumpad"
-    bl_label = "Pie Shading"
+    bl_label = "Pie Views Ortho"
 
     def draw(self, context):
         layout = self.layout
@@ -1061,7 +1061,7 @@ addon_keymaps = []
 
 def register():
     # Pie Menu Select Mode
-    bpy.utils.register_class(WazouPieMenu)
+    bpy.utils.register_class(PieObjectEditMode)
     bpy.utils.register_class(ClassObject)
     bpy.utils.register_class(ClassVertex)
     bpy.utils.register_class(ClassEdge)
@@ -1070,15 +1070,15 @@ def register():
     bpy.utils.register_class(ClassVertexPaint)
     bpy.utils.register_class(ClassWeightPaint)
     # View Menu
-    bpy.utils.register_class(WazouViewsPieMenus)
+    bpy.utils.register_class(PieAreaViews)
     bpy.utils.register_class(JoinArea)
     bpy.utils.register_class(SplitHorizontal)
     bpy.utils.register_class(SplitVertical)
     bpy.utils.register_class(ViewMenu)
     bpy.utils.register_class(OherViewsMenu)
     # Sculpt Pie Menu
-    bpy.utils.register_class(SculptPieMenu)
-    bpy.utils.register_class(SculpttwoPieMenu)
+    bpy.utils.register_class(PieSculptPie)
+    bpy.utils.register_class(PieSculpttwo)
     # Components Selection Mode
     bpy.utils.register_class(VertsEdges)
     bpy.utils.register_class(EdgesFaces)
@@ -1086,7 +1086,7 @@ def register():
     bpy.utils.register_class(VertsEdgesFaces)
     # Origin/Pivot
     bpy.utils.register_class(PivotToSelection)
-    bpy.utils.register_class(OriginPivot)
+    bpy.utils.register_class(PieOriginPivot)
     bpy.utils.register_class(OriginPivotMenu)
     bpy.utils.register_class(PivotBottom)
     # Manipulators
@@ -1119,7 +1119,7 @@ def register():
     bpy.utils.register_class(RetopoSpace)
     # Shading
     bpy.utils.register_class(ShadingVariable)
-    bpy.utils.register_class(ShadingMenuPie)
+    bpy.utils.register_class(PieShadingMenu)
     # View numpad
     bpy.utils.register_class(PieViewNumpad)
     bpy.utils.register_class(PerspOrthoView)
@@ -1134,23 +1134,23 @@ def register():
     if wm.keyconfigs.addon:
         #Select Mode
         km = wm.keyconfigs.addon.keymaps.new(name='Object Non-modal')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS').properties.name = 'WazouPieMenu'
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS').properties.name = 'pie.objecteditmode'
         
         #Views
         km = wm.keyconfigs.addon.keymaps.new(name='Screen')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS').properties.name = "scene.views_pie"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS').properties.name = "pie.areaviews"
         
         #Sculpt Pie Menu
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS').properties.name = "sculpt.pie"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS').properties.name = "pie.sculpt"
         
         #Sculpt Pie Menu 2
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS', alt=True).properties.name = "sculpttwo.pie"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS', alt=True).properties.name = "pie.sculpttwo"
         
         #Origin/Pivot
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True).properties.name = "origin.pivot"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True).properties.name = "pie.originpivot"
         
         #Manipulators
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
@@ -1185,7 +1185,7 @@ def register():
 # Register / Unregister Classes
 def unregister():
     # Pie Menu Select Mode
-    bpy.utils.unregister_class(WazouPieMenu)
+    bpy.utils.unregister_class(PieObjectEditMode)
     bpy.utils.unregister_class(ClassObject)
     bpy.utils.unregister_class(ClassVertex)
     bpy.utils.unregister_class(ClassEdge)
@@ -1194,15 +1194,15 @@ def unregister():
     bpy.utils.unregister_class(ClassVertexPaint)
     bpy.utils.unregister_class(ClassWeightPaint)
     # View Menu
-    bpy.utils.unregister_class(WazouViewsPieMenus)
+    bpy.utils.unregister_class(PieAreaViews)
     bpy.utils.unregister_class(JoinArea)
     bpy.utils.unregister_class(SplitHorizontal)
     bpy.utils.unregister_class(SplitVertical)
     bpy.utils.unregister_class(ViewMenu)
     bpy.utils.unregister_class(OherViewsMenu)
     # Sculpt Pie Menu
-    bpy.utils.unregister_class(SculptPieMenu)
-    bpy.utils.unregister_class(SculpttwoPieMenu)
+    bpy.utils.unregister_class(PieSculptPie)
+    bpy.utils.unregister_class(PieSculpttwo)
     # Components Selection Mode
     bpy.utils.unregister_class(VertsEdges)
     bpy.utils.unregister_class(EdgesFaces)
@@ -1210,7 +1210,7 @@ def unregister():
     bpy.utils.unregister_class(VertsEdgesFaces)
     # Origin/Pivot
     bpy.utils.unregister_class(PivotToSelection)
-    bpy.utils.unregister_class(OriginPivot)
+    bpy.utils.unregister_class(PieOriginPivot)
     bpy.utils.unregister_class(OriginPivotMenu)
     bpy.utils.unregister_class(PivotBottom)
     # Manipulators
@@ -1246,7 +1246,7 @@ def unregister():
     bpy.utils.unregister_class(ShadingMenuPie)  
     # View numpad
     bpy.utils.unregister_class(PieViewNumpad)
-    bpy.utils.unregister_class(PerspOrthoView)
+    bpy.utils.unregister_class(PieShadingMenu)
     # Pivot Point
     bpy.utils.unregister_class(PivotPointVariable)
     bpy.utils.unregister_class(PiePivotPoint) 
