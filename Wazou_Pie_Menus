@@ -19,7 +19,7 @@
 bl_info = {
     "name": "Wazou_Pie_Menus",
     "author": "Cédric Lepiller & DavideDozza & Lapineige & Leafar",
-    "version": (0, 1, 5),
+    "version": (0, 1, 6),
     "blender": (2, 71, 4),
     "description": "Custom Pie Menus",
     "category": "3D View",}
@@ -179,6 +179,43 @@ class ShadingVariable(bpy.types.Operator):
     def execute(self, context):
         bpy.context.space_data.viewport_shade=self.variable
         return {'FINISHED'} 
+
+########################
+#  Proportionnal Edit  #               
+########################
+
+class ProportionnalVariable(bpy.types.Operator):
+    bl_idname = "proportionnal.variable"
+    bl_label = "Proportionnal Variable"
+    variable = bpy.props.StringProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        bpy.context.scene.tool_settings.proportional_edit_falloff = self.variable
+        return {'FINISHED'} 
+    
+class UseProportionnal(bpy.types.Operator):
+    bl_idname = "use.proportionnal"
+    bl_label = "Use Proportionnal"
+    
+    def execute(self, context):
+        ob = context
+        if ob.mode == 'OBJECT':
+            if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False):
+                bpy.context.scene.tool_settings.use_proportional_edit_objects = True
+            elif bpy.context.scene.tool_settings.use_proportional_edit_objects == (True):
+                bpy.context.scene.tool_settings.use_proportional_edit_objects = False
+            return {'FINISHED'}
+        
+        elif ob.mode == 'EDIT_MESH':
+            if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED'):
+                bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
+            elif bpy.context.scene.tool_settings.proportional_edit == ('ENABLED'):
+                bpy.context.scene.tool_settings.proportional_edit = 'DISABLED'
+            return {'FINISHED'}
     
 ######################
 #    Pivot Point     #               
@@ -611,78 +648,78 @@ class AlignToX(bpy.types.Operator):
 
 #LapRelax
 class LapRelax(bpy.types.Operator):
-	bl_idname = "mesh.laprelax"
-	bl_label = "LapRelax"
-	bl_description = "Smoothing mesh keeping volume"
-	bl_options = {'REGISTER', 'UNDO'}
-	
-	Repeat = bpy.props.IntProperty(
-		name = "Repeat", 
-		description = "Repeat how many times",
-		default = 1,
-		min = 1,
-		max = 100)
+    bl_idname = "mesh.laprelax"
+    bl_label = "LapRelax"
+    bl_description = "Smoothing mesh keeping volume"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    Repeat = bpy.props.IntProperty(
+        name = "Repeat", 
+        description = "Repeat how many times",
+        default = 1,
+        min = 1,
+        max = 100)
 
 
-	@classmethod
-	def poll(cls, context):
-		obj = context.active_object
-		return (obj and obj.type == 'MESH' and context.mode == 'EDIT_MESH')
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        return (obj and obj.type == 'MESH' and context.mode == 'EDIT_MESH')
 
-	def invoke(self, context, event):
-		
-		# smooth #Repeat times
-		for i in range(self.Repeat):
-			self.do_laprelax()
-		
-		return {'FINISHED'}
+    def invoke(self, context, event):
+        
+        # smooth #Repeat times
+        for i in range(self.Repeat):
+            self.do_laprelax()
+        
+        return {'FINISHED'}
 
 
-	def do_laprelax(self):
-	
-		context = bpy.context
-		region = context.region  
-		area = context.area
-		selobj = bpy.context.active_object
-		mesh = selobj.data
-		bm = bmesh.from_edit_mesh(mesh)
-		bmprev = bm.copy()
-	
-		for v in bmprev.verts:
-			if v.select:
-				tot = Vector((0, 0, 0))
-				cnt = 0
-				for e in v.link_edges:
-					for f in e.link_faces:
-						if not(f.select):
-							cnt = 1
-					if len(e.link_faces) == 1:
-						cnt = 1
-						break
-				if cnt:
-					# dont affect border edges: they cause shrinkage
-					continue
-					
-				# find Laplacian mean
-				for e in v.link_edges:
-					tot += e.other_vert(v).co
-				tot /= len(v.link_edges)
-				
-				# cancel movement in direction of vertex normal
-				delta = (tot - v.co)
-				if delta.length != 0:
-					ang = delta.angle(v.normal)
-					deltanor = math.cos(ang) * delta.length
-					nor = v.normal
-					nor.length = abs(deltanor)
-					bm.verts[v.index].co = tot + nor
-			
-			
-		mesh.update()
-		bm.free()
-		bmprev.free()
-		bpy.ops.object.editmode_toggle()
-		bpy.ops.object.editmode_toggle()
+    def do_laprelax(self):
+    
+        context = bpy.context
+        region = context.region  
+        area = context.area
+        selobj = bpy.context.active_object
+        mesh = selobj.data
+        bm = bmesh.from_edit_mesh(mesh)
+        bmprev = bm.copy()
+    
+        for v in bmprev.verts:
+            if v.select:
+                tot = Vector((0, 0, 0))
+                cnt = 0
+                for e in v.link_edges:
+                    for f in e.link_faces:
+                        if not(f.select):
+                            cnt = 1
+                    if len(e.link_faces) == 1:
+                        cnt = 1
+                        break
+                if cnt:
+                    # dont affect border edges: they cause shrinkage
+                    continue
+                    
+                # find Laplacian mean
+                for e in v.link_edges:
+                    tot += e.other_vert(v).co
+                tot /= len(v.link_edges)
+                
+                # cancel movement in direction of vertex normal
+                delta = (tot - v.co)
+                if delta.length != 0:
+                    ang = delta.angle(v.normal)
+                    deltanor = math.cos(ang) * delta.length
+                    nor = v.normal
+                    nor.length = abs(deltanor)
+                    bm.verts[v.index].co = tot + nor
+            
+            
+        mesh.update()
+        bm.free()
+        bmprev.free()
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
 
 #Space
 class RetopoSpace(bpy.types.Operator):  
@@ -1113,7 +1150,33 @@ class PiePivotPoint(Menu):
         pie.operator("use.pivotalign", text="Use Pivot Align", icon='ALIGN')
         #1 - BOTTOM - LEFT
         #3 - BOTTOM - RIGHT
+
+#Pie Proportionnal       
+class PieProportionnalEditing(Menu):
+    bl_idname = "pie.proportionnalediting"
+    bl_label = "Pie Proportionnal Editing"
+
+    def draw(self, context):
+        layout = self.layout
         
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("proportionnal.variable", text="CONSTANT", icon='NOCURVE').variable = 'CONSTANT'
+        #6 - RIGHT
+        pie.operator("proportionnal.variable", text="Sphere", icon='SPHERECURVE').variable = 'SPHERE'
+        #2 - BOTTOM
+        pie.operator("proportionnal.variable", text="Sharp", icon='SHARPCURVE').variable = 'SHARP'
+        #8 - TOP
+        pie.operator("use.proportionnal", text="proportional Editing", icon='PROP_ON')
+        #7 - TOP - LEFT 
+        pie.operator("proportionnal.variable", text="Random", icon='RNDCURVE').variable = 'RANDOM'
+        #9 - TOP - RIGHT
+        pie.operator("proportionnal.variable", text="Smooth", icon='SMOOTHCURVE').variable = 'SMOOTH'
+        #1 - BOTTOM - LEFT
+        pie.operator("proportionnal.variable", text="Linear", icon='LINCURVE').variable = 'LINEAR'
+        #3 - BOTTOM - RIGHT 
+        pie.operator("proportionnal.variable", text="Root", icon='ROOTCURVE').variable = 'ROOT'  
+             
         
 #Pie Retopo               
 class PieRetopo(Menu):
@@ -1215,6 +1278,11 @@ def register():
     bpy.utils.register_class(PivotPointVariable)
     bpy.utils.register_class(PiePivotPoint)
     bpy.utils.register_class(UsePivotAlign)
+    # Proportionnal Editing
+    bpy.utils.register_class(PieProportionnalEditing)
+    bpy.utils.register_class(UseProportionnal)
+    bpy.utils.register_class(ProportionnalVariable)
+    
 # Keympa Config   
     
     wm = bpy.context.window_manager
@@ -1229,11 +1297,11 @@ def register():
         kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS').properties.name = "pie.areaviews"
         
         #Sculpt Pie Menu
-        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        km = wm.keyconfigs.addon.keymaps.new(name='Sculpt')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS').properties.name = "pie.sculpt"
         
         #Sculpt Pie Menu 2
-        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        km = wm.keyconfigs.addon.keymaps.new(name='Sculpt')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS', alt=True).properties.name = "pie.sculpttwo"
         
         #Origin/Pivot
@@ -1267,6 +1335,10 @@ def register():
         #Views numpad
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS', alt=True).properties.name = "pie.pivotpoint"
+        
+        # Proportionnal Editing
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'PERIOD', 'PRESS').properties.name = "pie.proportionnalediting"
         
         addon_keymaps.append(km)
 
@@ -1340,6 +1412,10 @@ def unregister():
     bpy.utils.unregister_class(PivotPointVariable)
     bpy.utils.unregister_class(PiePivotPoint) 
     bpy.utils.unregister_class(UsePivotAlign)
+    # Proportionnal Editing
+    bpy.utils.unregister_class(PieProportionnalEditing)
+    bpy.utils.unregister_class(UseProportionnal)
+    bpy.utils.unregister_class(ProportionnalVariable)
     
     wm = bpy.context.window_manager
 
@@ -1355,3 +1431,6 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
+
+
