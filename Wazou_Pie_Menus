@@ -179,6 +179,34 @@ class ShadingVariable(bpy.types.Operator):
     def execute(self, context):
         bpy.context.space_data.viewport_shade=self.variable
         return {'FINISHED'} 
+    
+class ShadingSmooth(bpy.types.Operator):
+    bl_idname = "shading.smooth"
+    bl_label = "Shading Smooth"
+    
+    def execute(self, context):
+        if bpy.context.object.mode == "OBJECT":
+            bpy.ops.object.shade_smooth()
+            
+        elif bpy.context.object.mode == "EDIT":
+            bpy.ops.object.mode_set(mode = 'OBJECT')
+            bpy.ops.object.shade_smooth()
+            bpy.ops.object.mode_set(mode = 'EDIT')
+        return {'FINISHED'} 
+    
+class ShadingFlat(bpy.types.Operator):
+    bl_idname = "shading.flat"
+    bl_label = "Shading Flat"
+    
+    def execute(self, context):
+        if bpy.context.object.mode == "OBJECT":
+            bpy.ops.object.shade_flat()
+            
+        elif bpy.context.object.mode == "EDIT":
+            bpy.ops.object.mode_set(mode = 'OBJECT')
+            bpy.ops.object.shade_flat()
+            bpy.ops.object.mode_set(mode = 'EDIT')
+        return {'FINISHED'} 
 
 ########################
 #  Proportionnal Edit  #               
@@ -1172,9 +1200,9 @@ class PieShadingMenu(Menu):
         #9 - TOP - RIGHT
         pie.operator("object.shadingvariable", text="Render", icon='SMOOTH').variable = 'RENDERED'
         #1 - BOTTOM - LEFT
-        pie.operator("object.shade_smooth", text="Shade Smooth", icon='SOLID')
+        pie.operator("shading.smooth", text="Shade Smooth", icon='SOLID')
         #3 - BOTTOM - RIGHT
-        pie.operator("object.shade_flat", text="Shade Flat", icon='MESH_ICOSPHERE')
+        pie.operator("shading.flat", text="Shade Flat", icon='MESH_ICOSPHERE')
 
 #Pie views numpad
 class PieViewNumpad(Menu):
@@ -1356,6 +1384,8 @@ def register():
     # Shading
     bpy.utils.register_class(ShadingVariable)
     bpy.utils.register_class(PieShadingMenu)
+    bpy.utils.register_class(ShadingSmooth)
+    bpy.utils.register_class(ShadingFlat)
     # View numpad
     bpy.utils.register_class(PieViewNumpad)
     bpy.utils.register_class(PerspOrthoView)
@@ -1373,6 +1403,8 @@ def register():
     bpy.utils.register_class(ProportionalLinear)
     bpy.utils.register_class(ProportionalConstant)
     bpy.utils.register_class(ProportionalRandom)
+    
+    
     
 # Keympa Config   
     
@@ -1417,7 +1449,7 @@ def register():
         
         #Shading
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS', shift=True).properties.name = "pie.shading"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS').properties.name = "pie.shading"
         
         #Views numpad
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
@@ -1495,7 +1527,9 @@ def unregister():
     bpy.utils.unregister_class(LapRelax)
     # Shading
     bpy.utils.unregister_class(ShadingVariable)
-    bpy.utils.unregister_class(ShadingMenuPie)  
+    bpy.utils.unregister_class(ShadingMenuPie) 
+    bpy.utils.unregister_class(ShadingSmooth)
+    bpy.utils.unregister_class(ShadingFlat)
     # View numpad
     bpy.utils.unregister_class(PieViewNumpad)
     bpy.utils.unregister_class(PieShadingMenu)
@@ -1528,6 +1562,4 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-
-
 
