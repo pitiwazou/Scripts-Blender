@@ -1179,8 +1179,8 @@ class PieOrientation(Menu):
         
         
 #Pi Shading
-class PieShadingMenu(Menu):
-    bl_idname = "pie.shading"
+class PieShadingView(Menu):
+    bl_idname = "pie.shadingview"
     bl_label = "Pie Shading"
 
     def draw(self, context):
@@ -1383,7 +1383,7 @@ def register():
     bpy.utils.register_class(LapRelax)
     # Shading
     bpy.utils.register_class(ShadingVariable)
-    bpy.utils.register_class(PieShadingMenu)
+    bpy.utils.register_class(PieShadingView)
     bpy.utils.register_class(ShadingSmooth)
     bpy.utils.register_class(ShadingFlat)
     # View numpad
@@ -1413,55 +1413,68 @@ def register():
     if wm.keyconfigs.addon:
         #Select Mode
         km = wm.keyconfigs.addon.keymaps.new(name='Object Non-modal')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS').properties.name = 'pie.objecteditmode'
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS')
+        kmi.properties.name = 'pie.objecteditmode'
         
         #Views
         km = wm.keyconfigs.addon.keymaps.new(name='Screen')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS').properties.name = "pie.areaviews"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS')
+        kmi.properties.name = "pie.areaviews"
         
         #Sculpt Pie Menu
         km = wm.keyconfigs.addon.keymaps.new(name='Sculpt')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS').properties.name = "pie.sculpt"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS')
+        kmi.properties.name = "pie.sculpt"
         
         #Sculpt Pie Menu 2
         km = wm.keyconfigs.addon.keymaps.new(name='Sculpt')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS', alt=True).properties.name = "pie.sculpttwo"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS', alt=True)
+        kmi.properties.name = "pie.sculpttwo"
         
         #Origin/Pivot
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True).properties.name = "pie.originpivot"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True)
+        kmi.properties.name = "pie.originpivot"
         
         #Manipulators
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', ctrl=True).properties.name = "pie.manipulator"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', ctrl=True)
+        kmi.properties.name = "pie.manipulator"
         
         #Snapping
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS', shift=True).properties.name = "pie.snapping"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS', shift=True)
+        kmi.properties.name = "pie.snapping"
         
         #Orientation
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', alt=True).properties.name = "pie.orientation"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', alt=True)
+        kmi.properties.name = "pie.orientation"
         
         #Retopo
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', shift=True).properties.name = "pie.retopo"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', shift=True)
+        kmi.properties.name = "pie.retopo"
         
         #Shading
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS').properties.name = "pie.shading"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS')
+        kmi.properties.name = "pie.shadingview"
         
         #Views numpad
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS').properties.name = "pie.viewnumpad"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS')
+        kmi.properties.name = "pie.viewnumpad"
         
         #Views numpad
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS', alt=True).properties.name = "pie.pivotpoint"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS', alt=True)
+        kmi.properties.name = "pie.pivotpoint"
         
         # Proportionnal Editing
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'PERIOD', 'PRESS').properties.name = "pie.proportionnalediting"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'PERIOD', 'PRESS')
+        kmi.properties.name = "pie.proportionnalediting"
         
         addon_keymaps.append(km)
 
@@ -1527,12 +1540,12 @@ def unregister():
     bpy.utils.unregister_class(LapRelax)
     # Shading
     bpy.utils.unregister_class(ShadingVariable)
-    bpy.utils.unregister_class(ShadingMenuPie) 
+    bpy.utils.unregister_class(PieShadingView) 
     bpy.utils.unregister_class(ShadingSmooth)
     bpy.utils.unregister_class(ShadingFlat)
     # View numpad
     bpy.utils.unregister_class(PieViewNumpad)
-    bpy.utils.unregister_class(PieShadingMenu)
+    bpy.utils.unregister_class(PerspOrthoView)
     # Pivot Point
     bpy.utils.unregister_class(PivotPointVariable)
     bpy.utils.unregister_class(PiePivotPoint) 
@@ -1562,4 +1575,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
+
+
 
