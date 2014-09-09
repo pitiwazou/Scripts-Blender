@@ -22,8 +22,8 @@ bl_info = {
     "name": "Shading_menu",
     "description": 'Add a menu with shading options in the 3Dview',
     "author": "Cedric Lepiller, Lapineige",
-    "version": (0, 1, 0),
-    "blender": (2, 70, 0),
+    "version": (0, 1, 1),
+    "blender": (2, 71, 0),
     "location": "View3D > Header > Shading_menu",
     "warning": "", # used for warning icon and text in addons panel
     "wiki_url": "",
