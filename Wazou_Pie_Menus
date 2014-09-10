@@ -31,6 +31,51 @@ import bmesh
 from mathutils import *
 import math
 
+class WazouPieMenuPrefs(bpy.types.AddonPreferences):
+    """Creates the tools in a Panel, in the scene context of the properties editor"""
+    bl_idname = __name__
+
+    bpy.types.Scene.Enable_Tab_01 = bpy.props.BoolProperty(default=False)
+    bpy.types.Scene.Enable_Tab_02 = bpy.props.BoolProperty(default=False)
+    bpy.types.Scene.Enable_Tab_03 = bpy.props.BoolProperty(default=False)
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.prop(context.scene, "Enable_Tab_01", text="Info", icon="QUESTION")
+        if context.scene.Enable_Tab_01:
+            row = layout.row()
+            layout.label(text="This Addon Need to activate 'Loop Tools' and 'Bsurfaces' in the Addon Tab to work properly.")
+            layout.label(text="You need to install Iceking's Tool And Auto Mirror")
+            
+            layout.operator("wm.url_open", text="IceKing's tools").url = "http://www.blenderartists.org/forum/showthread.php?343641-Iceking-s-Tools"
+            layout.operator("wm.url_open", text="Auto Mirror").url = "http://le-terrier-de-lapineige.over-blog.com/2014/07/automirror-mon-add-on-pour-symetriser-vos-objets-rapidement.html"
+        
+        layout.prop(context.scene, "Enable_Tab_02", text="Shortcuts", icon="QUESTION")
+        if context.scene.Enable_Tab_02:
+            row = layout.row()    
+            layout.label(text="– Object/Edit mode > Tab")
+            layout.label(text="– Views > Space")
+            layout.label(text="– Sculpt > W & Alt + W")
+            layout.label(text="– Cursor/Origin > Shift + S")
+            layout.label(text="– Manipulators > Ctrl + Space")
+            layout.label(text="– Snapping > Shift + Tab")
+            layout.label(text="– Orientation > Alt + Space")
+            layout.label(text="– Retopo > Shift + RMB")
+            layout.label(text="– Shading > Z")
+            layout.label(text="– Views Ortho > Q")
+            layout.label(text="– CursorOrigin > Alt + Q")
+            layout.label(text="– Proportionnal Editing > ;")
+
+        layout.prop(context.scene, "Enable_Tab_03", text="URL's", icon="URL")   
+        if context.scene.Enable_Tab_03:
+            row = layout.row()
+            row.operator("wm.url_open", text="Pitiwazou.com").url = "http://www.pitiwazou.com/"
+            row.operator("wm.url_open", text="Wazou's Ghitub").url = "https://github.com/pitiwazou/Scripts-Blender"
+            row.operator("wm.url_open", text="BlenderLounge Forum ").url = "http://blenderlounge.fr/forum/"
+            
+        return {'FINISHED'}
+
 ######################
 #      Snapping      #               
 ######################
@@ -1403,6 +1448,9 @@ def register():
     bpy.utils.register_class(ProportionalLinear)
     bpy.utils.register_class(ProportionalConstant)
     bpy.utils.register_class(ProportionalRandom)
+    # Preferences
+    bpy.utils.register_class(WazouPieMenuPrefs)
+    
     
     
     
@@ -1560,6 +1608,8 @@ def unregister():
     bpy.utils.unregister_class(ProportionalLinear)
     bpy.utils.unregister_class(ProportionalConstant)
     bpy.utils.unregister_class(ProportionalRandom)
+    # Preferences
+    bpy.utils.unregister_class(WazouPieMenuPrefs)
     
     wm = bpy.context.window_manager
 
@@ -1575,6 +1625,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
 
