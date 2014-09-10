@@ -22,8 +22,8 @@ bl_info = {
     "name": "Shading_menu",
     "description": 'Add a menu with shading options in the 3Dview',
     "author": "Cedric Lepiller, Lapineige",
-    "version": (0, 1, 1),
-    "blender": (2, 71, 0),
+    "version": (0, 1, 0),
+    "blender": (2, 70, 0),
     "location": "View3D > Header > Shading_menu",
     "warning": "", # used for warning icon and text in addons panel
     "wiki_url": "",
@@ -33,7 +33,32 @@ bl_info = {
 ##############
 
 import bpy
+from bpy.props import IntProperty, FloatProperty, BoolProperty
 
+class ShadingMenuCACUserPrefs(bpy.types.AddonPreferences):
+    """Creates the tools in a Panel, in the scene context of the properties editor"""
+    bl_idname = __name__
+
+    bpy.types.Scene.Enable_ShadinMenu_Tab_1 = bpy.props.BoolProperty(default=False)
+    bpy.types.Scene.Enable_ShadinMenu_Tab_2 = bpy.props.BoolProperty(default=False)
+   
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.prop(context.scene, "Enable_ShadinMenu_Tab_1", text="Info", icon="QUESTION")
+        if context.scene.Enable_ShadinMenu_Tab_1:
+            row = layout.row()
+            layout.label(text="This Addons is a Menu with shading options")
+            
+        layout.prop(context.scene, "Enable_ShadinMenu_Tab_2", text="URL's", icon="URL")   
+        if context.scene.Enable_ShadinMenu_Tab_2:
+            row = layout.row()
+            row.operator("wm.url_open", text="Pitiwazou.com").url = "http://www.pitiwazou.com/"
+            row.operator("wm.url_open", text="Wazou's Ghitub").url = "https://github.com/pitiwazou/Scripts-Blender"
+            row.operator("wm.url_open", text="BlenderLounge Forum ").url = "http://blenderlounge.fr/forum/"
+            
+        return {'FINISHED'}
 
 
 #Solid All
@@ -280,6 +305,7 @@ def register():
     bpy.utils.register_class(AutoSmooth45)
     bpy.utils.register_class(ShadingFlat)
     bpy.utils.register_class(ShadingSmooth)
+    bpy.utils.register_class(ShadingMenuCACUserPrefs)
     
     
 def unregister():
@@ -295,9 +321,11 @@ def unregister():
     bpy.utils.unregister_class(AutoSmooth45)
     bpy.utils.unregister_class(ShadingFlat)
     bpy.utils.unregister_class(ShadingSmooth)
+    bpy.utils.unregister_class(ShadingMenuCACUserPrefs)
   
 if __name__ == "__main__":
     register()
+
 
 
 
