@@ -772,6 +772,7 @@ class PivotBottom(bpy.types.Operator):
   
     def execute(self, context):
         
+        bpy.ops.object.mode_set(mode = 'OBJECT')
         bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
         bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
         o=bpy.context.active_object
@@ -787,6 +788,7 @@ class PivotBottom(bpy.types.Operator):
              x.co.z-=a
 
         o.location.z+=a 
+        bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'}    
 
 #Align to X
@@ -1625,6 +1627,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
 
