@@ -513,7 +513,7 @@ class WManupulators(bpy.types.Operator):
              bpy.context.space_data.show_manipulator = True
 
         return {'FINISHED'}
-    
+
 ######################
 #       Modes        #               
 ######################
@@ -747,6 +747,29 @@ class ViewMenu(bpy.types.Operator):
     def execute(self, context):
         bpy.context.area.type=self.variable
         return {'FINISHED'} 
+##############
+#   Sculpt   #               
+##############
+
+# Sculpt Polish
+class SculptPolish(bpy.types.Operator):
+    bl_idname = "sculpt.polish"
+    bl_label = "Sculpt Polish"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Polish']
+        return {'FINISHED'} 
+     
+# Sculpt Polish
+class SculptSculptDraw(bpy.types.Operator):
+    bl_idname = "sculpt.sculptraw"
+    bl_label = "Sculpt SculptDraw"
+    
+    def execute(self, context):
+        layout = self.layout
+        bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['SculptDraw']
+        return {'FINISHED'}
     
 ######################
 #   Cursor/Origin    #               
@@ -789,7 +812,11 @@ class PivotBottom(bpy.types.Operator):
 
         o.location.z+=a 
         bpy.ops.object.mode_set(mode = 'EDIT')
-        return {'FINISHED'}    
+        return {'FINISHED'}   
+     
+###############
+#   Retopo    #               
+###############
 
 #Align to X
 class AlignToX(bpy.types.Operator):  
@@ -1047,15 +1074,15 @@ class PieSculptPie(Menu):
         #2 - BOTTOM
         pie.operator("paint.brush_select", text='Flatten', icon='BRUSH_FLATTEN').sculpt_tool='FLATTEN'
         #8 - TOP
-        pie.operator("paint.brush_select", text='Draw', icon='BRUSH_SCULPT_DRAW').sculpt_tool='DRAW'
+        pie.operator("paint.brush_select", text='Brush', icon='BRUSH_SCULPT_DRAW').sculpt_tool='DRAW'
         #7 - TOP - LEFT 
-        pie.operator("paint.brush_select", text='Inflate', icon='BRUSH_INFLATE').sculpt_tool='INFLATE'
+        pie.operator("paint.brush_select", text='Inflate/Deflate', icon='BRUSH_INFLATE').sculpt_tool='INFLATE'
         #9 - TOP - RIGHT
         pie.operator("paint.brush_select", text='Grab', icon='BRUSH_GRAB').sculpt_tool='GRAB'
         #1 - BOTTOM - LEFT
         pie.operator("paint.brush_select", text='Mask', icon='BRUSH_MASK').sculpt_tool='MASK'
         #3 - BOTTOM - RIGHT
-        pie.operator("paint.brush_select", text='Fill', icon='BRUSH_FILL').sculpt_tool='FILL'
+        pie.operator("paint.brush_select", text='Fill/Deepen', icon='BRUSH_FILL').sculpt_tool='FILL'
 
 #Pie Sculp Pie Menus 2        
 class PieSculpttwo(Menu):
@@ -1075,15 +1102,15 @@ class PieSculpttwo(Menu):
         #8 - TOP
         pie.operator("paint.brush_select", text='Smooth', icon='BRUSH_SMOOTH').sculpt_tool= 'SMOOTH'
         #7 - TOP - LEFT 
-        pie.operator("paint.brush_select", text='Pinch', icon='BRUSH_PINCH').sculpt_tool= 'PINCH'
+        pie.operator("paint.brush_select", text='Pinch/Magnify', icon='BRUSH_PINCH').sculpt_tool= 'PINCH'
         #9 - TOP - RIGHT
-        pie.operator("paint.brush_select", text='Polish', icon='BRUSH_FLATTEN').sculpt_tool= 'SIMPLIFY'
+        pie.operator("sculpt.polish", text='Polish', icon='BRUSH_FLATTEN')
         #1 - BOTTOM - LEFT
         box = pie.split().column()
         row = box.row(align=True)
         box.operator("paint.brush_select", text='Twist', icon='BRUSH_ROTATE').sculpt_tool= 'ROTATE'
         box.operator("paint.brush_select", text='Scrape/Peaks', icon='BRUSH_SCRAPE').sculpt_tool= 'SCRAPE'
-        box.operator("paint.brush_select", text='Twist', icon='BRUSH_ROTATE').sculpt_tool= 'ROTATE'
+        box.operator("sculpt.sculptraw", text='SculptDraw', icon='BRUSH_SCULPT_DRAW')
         #3 - BOTTOM - RIGHT
         box = pie.split().column()
         row = box.row(align=True)
@@ -1389,6 +1416,8 @@ def register():
     # Sculpt Pie Menu
     bpy.utils.register_class(PieSculptPie)
     bpy.utils.register_class(PieSculpttwo)
+    bpy.utils.register_class(SculptPolish)
+    bpy.utils.register_class(SculptSculptDraw)
     # Components Selection Mode
     bpy.utils.register_class(VertsEdges)
     bpy.utils.register_class(EdgesFaces)
@@ -1549,6 +1578,8 @@ def unregister():
     # Sculpt Pie Menu
     bpy.utils.unregister_class(PieSculptPie)
     bpy.utils.unregister_class(PieSculpttwo)
+    bpy.utils.unregister_class(SculptPolish)
+    bpy.utils.register_class(SculptSculptDraw)
     # Components Selection Mode
     bpy.utils.unregister_class(VertsEdges)
     bpy.utils.unregister_class(EdgesFaces)
@@ -1627,6 +1658,8 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
+
 
 
 
