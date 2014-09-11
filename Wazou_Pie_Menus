@@ -1,4 +1,4 @@
-# ##### BEGIN GPL LICENSE BLOCK #####
+﻿# ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -74,6 +74,258 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
             row.operator("wm.url_open", text="Wazou's Ghitub").url = "https://github.com/pitiwazou/Scripts-Blender"
             row.operator("wm.url_open", text="BlenderLounge Forum ").url = "http://blenderlounge.fr/forum/"
             
+        return {'FINISHED'}
+#####################################
+#      Proportional Edit Object     #               
+#####################################
+class ProportionalEditObj(bpy.types.Operator):
+    bl_idname = "proportional_obj.active"
+    bl_label = "Proportional Edit Object"
+    
+    def execute(self, context):
+        layout = self.layout 
+        
+        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (True):
+            bpy.context.scene.tool_settings.use_proportional_edit_objects = False
+            
+        elif bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) :
+             bpy.context.scene.tool_settings.use_proportional_edit_objects = True
+
+        return {'FINISHED'}
+
+
+class ProportionalSmoothObj(bpy.types.Operator):
+    bl_idname = "proportional_obj.smooth"
+    bl_label = "Proportional Smooth Object"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
+            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SMOOTH'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SMOOTH': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SMOOTH' 
+        return {'FINISHED'}    
+
+class ProportionalSphereObj(bpy.types.Operator):
+    bl_idname = "proportional_obj.sphere"
+    bl_label = "Proportional Sphere Object"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
+            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SPHERE'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SPHERE': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SPHERE' 
+        return {'FINISHED'}    
+
+class ProportionalRootObj(bpy.types.Operator):
+    bl_idname = "proportional_obj.root"
+    bl_label = "Proportional Root Object"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
+            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'ROOT'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'ROOT': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'ROOT' 
+        return {'FINISHED'}
+    
+class ProportionalSharpObj(bpy.types.Operator):
+    bl_idname = "proportional_obj.sharp"
+    bl_label = "Proportional Sharp Object"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
+            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SHARP'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SHARP': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SHARP' 
+        return {'FINISHED'}
+    
+class ProportionalLinearObj(bpy.types.Operator):
+    bl_idname = "proportional_obj.linear"
+    bl_label = "Proportional Linear Object"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
+            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'LINEAR'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'LINEAR': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'LINEAR' 
+        return {'FINISHED'}  
+
+class ProportionalConstantObj(bpy.types.Operator):
+    bl_idname = "proportional_obj.constant"
+    bl_label = "Proportional Constant Object"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
+            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'CONSTANT'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'CONSTANT': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'CONSTANT'
+        return {'FINISHED'}  
+
+class ProportionalRandomObj(bpy.types.Operator):
+    bl_idname = "proportional_obj.random"
+    bl_label = "Proportional Random Object"
+
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
+            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'RANDOM'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'RANDOM': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'RANDOM'
+        return {'FINISHED'}
+
+#######################################
+#      Proportional Edit EditMode     #               
+#######################################
+class ProportionalEditEdt(bpy.types.Operator):
+    bl_idname = "proportional_edt.active"
+    bl_label = "Proportional Edit EditMode"
+    
+    def execute(self, context):
+        layout = self.layout 
+        
+        if bpy.context.scene.tool_settings.proportional_edit != ('DISABLED'):
+            bpy.context.scene.tool_settings.proportional_edit = 'DISABLED'
+        elif bpy.context.scene.tool_settings.proportional_edit != ('ENABLED'):
+            bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
+        return {'FINISHED'}
+
+class ProportionalConnectedEdt(bpy.types.Operator):
+    bl_idname = "proportional_edt.connected"
+    bl_label = "Proportional Connected EditMode"
+    
+    def execute(self, context):
+        layout = self.layout 
+        
+        if bpy.context.scene.tool_settings.proportional_edit != ('CONNECTED'):
+            bpy.context.scene.tool_settings.proportional_edit = 'CONNECTED'
+        return {'FINISHED'}
+
+class ProportionalProjectedEdt(bpy.types.Operator):
+    bl_idname = "proportional_edt.projected"
+    bl_label = "Proportional Connected EditMode"
+    
+    def execute(self, context):
+        layout = self.layout 
+        
+        if bpy.context.scene.tool_settings.proportional_edit != ('PROJECTED'):
+            bpy.context.scene.tool_settings.proportional_edit = 'PROJECTED'
+        return {'FINISHED'}
+
+class ProportionalSmoothEdt(bpy.types.Operator):
+    bl_idname = "proportional_edt.smooth"
+    bl_label = "Proportional Smooth EditMode"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
+            bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SMOOTH'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SMOOTH': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SMOOTH' 
+        return {'FINISHED'}    
+
+class ProportionalSphereEdt(bpy.types.Operator):
+    bl_idname = "proportional_edt.sphere"
+    bl_label = "Proportional Sphere EditMode"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
+            bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SPHERE'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SPHERE': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SPHERE' 
+        return {'FINISHED'}    
+
+class ProportionalRootEdt(bpy.types.Operator):
+    bl_idname = "proportional_edt.root"
+    bl_label = "Proportional Root EditMode"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
+            bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'ROOT'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'ROOT': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'ROOT' 
+        return {'FINISHED'}
+    
+class ProportionalSharpEdt(bpy.types.Operator):
+    bl_idname = "proportional_edt.sharp"
+    bl_label = "Proportional Sharp EditMode"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
+            bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SHARP'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SHARP': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SHARP' 
+        return {'FINISHED'}
+    
+class ProportionalLinearEdt(bpy.types.Operator):
+    bl_idname = "proportional_edt.linear"
+    bl_label = "Proportional Linear EditMode"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
+            bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'LINEAR'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'LINEAR': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'LINEAR' 
+        return {'FINISHED'}  
+
+class ProportionalConstantEdt(bpy.types.Operator):
+    bl_idname = "proportional_edt.constant"
+    bl_label = "Proportional Constant EditMode"
+    
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
+            bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'CONSTANT'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'CONSTANT': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'CONSTANT'
+        return {'FINISHED'}  
+
+class ProportionalRandomEdt(bpy.types.Operator):
+    bl_idname = "proportional_edt.random"
+    bl_label = "Proportional Random EditMode"
+
+    def execute(self, context):
+        layout = self.layout
+        if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
+            bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'RANDOM'
+            
+        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'RANDOM': 
+            bpy.context.scene.tool_settings.proportional_edit_falloff = 'RANDOM'
         return {'FINISHED'}
 
 ######################
@@ -252,129 +504,7 @@ class ShadingFlat(bpy.types.Operator):
             bpy.ops.object.shade_flat()
             bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'} 
-
-########################
-#  Proportionnal Edit  #               
-########################
    
-class UseProportionnal(bpy.types.Operator):
-    bl_idname = "use.proportionnal"
-    bl_label = "Use Proportionnal"
-    
-    def execute(self, context):
-        ob = context
-        if ob.mode == 'OBJECT':
-            if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False):
-                bpy.context.scene.tool_settings.use_proportional_edit_objects = True
-            elif bpy.context.scene.tool_settings.use_proportional_edit_objects == (True):
-                bpy.context.scene.tool_settings.use_proportional_edit_objects = False
-            return {'FINISHED'}
-        
-        elif ob.mode == 'EDIT_MESH':
-            if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED'):
-                bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
-            elif bpy.context.scene.tool_settings.proportional_edit == ('ENABLED'):
-                bpy.context.scene.tool_settings.proportional_edit = 'DISABLED'
-            return {'FINISHED'}
-        
-class ProportionalSmooth(bpy.types.Operator):
-    bl_idname = "proportional.smooth"
-    bl_label = "Proportional Smooth"
-    
-    def execute(self, context):
-        layout = self.layout
-        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
-            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SMOOTH'
-            
-        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SMOOTH': 
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SMOOTH' 
-        return {'FINISHED'}    
-
-class ProportionalSphere(bpy.types.Operator):
-    bl_idname = "proportional.sphere"
-    bl_label = "Proportional Sphere"
-    
-    def execute(self, context):
-        layout = self.layout
-        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
-            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SPHERE'
-            
-        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SPHERE': 
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SPHERE' 
-        return {'FINISHED'}    
-
-class ProportionalRoot(bpy.types.Operator):
-    bl_idname = "proportional.root"
-    bl_label = "Proportional Root"
-    
-    def execute(self, context):
-        layout = self.layout
-        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
-            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'ROOT'
-            
-        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'ROOT': 
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'ROOT' 
-        return {'FINISHED'}
-    
-class ProportionalSharp(bpy.types.Operator):
-    bl_idname = "proportional.sharp"
-    bl_label = "Proportional Sharp"
-    
-    def execute(self, context):
-        layout = self.layout
-        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
-            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SHARP'
-            
-        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SHARP': 
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'SHARP' 
-        return {'FINISHED'}
-    
-class ProportionalLinear(bpy.types.Operator):
-    bl_idname = "proportional.linear"
-    bl_label = "Proportional Linear"
-    
-    def execute(self, context):
-        layout = self.layout
-        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
-            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'LINEAR'
-            
-        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'LINEAR': 
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'LINEAR' 
-        return {'FINISHED'}  
-
-class ProportionalConstant(bpy.types.Operator):
-    bl_idname = "proportional.constant"
-    bl_label = "Proportional Constant"
-    
-    def execute(self, context):
-        layout = self.layout
-        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
-            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'CONSTANT'
-            
-        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'CONSTANT': 
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'CONSTANT'
-        return {'FINISHED'}  
-
-class ProportionalRandom(bpy.types.Operator):
-    bl_idname = "proportional.random"
-    bl_label = "Proportional Random"
-
-    def execute(self, context):
-        layout = self.layout
-        if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
-            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'RANDOM'
-            
-        if bpy.context.scene.tool_settings.proportional_edit_falloff != 'RANDOM': 
-            bpy.context.scene.tool_settings.proportional_edit_falloff = 'RANDOM'
-        return {'FINISHED'}             
-    
 ######################
 #    Pivot Point     #               
 ######################
@@ -625,7 +755,21 @@ class ClassFace(bpy.types.Operator):
 
 ######################
 #   Selection Mode   #               
-######################        
+######################
+
+# Define Class Occlude Geometry
+class ClassOccludeGeometry(bpy.types.Operator):
+    bl_idname = "class.pieoccludegeo"
+    bl_label = "Class Occlude Geometry"
+    
+    def execute(self, context):
+        layout = self.layout
+        
+        if bpy.context.space_data.use_occlude_geometry == (True):
+            bpy.context.space_data.use_occlude_geometry = False
+        else:
+            bpy.context.space_data.use_occlude_geometry = True
+        return {'FINISHED'}        
 
 # Components Selection Mode
 class VertsEdges(bpy.types.Operator):
@@ -954,12 +1098,13 @@ class PieObjectEditMode(Menu):
             #8 - TOP
             pie.operator("class.object", text="Edit/Object", icon='OBJECT_DATAMODE')
             #7 - TOP - LEFT 
-            pie.operator("class.pietexturepaint", text="Texture Paint", icon='WPAINT_HLT')
+            pie.operator("class.pieoccludegeo", text="Occlude Geometry", icon='ORTHO')
             #9 - TOP - RIGHT
             pie.operator("sculpt.sculptmode_toggle", text="Sculpt", icon='SCULPTMODE_HLT')
             #1 - BOTTOM - LEFT
             box = pie.split().column()
             row = box.row(align=True)
+            box.operator("class.pietexturepaint", text="Texture Paint", icon='TPAINT_HLT')
             box.operator("class.pievertexpaint", text="Vertex Paint", icon='VPAINT_HLT')
             box.operator("class.pieweightpaint", text="Weight Paint", icon='WPAINT_HLT')
             #3 - BOTTOM - RIGHT
@@ -1042,7 +1187,7 @@ class PieAreaViews(Menu):
         pie.operator("split.vertical", text="Split Vertical", icon= 'TRIA_RIGHT')
         #3 - BOTTOM - RIGHT
         pie.operator("split.horizontal", text="Split Horizontal", icon= 'TRIA_DOWN')
-         
+
 #Menu Other views
 class OherViewsMenu(Menu):
     bl_idname = "oher.viewsmenu"
@@ -1057,6 +1202,42 @@ class OherViewsMenu(Menu):
         layout.operator("object.view_menu", text="File Browser", icon= 'FILESEL').variable="FILE_BROWSER"
         layout.operator("object.view_menu", text="Info", icon= 'INFO').variable="INFO"
         layout.operator("object.view_menu", text="Logic Editor", icon= 'LOGIC').variable="LOGIC_EDITOR" 
+        
+#Pie views numpad
+class PieViewNumpad(Menu):
+    bl_idname = "pie.viewnumpad"
+    bl_label = "Pie Views Ortho"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("view3d.viewnumpad", text="Left", icon='TRIA_LEFT').type='LEFT'
+        #6 - RIGHT
+        pie.operator("view3d.viewnumpad", text="Right", icon='TRIA_RIGHT').type='RIGHT'
+        #2 - BOTTOM
+        pie.operator("view3d.viewnumpad", text="Bottom", icon='TRIA_DOWN').type='BOTTOM'
+        #8 - TOP
+        pie.operator("view3d.viewnumpad", text="Top", icon='TRIA_UP').type='TOP'
+        #7 - TOP - LEFT 
+        pie.operator("view3d.viewnumpad", text="Front").type='FRONT'
+        #9 - TOP - RIGHT
+        pie.operator("view3d.viewnumpad", text="Back").type='BACK'
+        #1 - BOTTOM - LEFT
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.operator("view3d.view_all", text="View All").center = True
+        box.operator("view3d.view_selected", text="View Selected")
+        box.operator("persp.orthoview", text="Persp/Ortho", icon='RESTRICT_VIEW_OFF')
+        box.operator("screen.screen_full_area", text="Full Screen", icon='FULLSCREEN_ENTER')
+        #3 - BOTTOM - RIGHT
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.operator("view3d.localview", text="Local/Global")
+        box.operator("view3d.viewnumpad", text="Camera", icon='CAMERA_DATA').type='CAMERA'
+        box.operator("screen.region_quadview", text="Toggle Quad View", icon='SPLITSCREEN')
+        box.operator("screen.area_dupli", text="Duplicate area")
         
 #Pie Sculp Pie Menus
 class PieSculptPie(Menu):
@@ -1277,43 +1458,7 @@ class PieShadingView(Menu):
         pie.operator("shading.smooth", text="Shade Smooth", icon='SOLID')
         #3 - BOTTOM - RIGHT
         pie.operator("shading.flat", text="Shade Flat", icon='MESH_ICOSPHERE')
-
-#Pie views numpad
-class PieViewNumpad(Menu):
-    bl_idname = "pie.viewnumpad"
-    bl_label = "Pie Views Ortho"
-
-    def draw(self, context):
-        layout = self.layout
-        
-        pie = layout.menu_pie()
-        #4 - LEFT
-        pie.operator("view3d.viewnumpad", text="Left", icon='TRIA_LEFT').type='LEFT'
-        #6 - RIGHT
-        pie.operator("view3d.viewnumpad", text="Right", icon='TRIA_RIGHT').type='RIGHT'
-        #2 - BOTTOM
-        pie.operator("view3d.viewnumpad", text="Bottom", icon='TRIA_DOWN').type='BOTTOM'
-        #8 - TOP
-        pie.operator("view3d.viewnumpad", text="Top", icon='TRIA_UP').type='TOP'
-        #7 - TOP - LEFT 
-        pie.operator("view3d.viewnumpad", text="Front").type='FRONT'
-        #9 - TOP - RIGHT
-        pie.operator("view3d.viewnumpad", text="Back").type='BACK'
-        #1 - BOTTOM - LEFT
-        box = pie.split().column()
-        row = box.row(align=True)
-        box.operator("persp.orthoview", text="Persp/Ortho", icon='RESTRICT_VIEW_OFF')
-        box.operator("view3d.viewnumpad", text="Camera", icon='CAMERA_DATA').type='CAMERA'
-        box.operator("screen.region_quadview", text="Toggle Quad View", icon='SPLITSCREEN')
-        box.operator("screen.screen_full_area", text="Full Screen", icon='FULLSCREEN_ENTER')
-        #3 - BOTTOM - RIGHT
-        box = pie.split().column()
-        row = box.row(align=True)
-        box.operator("view3d.view_all", text="View All").center = True
-        box.operator("view3d.view_selected", text="View Selected")
-        box.operator("view3d.localview", text="Local/Global")
-        box.operator("screen.area_dupli", text="Duplicate area")
-        
+      
 #Pie Pivot Point           
 class PiePivotPoint(Menu):
     bl_idname = "pie.pivotpoint"
@@ -1338,31 +1483,61 @@ class PiePivotPoint(Menu):
         #1 - BOTTOM - LEFT
         #3 - BOTTOM - RIGHT
 
-#Pie Proportionnal       
-class PieProportionnalEditing(Menu):
-    bl_idname = "pie.proportionnalediting"
-    bl_label = "Pie Proportionnal Editing"
+#Pie ProportionalEditObj
+class PieProportionalObj(Menu):
+    bl_idname = "pie.proportional_obj"
+    bl_label = "Pie ProportionalEditObj"
 
     def draw(self, context):
         layout = self.layout
         
         pie = layout.menu_pie()
         #4 - LEFT
-        pie.operator("proportional.constant", text="CONSTANT", icon='NOCURVE')
+        pie.operator("proportional_obj.sphere", text="Sphere", icon='SPHERECURVE')
         #6 - RIGHT
-        pie.operator("proportional.sphere", text="Sphere", icon='SPHERECURVE')
+        pie.operator("proportional_obj.root", text="Root", icon='ROOTCURVE')
         #2 - BOTTOM
-        pie.operator("proportional.sharp", text="Sharp", icon='SHARPCURVE')
+        pie.operator("proportional_obj.smooth", text="Smooth", icon='SMOOTHCURVE')
         #8 - TOP
-        pie.operator("use.proportionnal", text="Proportional ON/OFF", icon='PROP_ON')
+        pie.operator("proportional_obj.active", text="Proportional On/Off", icon='PROP_ON')
         #7 - TOP - LEFT 
-        pie.operator("proportional.random", text="Random", icon='RNDCURVE')
+        pie.operator("proportional_obj.linear", text="Linear", icon='LINCURVE')
         #9 - TOP - RIGHT
-        pie.operator("proportional.smooth", text="Smooth", icon='SMOOTHCURVE')
+        pie.operator("proportional_obj.sharp", text="Sharp", icon='SHARPCURVE')
         #1 - BOTTOM - LEFT
-        pie.operator("proportional.linear", text="Linear", icon='LINCURVE')
-        #3 - BOTTOM - RIGHT 
-        pie.operator("proportional.root", text="Root", icon='ROOTCURVE')
+        pie.operator("proportional_obj.constant", text="Constant", icon='NOCURVE')
+        #3 - BOTTOM - RIGHT
+        pie.operator("proportional_obj.random", text="Random", icon='RNDCURVE')
+
+#Pie ProportionalEditEdt
+class PieProportionalEdt(Menu):
+    bl_idname = "pie.proportional_edt"
+    bl_label = "Pie ProportionalEditEdt"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("proportional_edt.connected", text="Connected", icon='PROP_CON')
+        #6 - RIGHT
+        pie.operator("proportional_edt.projected", text="Projected", icon='PROP_ON')
+        #2 - BOTTOM
+        pie.operator("proportional_edt.smooth", text="Smooth", icon='SMOOTHCURVE')
+        #8 - TOP
+        pie.operator("proportional_edt.active", text="Proportional On/Off", icon='PROP_ON')
+        #7 - TOP - LEFT 
+        pie.operator("proportional_edt.sphere", text="Sphere", icon='SPHERECURVE')
+        #9 - TOP - RIGHT
+        pie.operator("proportional_edt.root", text="Root", icon='ROOTCURVE')
+        #1 - BOTTOM - LEFT
+        pie.operator("proportional_edt.constant", text="Constant", icon='NOCURVE')
+        #3 - BOTTOM - RIGHT
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.operator("proportional_edt.linear", text="Linear", icon='LINCURVE')
+        box.operator("proportional_edt.sharp", text="Sharp", icon='SHARPCURVE')
+        box.operator("proportional_edt.random", text="Random", icon='RNDCURVE')
              
         
 #Pie Retopo               
@@ -1406,6 +1581,7 @@ def register():
     bpy.utils.register_class(ClassTexturePaint)
     bpy.utils.register_class(ClassVertexPaint)
     bpy.utils.register_class(ClassWeightPaint)
+    bpy.utils.register_class(ClassOccludeGeometry)
     # View Menu
     bpy.utils.register_class(PieAreaViews)
     bpy.utils.register_class(JoinArea)
@@ -1413,6 +1589,9 @@ def register():
     bpy.utils.register_class(SplitVertical)
     bpy.utils.register_class(ViewMenu)
     bpy.utils.register_class(OherViewsMenu)
+    # View numpad
+    bpy.utils.register_class(PieViewNumpad)
+    bpy.utils.register_class(PerspOrthoView)
     # Sculpt Pie Menu
     bpy.utils.register_class(PieSculptPie)
     bpy.utils.register_class(PieSculpttwo)
@@ -1462,23 +1641,32 @@ def register():
     bpy.utils.register_class(PieShadingView)
     bpy.utils.register_class(ShadingSmooth)
     bpy.utils.register_class(ShadingFlat)
-    # View numpad
-    bpy.utils.register_class(PieViewNumpad)
-    bpy.utils.register_class(PerspOrthoView)
     # Pivot Point
     bpy.utils.register_class(PivotPointVariable)
     bpy.utils.register_class(PiePivotPoint)
     bpy.utils.register_class(UsePivotAlign)
-    # Proportionnal Editing
-    bpy.utils.register_class(PieProportionnalEditing)
-    bpy.utils.register_class(UseProportionnal)
-    bpy.utils.register_class(ProportionalSmooth)
-    bpy.utils.register_class(ProportionalSphere)
-    bpy.utils.register_class(ProportionalRoot)
-    bpy.utils.register_class(ProportionalSharp)
-    bpy.utils.register_class(ProportionalLinear)
-    bpy.utils.register_class(ProportionalConstant)
-    bpy.utils.register_class(ProportionalRandom)
+    # ProportionalEditObj
+    bpy.utils.register_class(PieProportionalObj)
+    bpy.utils.register_class(ProportionalEditObj)
+    bpy.utils.register_class(ProportionalSmoothObj)
+    bpy.utils.register_class(ProportionalSphereObj)
+    bpy.utils.register_class(ProportionalRootObj)
+    bpy.utils.register_class(ProportionalSharpObj)
+    bpy.utils.register_class(ProportionalLinearObj)
+    bpy.utils.register_class(ProportionalConstantObj)
+    bpy.utils.register_class(ProportionalRandomObj)
+    # ProportionalEditEdt
+    bpy.utils.register_class(PieProportionalEdt)
+    bpy.utils.register_class(ProportionalEditEdt)
+    bpy.utils.register_class(ProportionalConnectedEdt)
+    bpy.utils.register_class(ProportionalProjectedEdt)
+    bpy.utils.register_class(ProportionalSmoothEdt)
+    bpy.utils.register_class(ProportionalSphereEdt)
+    bpy.utils.register_class(ProportionalRootEdt)
+    bpy.utils.register_class(ProportionalSharpEdt)
+    bpy.utils.register_class(ProportionalLinearEdt)
+    bpy.utils.register_class(ProportionalConstantEdt)
+    bpy.utils.register_class(ProportionalRandomEdt)
     # Preferences
     bpy.utils.register_class(WazouPieMenuPrefs)
     
@@ -1492,68 +1680,59 @@ def register():
     if wm.keyconfigs.addon:
         #Select Mode
         km = wm.keyconfigs.addon.keymaps.new(name='Object Non-modal')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS')
-        kmi.properties.name = "pie.objecteditmode"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS').properties.name = "pie.objecteditmode"
         
+        #Views numpad
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS').properties.name = "pie.viewnumpad"
+       
         #Views
         km = wm.keyconfigs.addon.keymaps.new(name='Screen')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS')
-        kmi.properties.name = "pie.areaviews"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS').properties.name = "pie.areaviews"
         
         #Sculpt Pie Menu
         km = wm.keyconfigs.addon.keymaps.new(name='Sculpt')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS')
-        kmi.properties.name = "pie.sculpt"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS').properties.name = "pie.sculpt"
         
         #Sculpt Pie Menu 2
         km = wm.keyconfigs.addon.keymaps.new(name='Sculpt')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS', alt=True)
-        kmi.properties.name = "pie.sculpttwo"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS', alt=True).properties.name = "pie.sculpttwo"
         
         #Origin/Pivot
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True)
-        kmi.properties.name = "pie.originpivot"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True).properties.name = "pie.originpivot"
         
         #Manipulators
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', ctrl=True)
-        kmi.properties.name = "pie.manipulator"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', ctrl=True).properties.name = "pie.manipulator"
         
         #Snapping
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS', shift=True)
-        kmi.properties.name = "pie.snapping"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS', shift=True).properties.name = "pie.snapping"
         
         #Orientation
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', alt=True)
-        kmi.properties.name = "pie.orientation"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', alt=True).properties.name = "pie.orientation"
         
         #Retopo
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', shift=True)
-        kmi.properties.name = "pie.retopo"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', shift=True).properties.name = "pie.retopo"
         
         #Shading
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS')
-        kmi.properties.name = "pie.shadingview"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS').properties.name = "pie.shadingview"
         
-        #Views numpad
+        #Pivot Point
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS')
-        kmi.properties.name = "pie.viewnumpad"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS', alt=True).properties.name = "pie.pivotpoint"
         
-        #Views numpad
-        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS', alt=True)
-        kmi.properties.name = "pie.pivotpoint"
-        
-        # Proportionnal Editing
-        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'PERIOD', 'PRESS')
-        kmi.properties.name = "pie.proportionnalediting"
+        #ProportionalEditObj
+        km = wm.keyconfigs.addon.keymaps.new(name = 'Object Mode')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'O', 'PRESS').properties.name = "pie.proportional_obj"
+
+        #ProportionalEditEdt
+        km = wm.keyconfigs.addon.keymaps.new(name = 'Mesh')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'O', 'PRESS').properties.name = "pie.proportional_edt"
         
         addon_keymaps.append(km)
 
@@ -1568,6 +1747,7 @@ def unregister():
     bpy.utils.unregister_class(ClassTexturePaint)
     bpy.utils.unregister_class(ClassVertexPaint)
     bpy.utils.unregister_class(ClassWeightPaint)
+    bpy.utils.unregister_class(ClassOccludeGeometry)
     # View Menu
     bpy.utils.unregister_class(PieAreaViews)
     bpy.utils.unregister_class(JoinArea)
@@ -1575,6 +1755,9 @@ def unregister():
     bpy.utils.unregister_class(SplitVertical)
     bpy.utils.unregister_class(ViewMenu)
     bpy.utils.unregister_class(OherViewsMenu)
+    # View numpad
+    bpy.utils.unregister_class(PieViewNumpad)
+    bpy.utils.unregister_class(PerspOrthoView)
     # Sculpt Pie Menu
     bpy.utils.unregister_class(PieSculptPie)
     bpy.utils.unregister_class(PieSculpttwo)
@@ -1624,23 +1807,32 @@ def unregister():
     bpy.utils.unregister_class(PieShadingView) 
     bpy.utils.unregister_class(ShadingSmooth)
     bpy.utils.unregister_class(ShadingFlat)
-    # View numpad
-    bpy.utils.unregister_class(PieViewNumpad)
-    bpy.utils.unregister_class(PerspOrthoView)
     # Pivot Point
     bpy.utils.unregister_class(PivotPointVariable)
     bpy.utils.unregister_class(PiePivotPoint) 
     bpy.utils.unregister_class(UsePivotAlign)
-    # Proportionnal Editing
-    bpy.utils.unregister_class(PieProportionnalEditing)
-    bpy.utils.unregister_class(UseProportionnal)
-    bpy.utils.unregister_class(ProportionalSmooth)
-    bpy.utils.unregister_class(ProportionalSphere)
-    bpy.utils.unregister_class(ProportionalRoot)
-    bpy.utils.unregister_class(ProportionalSharp)
-    bpy.utils.unregister_class(ProportionalLinear)
-    bpy.utils.unregister_class(ProportionalConstant)
-    bpy.utils.unregister_class(ProportionalRandom)
+    # ProportionalEditObj
+    bpy.utils.unregister_class(PieProportionalObj)
+    bpy.utils.unregister_class(ProportionalEditObj)
+    bpy.utils.unregister_class(ProportionalSmoothObj)
+    bpy.utils.unregister_class(ProportionalSphereObj)
+    bpy.utils.unregister_class(ProportionalRootObj)
+    bpy.utils.unregister_class(ProportionalSharpObj)
+    bpy.utils.unregister_class(ProportionalLinearObj)
+    bpy.utils.unregister_class(ProportionalConstantObj)
+    bpy.utils.unregister_class(ProportionalRandomObj)
+    # ProportionalEditEdt
+    bpy.utils.unregister_class(PieProportionalEdt)
+    bpy.utils.unregister_class(ProportionalEditEdt)
+    bpy.utils.unregister_class(ProportionalConnectedEdt)
+    bpy.utils.unregister_class(ProportionalProjectedEdt)
+    bpy.utils.unregister_class(ProportionalSmoothEdt)
+    bpy.utils.unregister_class(ProportionalSphereEdt)
+    bpy.utils.unregister_class(ProportionalRootEdt)
+    bpy.utils.unregister_class(ProportionalSharpEdt)
+    bpy.utils.unregister_class(ProportionalLinearEdt)
+    bpy.utils.unregister_class(ProportionalConstantEdt)
+    bpy.utils.unregister_class(ProportionalRandomEdt)
     # Preferences
     bpy.utils.unregister_class(WazouPieMenuPrefs)
     
@@ -1658,5 +1850,6 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
