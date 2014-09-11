@@ -1486,7 +1486,7 @@ class PiePivotPoint(Menu):
 #Pie ProportionalEditObj
 class PieProportionalObj(Menu):
     bl_idname = "pie.proportional_obj"
-    bl_label = "Pie ProportionalEditObj"
+    bl_label = "Pie Proportional Edit Obj"
 
     def draw(self, context):
         layout = self.layout
@@ -1512,7 +1512,7 @@ class PieProportionalObj(Menu):
 #Pie ProportionalEditEdt
 class PieProportionalEdt(Menu):
     bl_idname = "pie.proportional_edt"
-    bl_label = "Pie ProportionalEditEdt"
+    bl_label = "Pie Proportional Edit"
 
     def draw(self, context):
         layout = self.layout
