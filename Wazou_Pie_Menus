@@ -1493,7 +1493,7 @@ def register():
         #Select Mode
         km = wm.keyconfigs.addon.keymaps.new(name='Object Non-modal')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS')
-        kmi.properties.name = 'pie.objecteditmode'
+        kmi.properties.name = "pie.objecteditmode"
         
         #Views
         km = wm.keyconfigs.addon.keymaps.new(name='Screen')
@@ -1579,7 +1579,7 @@ def unregister():
     bpy.utils.unregister_class(PieSculptPie)
     bpy.utils.unregister_class(PieSculpttwo)
     bpy.utils.unregister_class(SculptPolish)
-    bpy.utils.register_class(SculptSculptDraw)
+    bpy.utils.unregister_class(SculptSculptDraw)
     # Components Selection Mode
     bpy.utils.unregister_class(VertsEdges)
     bpy.utils.unregister_class(EdgesFaces)
@@ -1658,11 +1658,5 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-
-
-
-
-
-
 
 
