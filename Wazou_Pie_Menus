@@ -65,7 +65,7 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
             layout.label(text="– Shading > Z")
             layout.label(text="– Views Ortho > Q")
             layout.label(text="– CursorOrigin > Alt + Q")
-            layout.label(text="– Proportionnal Editing > ;")
+            layout.label(text="– Proportionnal Editing > O")
 
         layout.prop(context.scene, "Enable_Tab_03", text="URL's", icon="URL")   
         if context.scene.Enable_Tab_03:
