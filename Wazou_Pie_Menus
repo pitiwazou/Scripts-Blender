@@ -1607,7 +1607,7 @@ class PieShadingView(Menu):
 #Pie Object Shading
 class PieObjectShading(Menu):
     bl_idname = "pie.objectshading"
-    bl_label = "Pie Object Shading"
+    bl_label = "Pie Shading Object"
 
     def draw(self, context):
         layout = self.layout
