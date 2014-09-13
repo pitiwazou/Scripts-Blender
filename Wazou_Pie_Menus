@@ -1,4 +1,4 @@
-﻿# ##### BEGIN GPL LICENSE BLOCK #####
+# ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -63,6 +63,7 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
             layout.label(text="– Orientation > Alt + Space")
             layout.label(text="– Retopo > Shift + RMB")
             layout.label(text="– Shading > Z")
+            layout.label(text="– Shading Object > Shift + Z")
             layout.label(text="– Views Ortho > Q")
             layout.label(text="– CursorOrigin > Alt + Q")
             layout.label(text="– Proportionnal Editing > O")
@@ -504,7 +505,164 @@ class ShadingFlat(bpy.types.Operator):
             bpy.ops.object.shade_flat()
             bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'} 
-   
+
+######################
+#   Object shading   #               
+######################
+
+#Wire on selected objects
+class WireSelected(bpy.types.Operator):
+    bl_idname = "object.wire_selected"
+    bl_label = "Wire Selected"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+               
+        for obj in bpy.data.objects:
+            if obj.select:
+                if obj.show_wire:
+                    obj.show_all_edges = False
+                    obj.show_wire = False
+                else:
+                    obj.show_all_edges = True
+                    obj.show_wire = True
+        return {'FINISHED'}
+    
+#Wire on all objects
+class WireAll(bpy.types.Operator):
+    bl_idname = "object.wireall"
+    bl_label = "Wire All"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        
+        for obj in bpy.data.objects:
+            if obj.show_wire:
+                obj.show_all_edges = False
+                obj.show_wire = False
+            else:
+                obj.show_all_edges = True
+                obj.show_wire = True
+        return {'FINISHED'}
+
+#Grid show/hide with axes
+class ToogleGridAxis(bpy.types.Operator):
+    bl_idname = "scene.tooglegridaxis"
+    bl_label = "Toogle Grid and Axis in 3D view"
+
+    def execute(self, context):
+        bpy.context.space_data.show_axis_y = not bpy.context.space_data.show_axis_y
+        bpy.context.space_data.show_axis_x = not bpy.context.space_data.show_axis_x
+        bpy.context.space_data.show_floor = not bpy.context.space_data.show_floor
+        return {'FINISHED'}
+
+#Solid All
+class SolidAll(bpy.types.Operator):
+    bl_idname = "object.solid_all"
+    bl_label = "Solid All"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+    
+    def execute(self, context):
+        for obj in bpy.data.objects: 
+            if obj.draw_type == 'BOUNDS': 
+                obj.draw_type = 'SOLID'
+            elif obj.draw_type == 'SOLID':
+                obj.draw_type = 'SOLID' 
+            else:                       
+                obj.draw_type = 'BOUNDS'
+       
+        return {'FINISHED'}
+
+#Bounds Unselected
+class BoundsUnselected(bpy.types.Operator):
+    bl_idname = "object.draw_bu"
+    bl_label = "bounds"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+    
+    def execute(self, context):
+        for obj in bpy.data.objects: 
+            if not obj.select:
+                
+                if obj.draw_type == 'SOLID':
+                    obj.draw_type = 'BOUNDS'
+                    obj.show_all_edges = False
+                    obj.show_wire = False
+                   
+                elif obj.draw_type == 'BOUNDS':
+                    obj.draw_type = 'BOUNDS'
+              
+                else:                       
+                    obj.draw_type = 'SOLID'
+        
+        for obj in bpy.data.objects:
+            if obj.select:
+                obj.draw_type = 'SOLID'
+
+        return {'FINISHED'}
+    
+#auto smooth Menu
+class AutoSmoothMenu(bpy.types.Menu):
+    bl_idname = "auto.smooth_menu"
+    bl_label = "Auto_Smooth_Menu"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        layout.operator("auto.smooth_30", text="Auto Smooth 30", icon='MESH_DATA')
+        layout.operator("auto.smooth_45", text="Auto Smooth 45", icon='MESH_DATA')
+        layout.operator("auto.smooth_89", text="Auto Smooth 89", icon='MESH_DATA')
+
+#AutoSmooth_89
+class AutoSmooth89(bpy.types.Operator):
+    bl_idname = "auto.smooth_89"
+    bl_label = "Auto Smooth"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+        
+    def execute(self, context):
+        bpy.context.object.data.auto_smooth_angle = 1.55334
+        return {'FINISHED'}
+
+#AutoSmooth_30
+class AutoSmooth30(bpy.types.Operator):
+    bl_idname = "auto.smooth_30"
+    bl_label = "Auto Smooth"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+        
+    def execute(self, context):
+        bpy.context.object.data.auto_smooth_angle = 0.523599
+        return {'FINISHED'}
+
+#AutoSmooth_45
+class AutoSmooth45(bpy.types.Operator):
+    bl_idname = "auto.smooth_45"
+    bl_label = "Auto Smooth"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+        
+    def execute(self, context):
+        bpy.context.object.data.auto_smooth_angle = 0.785398
+        return {'FINISHED'}
+           
 ######################
 #    Pivot Point     #               
 ######################
@@ -756,20 +914,6 @@ class ClassFace(bpy.types.Operator):
 ######################
 #   Selection Mode   #               
 ######################
-
-# Define Class Occlude Geometry
-class ClassOccludeGeometry(bpy.types.Operator):
-    bl_idname = "class.pieoccludegeo"
-    bl_label = "Class Occlude Geometry"
-    
-    def execute(self, context):
-        layout = self.layout
-        
-        if bpy.context.space_data.use_occlude_geometry == (True):
-            bpy.context.space_data.use_occlude_geometry = False
-        else:
-            bpy.context.space_data.use_occlude_geometry = True
-        return {'FINISHED'}        
 
 # Components Selection Mode
 class VertsEdges(bpy.types.Operator):
@@ -1098,7 +1242,7 @@ class PieObjectEditMode(Menu):
             #8 - TOP
             pie.operator("class.object", text="Edit/Object", icon='OBJECT_DATAMODE')
             #7 - TOP - LEFT 
-            pie.operator("class.pieoccludegeo", text="Occlude Geometry", icon='ORTHO')
+            pie.operator("wm.context_toggle", text="Limit to Visible", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
             #9 - TOP - RIGHT
             pie.operator("sculpt.sculptmode_toggle", text="Sculpt", icon='SCULPTMODE_HLT')
             #1 - BOTTOM - LEFT
@@ -1107,6 +1251,7 @@ class PieObjectEditMode(Menu):
             box.operator("class.pietexturepaint", text="Texture Paint", icon='TPAINT_HLT')
             box.operator("class.pievertexpaint", text="Vertex Paint", icon='VPAINT_HLT')
             box.operator("class.pieweightpaint", text="Weight Paint", icon='WPAINT_HLT')
+            box.operator("wm.context_toggle", text="Auto Merge", icon='AUTOMERGE_ON').data_path = "scene.tool_settings.use_mesh_automerge"
             #3 - BOTTOM - RIGHT
             box = pie.split().column()
             row = box.row(align=True)
@@ -1236,8 +1381,8 @@ class PieViewNumpad(Menu):
         row = box.row(align=True)
         box.operator("view3d.localview", text="Local/Global")
         box.operator("view3d.viewnumpad", text="Camera", icon='CAMERA_DATA').type='CAMERA'
+        box.operator("wm.context_toggle", text="Lock Cam to view", icon='OUTLINER_DATA_CAMERA').data_path = "space_data.lock_camera"
         box.operator("screen.region_quadview", text="Toggle Quad View", icon='SPLITSCREEN')
-        box.operator("screen.area_dupli", text="Duplicate area")
         
 #Pie Sculp Pie Menus
 class PieSculptPie(Menu):
@@ -1433,7 +1578,7 @@ class PieOrientation(Menu):
         #3 - BOTTOM - RIGHT
         
         
-#Pi Shading
+#Pie Shading
 class PieShadingView(Menu):
     bl_idname = "pie.shadingview"
     bl_label = "Pie Shading"
@@ -1458,6 +1603,41 @@ class PieShadingView(Menu):
         pie.operator("shading.smooth", text="Shade Smooth", icon='SOLID')
         #3 - BOTTOM - RIGHT
         pie.operator("shading.flat", text="Shade Flat", icon='MESH_ICOSPHERE')
+
+#Pie Object Shading
+class PieObjectShading(Menu):
+    bl_idname = "pie.objectshading"
+    bl_label = "Pie Object Shading"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("object.wireall", text="Wire All", icon='WIRE')
+        #6 - RIGHT
+        pie.operator("object.wire_selected", text="Wire Selected", icon='WIRE')
+        #2 - BOTTOM
+        pie.operator("wm.context_toggle", text="Hidden Wire", icon='GHOST_ENABLED').data_path = "space_data.show_occlude_wire"
+        #8 - TOP
+        pie.operator("wm.context_toggle", text="Xray", icon='META_CUBE').data_path = "object.show_x_ray"
+        #7 - TOP - LEFT
+        pie.operator("object.draw_bu", text="Bounds Unselected", icon='GROUP_VERTEX')
+        #9 - TOP - RIGHT
+        pie.operator("object.solid_all", text="Solid All", icon='MESH_CUBE')
+        #1 - BOTTOM - LEFT
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.operator("wm.context_toggle", text="Only Render", icon='SOLID').data_path = "space_data.show_only_render"
+        box.operator("scene.tooglegridaxis", text="Show/Hide Grid", icon="MESH_GRID")
+        box.operator("wm.context_toggle", text="Matcaps", icon='MATCAP_02').data_path = "space_data.use_matcap"
+        #3 - BOTTOM - RIGHT
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.operator("wm.context_toggle", text="Show Normals", icon='FACESEL').data_path = "object.data.show_normal_face"
+        box.menu("auto.smooth_menu", text="Auto Smooth Values", icon='MESH_DATA')
+        box.operator("wm.context_toggle", text="Auto Smooth", icon='MESH_DATA').data_path = "object.data.use_auto_smooth"
+        
       
 #Pie Pivot Point           
 class PiePivotPoint(Menu):
@@ -1581,7 +1761,6 @@ def register():
     bpy.utils.register_class(ClassTexturePaint)
     bpy.utils.register_class(ClassVertexPaint)
     bpy.utils.register_class(ClassWeightPaint)
-    bpy.utils.register_class(ClassOccludeGeometry)
     # View Menu
     bpy.utils.register_class(PieAreaViews)
     bpy.utils.register_class(JoinArea)
@@ -1641,6 +1820,17 @@ def register():
     bpy.utils.register_class(PieShadingView)
     bpy.utils.register_class(ShadingSmooth)
     bpy.utils.register_class(ShadingFlat)
+    # Object Shading
+    bpy.utils.register_class(PieObjectShading)
+    bpy.utils.register_class(SolidAll)
+    bpy.utils.register_class(BoundsUnselected)
+    bpy.utils.register_class(AutoSmoothMenu)
+    bpy.utils.register_class(AutoSmooth89)
+    bpy.utils.register_class(AutoSmooth30)
+    bpy.utils.register_class(AutoSmooth45) 
+    bpy.utils.register_class(WireAll)
+    bpy.utils.register_class(WireSelected)
+    bpy.utils.register_class(ToogleGridAxis)
     # Pivot Point
     bpy.utils.register_class(PivotPointVariable)
     bpy.utils.register_class(PiePivotPoint)
@@ -1722,6 +1912,10 @@ def register():
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS').properties.name = "pie.shadingview"
         
+        #Object shading
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS', shift=True).properties.name = "pie.objectshading"
+        
         #Pivot Point
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS', alt=True).properties.name = "pie.pivotpoint"
@@ -1747,7 +1941,6 @@ def unregister():
     bpy.utils.unregister_class(ClassTexturePaint)
     bpy.utils.unregister_class(ClassVertexPaint)
     bpy.utils.unregister_class(ClassWeightPaint)
-    bpy.utils.unregister_class(ClassOccludeGeometry)
     # View Menu
     bpy.utils.unregister_class(PieAreaViews)
     bpy.utils.unregister_class(JoinArea)
@@ -1807,6 +2000,17 @@ def unregister():
     bpy.utils.unregister_class(PieShadingView) 
     bpy.utils.unregister_class(ShadingSmooth)
     bpy.utils.unregister_class(ShadingFlat)
+    # Object Shading
+    bpy.utils.unregister_class(PieObjectShading)
+    bpy.utils.unregister_class(SolidAll)
+    bpy.utils.unregister_class(BoundsUnselected)
+    bpy.utils.unregister_class(AutoSmoothMenu)
+    bpy.utils.unregister_class(AutoSmooth89)
+    bpy.utils.unregister_class(AutoSmooth30)
+    bpy.utils.unregister_class(AutoSmooth45) 
+    bpy.utils.unregister_class(WireAll)
+    
+    bpy.utils.unregister_class(ToogleGridAxis)
     # Pivot Point
     bpy.utils.unregister_class(PivotPointVariable)
     bpy.utils.unregister_class(PiePivotPoint) 
@@ -1850,6 +2054,8 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
+
 
 
 
