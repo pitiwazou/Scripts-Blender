@@ -1467,12 +1467,12 @@ class AlignXYZ(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
 
-        layout.operator("alignx.left", text="Align X Left")
-        layout.operator("alignx.right", text="Align X Right")
-        layout.operator("aligny.front", text="Align Y Front")
-        layout.operator("aligny.back", text="Align Y Back")
-        layout.operator("alignz.top", text="Align Z Top")
-        layout.operator("alignz.bottom", text="Align Z Bottom")   
+        layout.operator("alignx.left", text="Align X Left", icon='TRIA_LEFT')
+        layout.operator("alignx.right", text="Align X Right", icon='TRIA_RIGHT')
+        layout.operator("aligny.front", text="Align Y Front", icon='PLUS')
+        layout.operator("aligny.back", text="Align Y Back", icon='DISCLOSURE_TRI_DOWN')
+        layout.operator("alignz.top", text="Align Z Top", icon='TRIA_UP')
+        layout.operator("alignz.bottom", text="Align Z Bottom", icon='TRIA_DOWN')   
            
 ######################
 #    Views Ortho     #               
@@ -2028,11 +2028,11 @@ class PieAlign(Menu):
         pie = layout.menu_pie()
         
         #4 - LEFT
-        pie.operator("align.x", text="Align X")
+        pie.operator("align.x", text="Align X", icon='TRIA_LEFT')
         #6 - RIGHT
-        pie.operator("align.z", text="Align Z")
+        pie.operator("align.z", text="Align Z", icon='TRIA_DOWN')
         #2 - BOTTOM
-        pie.operator("align.y", text="Align Y")
+        pie.operator("align.y", text="Align Y", icon='PLUS')
         #8 - TOP
         pie.operator("align.2y0", text="Align To Y-0")
         #7 - TOP - LEFT 
