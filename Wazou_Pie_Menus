@@ -613,15 +613,33 @@ class BoundsUnselected(bpy.types.Operator):
                 obj.draw_type = 'SOLID'
 
         return {'FINISHED'}
-    
-#auto smooth Menu
-class AutoSmoothMenu(bpy.types.Menu):
-    bl_idname = "auto.smooth_menu"
-    bl_label = "Auto_Smooth_Menu"
+
+#Overlays
+class MeshDisplayOverlays(bpy.types.Menu):
+    bl_idname = "meshdisplay.overlays"
+    bl_label = "Mesh Display Overlays"
 
     def draw(self, context):
         layout = self.layout
         
+        layout.operator("wm.context_toggle", text="Show Faces", icon='FACESEL').data_path = "object.data.show_faces"
+        layout.operator("wm.context_toggle", text="Show Edges", icon='FACESEL').data_path = "object.data.show_edges"
+        layout.operator("wm.context_toggle", text="Show Crease", icon='FACESEL').data_path = "object.data.show_edge_crease"
+        layout.operator("wm.context_toggle", text="Show Seams", icon='FACESEL').data_path = "object.data.show_edge_seams"
+        layout.operator("wm.context_toggle", text="Show Sharp", icon='FACESEL').data_path = "object.data.show_edge_sharp"
+        layout.operator("wm.context_toggle", text="Show Bevel", icon='FACESEL').data_path = "object.data.show_edge_bevel_weight"
+        layout.operator("wm.context_toggle", text="Show Edges Marks", icon='FACESEL').data_path = "object.data.show_freestyle_edge_marks"
+        layout.operator("wm.context_toggle", text="Show Face Marks", icon='FACESEL').data_path = "object.data.show_freestyle_face_marks"
+        layout.operator("wm.context_toggle", text="Show Weight", icon='FACESEL').data_path = "object.data.show_weight"
+        
+#auto smooth Menu
+class AutoSmoothMenu(bpy.types.Menu):
+    bl_idname = "auto.smooth_menu"
+    bl_label = "Auto Smooth"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("wm.context_toggle", text="Auto Smooth", icon='MESH_DATA').data_path = "object.data.use_auto_smooth"
         layout.operator("auto.smooth_30", text="Auto Smooth 30", icon='MESH_DATA')
         layout.operator("auto.smooth_45", text="Auto Smooth 45", icon='MESH_DATA')
         layout.operator("auto.smooth_89", text="Auto Smooth 89", icon='MESH_DATA')
@@ -664,7 +682,45 @@ class AutoSmooth45(bpy.types.Operator):
     def execute(self, context):
         bpy.context.object.data.auto_smooth_angle = 0.785398
         return {'FINISHED'}
-           
+
+#Normals
+class NormalsMenu(bpy.types.Menu):
+    bl_idname = "normals.menu"
+    bl_label = "Normals Menu"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("wm.context_toggle", text="Show Normals Faces", icon='FACESEL').data_path = "object.data.show_normal_face"
+        layout.operator("wm.context_toggle", text="Show Normals Vertex", icon='MESH_DATA').data_path = "object.data.show_normal_vertex"
+        layout.operator("wm.context_toggle", text="Show Normals Loop", icon='MESH_DATA').data_path = "object.data.show_normal_vertex"
+        layout.operator("normalsize.01", text="Normal Size 01")
+        layout.operator("normalsize.02", text="Normal Size 02")
+
+#Normal Size 01
+class NormalSize01(bpy.types.Operator):
+    bl_idname = "normalsize.01"
+    bl_label = "Normal Size 01"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+        
+    def execute(self, context):
+        bpy.context.scene.tool_settings.normal_size = 0.1
+        return {'FINISHED'}  
+    
+#Normal Size 02
+class NormalSize02(bpy.types.Operator):
+    bl_idname = "normalsize.02"
+    bl_label = "Normal Size 02"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+        
+    def execute(self, context):
+        bpy.context.scene.tool_settings.normal_size = 0.2
+        return {'FINISHED'}              
 ######################
 #    Pivot Point     #               
 ######################
@@ -1900,12 +1956,14 @@ class PieObjectShading(Menu):
         box.operator("wm.context_toggle", text="Only Render", icon='SOLID').data_path = "space_data.show_only_render"
         box.operator("scene.tooglegridaxis", text="Show/Hide Grid", icon="MESH_GRID")
         box.operator("wm.context_toggle", text="Matcaps", icon='MATCAP_02').data_path = "space_data.use_matcap"
+        
         #3 - BOTTOM - RIGHT
         box = pie.split().column()
         row = box.row(align=True)
-        box.operator("wm.context_toggle", text="Show Normals", icon='FACESEL').data_path = "object.data.show_normal_face"
-        box.menu("auto.smooth_menu", text="Auto Smooth Values", icon='MESH_DATA')
-        box.operator("wm.context_toggle", text="Auto Smooth", icon='MESH_DATA').data_path = "object.data.use_auto_smooth"
+        box.menu("normals.menu", text="Normals", icon='FACESEL')
+        box.menu("meshdisplay.overlays", text="Mesh display")
+        box.menu("auto.smooth_menu", text="Auto Smooth", icon='MESH_DATA')
+        
         
       
 #Pie Pivot Point           
@@ -2132,6 +2190,10 @@ def register():
     bpy.utils.register_class(WireAll)
     bpy.utils.register_class(WireSelected)
     bpy.utils.register_class(ToogleGridAxis)
+    bpy.utils.register_class(MeshDisplayOverlays)
+    bpy.utils.register_class(NormalsMenu)
+    bpy.utils.register_class(NormalSize01)
+    bpy.utils.register_class(NormalSize02)
     # Pivot Point
     bpy.utils.register_class(PivotPointVariable)
     bpy.utils.register_class(PiePivotPoint)
@@ -2326,8 +2388,11 @@ def unregister():
     bpy.utils.unregister_class(AutoSmooth30)
     bpy.utils.unregister_class(AutoSmooth45) 
     bpy.utils.unregister_class(WireAll)
-    
     bpy.utils.unregister_class(ToogleGridAxis)
+    bpy.utils.unregister_class(MeshDisplayOverlays)
+    bpy.utils.unregister_class(NormalsMenu)
+    bpy.utils.unregister_class(NormalSize01)
+    bpy.utils.unregister_class(NormalSize02)
     # Pivot Point
     bpy.utils.unregister_class(PivotPointVariable)
     bpy.utils.unregister_class(PiePivotPoint) 
@@ -2386,6 +2451,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
 
