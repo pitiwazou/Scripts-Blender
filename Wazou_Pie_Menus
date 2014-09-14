@@ -1,4 +1,4 @@
-# ##### BEGIN GPL LICENSE BLOCK #####
+﻿# ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -76,6 +76,7 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
             row.operator("wm.url_open", text="BlenderLounge Forum ").url = "http://blenderlounge.fr/forum/"
             
         return {'FINISHED'}
+    
 #####################################
 #      Proportional Edit Object     #               
 #####################################
@@ -194,7 +195,7 @@ class ProportionalRandomObj(bpy.types.Operator):
         return {'FINISHED'}
 
 #######################################
-#      Proportional Edit EditMode     #               
+#     Proportional Edit Edit Mode     #               
 #######################################
 class ProportionalEditEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.active"
@@ -443,7 +444,8 @@ class SnapTargetVariable(bpy.types.Operator):
 
     def execute(self, context):
         bpy.context.scene.tool_settings.snap_target=self.variable
-        return {'FINISHED'} 
+        return {'FINISHED'}
+     
 ######################
 #    Orientation     #               
 ######################
@@ -1205,6 +1207,273 @@ class RetopoSpace(bpy.types.Operator):
         bpy.ops.mesh.looptools_space(influence=100, input='selected', interpolation='cubic', lock_x=False, lock_y=False, lock_z=False)
         return {'FINISHED'} 
 
+#####################
+#   Simple Align    #               
+#####################
+#Align X
+class AlignX(bpy.types.Operator):  
+    bl_idname = "align.x"  
+    bl_label = "Align  X"  
+  
+    def execute(self, context):
+
+        for vert in bpy.context.object.data.vertices:
+            bpy.ops.transform.resize(value=(0, 1, 1), constraint_axis=(True, False, False), constraint_orientation='GLOBAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
+        return {'FINISHED'} 
+    
+#Align Y
+class AlignY(bpy.types.Operator):  
+    bl_idname = "align.y"  
+    bl_label = "Align  Y"  
+  
+    def execute(self, context):
+
+        for vert in bpy.context.object.data.vertices:
+            bpy.ops.transform.resize(value=(1, 0, 1), constraint_axis=(False, True, False), constraint_orientation='GLOBAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
+        return {'FINISHED'}    
+
+#Align Z
+class AlignZ(bpy.types.Operator):  
+    bl_idname = "align.z"  
+    bl_label = "Align  Z"  
+  
+    def execute(self, context):
+
+        for vert in bpy.context.object.data.vertices:
+            bpy.ops.transform.resize(value=(1, 1, 0), constraint_axis=(False, False, True), constraint_orientation='GLOBAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
+        return {'FINISHED'}
+
+#####################
+#    Align To 0     #               
+#####################
+    
+#Align to X - 0
+class AlignToX0(bpy.types.Operator):  
+    bl_idname = "align.2x0"  
+    bl_label = "Align To X-0"  
+  
+    def execute(self, context):
+        bpy.ops.object.mode_set(mode = 'OBJECT')
+        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+
+        for vert in bpy.context.object.data.vertices:
+            if vert.select: 
+                vert.co[0] = 0
+        bpy.ops.object.editmode_toggle() 
+        return {'FINISHED'}     
+
+#Align to Z - 0
+class AlignToY0(bpy.types.Operator):  
+    bl_idname = "align.2y0"  
+    bl_label = "Align To Y-0"  
+  
+    def execute(self, context):
+        bpy.ops.object.mode_set(mode = 'OBJECT')
+        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+
+        for vert in bpy.context.object.data.vertices:
+            if vert.select: 
+                vert.co[1] = 0
+        bpy.ops.object.editmode_toggle() 
+        return {'FINISHED'}      
+
+#Align to Z - 0
+class AlignToZ0(bpy.types.Operator):  
+    bl_idname = "align.2z0"  
+    bl_label = "Align To Z-0"  
+  
+    def execute(self, context):
+        bpy.ops.object.mode_set(mode = 'OBJECT')
+        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+
+        for vert in bpy.context.object.data.vertices:
+            if vert.select: 
+                vert.co[2] = 0
+        bpy.ops.object.editmode_toggle() 
+        return {'FINISHED'}
+
+#Align X Left
+class AlignXLeft(bpy.types.Operator):  
+    bl_idname = "alignx.left"  
+    bl_label = "Align X Left"  
+  
+    def execute(self, context):
+        
+        bpy.ops.object.mode_set(mode='OBJECT')
+        count = 0
+        axe = 0
+        for vert in bpy.context.object.data.vertices:
+            if vert.select:
+                if count == 0:
+                    max = vert.co[axe]
+                    count += 1
+                    continue
+                count += 1
+                if vert.co[axe] < max:
+                    max = vert.co[axe]
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        for vert in bpy.context.object.data.vertices:
+            if vert.select:
+                vert.co[axe] = max
+        bpy.ops.object.mode_set(mode='EDIT')  
+        return {'FINISHED'}
+
+#Align X Right
+class AlignXRight(bpy.types.Operator):  
+    bl_idname = "alignx.right"  
+    bl_label = "Align X Right"  
+  
+    def execute(self, context):
+        
+        bpy.ops.object.mode_set(mode='OBJECT')
+        count = 0
+        axe = 0
+        for vert in bpy.context.object.data.vertices:
+            if vert.select:
+                if count == 0:
+                    max = vert.co[axe]
+                    count += 1
+                    continue
+                count += 1
+                if vert.co[axe] > max:
+                    max = vert.co[axe]
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        for vert in bpy.context.object.data.vertices:
+            if vert.select:
+                vert.co[axe] = max
+        bpy.ops.object.mode_set(mode='EDIT')  
+        return {'FINISHED'}
+
+#Align Y Back
+class AlignYBack(bpy.types.Operator):  
+    bl_idname = "aligny.back"  
+    bl_label = "Align Y back"  
+  
+    def execute(self, context):
+        
+        bpy.ops.object.mode_set(mode='OBJECT')
+        count = 0
+        axe = 1
+        for vert in bpy.context.object.data.vertices:
+            if vert.select:
+                if count == 0:
+                    max = vert.co[axe]
+                    count += 1
+                    continue
+                count += 1
+                if vert.co[axe] > max:
+                    max = vert.co[axe]
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        for vert in bpy.context.object.data.vertices:
+            if vert.select:
+                vert.co[axe] = max
+        bpy.ops.object.mode_set(mode='EDIT')  
+        return {'FINISHED'}
+
+#Align Y Front
+class AlignYFront(bpy.types.Operator):  
+    bl_idname = "aligny.front"  
+    bl_label = "Align Y Front"  
+  
+    def execute(self, context):
+        
+        bpy.ops.object.mode_set(mode='OBJECT')
+        count = 0
+        axe = 1
+        for vert in bpy.context.object.data.vertices:
+            if vert.select:
+                if count == 0:
+                    max = vert.co[axe]
+                    count += 1
+                    continue
+                count += 1
+                if vert.co[axe] < max:
+                    max = vert.co[axe]
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        for vert in bpy.context.object.data.vertices:
+            if vert.select:
+                vert.co[axe] = max
+        bpy.ops.object.mode_set(mode='EDIT')  
+        return {'FINISHED'}
+#Align Z Top
+class AlignZTop(bpy.types.Operator):  
+    bl_idname = "alignz.top"  
+    bl_label = "Align Z Top"  
+  
+    def execute(self, context):
+        
+        bpy.ops.object.mode_set(mode='OBJECT')
+        count = 0
+        axe = 2
+        for vert in bpy.context.object.data.vertices:
+            if vert.select:
+                if count == 0:
+                    max = vert.co[axe]
+                    count += 1
+                    continue
+                count += 1
+                if vert.co[axe] > max:
+                    max = vert.co[axe]
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        for vert in bpy.context.object.data.vertices:
+            if vert.select:
+                vert.co[axe] = max
+        bpy.ops.object.mode_set(mode='EDIT')  
+        return {'FINISHED'}  
+    
+#Align Z Bottom
+class AlignZBottom(bpy.types.Operator):  
+    bl_idname = "alignz.bottom"  
+    bl_label = "Align Z Bottom"  
+  
+    def execute(self, context):
+        
+        bpy.ops.object.mode_set(mode='OBJECT')
+        count = 0
+        axe = 2
+        for vert in bpy.context.object.data.vertices:
+            if vert.select:
+                if count == 0:
+                    max = vert.co[axe]
+                    count += 1
+                    continue
+                count += 1
+                if vert.co[axe] < max:
+                    max = vert.co[axe]
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        for vert in bpy.context.object.data.vertices:
+            if vert.select:
+                vert.co[axe] = max
+        bpy.ops.object.mode_set(mode='EDIT')  
+        return {'FINISHED'}  
+    
+# Align X, Y, Z
+class AlignXYZ(bpy.types.Menu):
+    bl_idname = "align.xyz"
+    bl_label = "Align Direction"
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.operator("alignx.left", text="Align X Left")
+        layout.operator("alignx.right", text="Align X Right")
+        layout.operator("aligny.front", text="Align Y Front")
+        layout.operator("aligny.back", text="Align Y Back")
+        layout.operator("alignz.top", text="Align Z Top")
+        layout.operator("alignz.bottom", text="Align Z Bottom")   
+           
 ######################
 #    Views Ortho     #               
 ######################
@@ -1748,6 +2017,38 @@ class PieRetopo(Menu):
         box.operator("object.automirror", icon = 'MOD_MIRROR')
         #3 - BOTTOM - RIGHT
         pie.operator("polysculpt.retopo", text = "Sculpt Mesh", icon = 'SCULPTMODE_HLT')
+
+class PieAlign(Menu):
+    bl_idname = "pie.align"
+    bl_label = "Pie Align"
+
+    def draw(self, context):
+        layout = self.layout
+
+        pie = layout.menu_pie()
+        
+        #4 - LEFT
+        pie.operator("align.x", text="Align X")
+        #6 - RIGHT
+        pie.operator("align.z", text="Align Z")
+        #2 - BOTTOM
+        pie.operator("align.y", text="Align Y")
+        #8 - TOP
+        pie.operator("align.2y0", text="Align To Y-0")
+        #7 - TOP - LEFT 
+        pie.operator("align.2x0", text="Align To X-0")
+        #9 - TOP - RIGHT
+        pie.operator("align.2z0", text="Align To Z-0")
+        #1 - BOTTOM - LEFT
+        pie.menu("align.xyz")
+        #3 - BOTTOM - RIGHT
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.operator("mesh.vertex_align", icon='ALIGN', text="Align")
+        box.operator("retopo.space", icon='ALIGN', text="Distribute")
+        box.operator("mesh.vertex_inline", icon='ALIGN', text="Align & Distribute")
+
+
               
 addon_keymaps = []
 
@@ -1859,9 +2160,21 @@ def register():
     bpy.utils.register_class(ProportionalRandomEdt)
     # Preferences
     bpy.utils.register_class(WazouPieMenuPrefs)
-    
-    
-    
+    # Align
+    bpy.utils.register_class(PieAlign)
+    bpy.utils.register_class(AlignX)
+    bpy.utils.register_class(AlignY)
+    bpy.utils.register_class(AlignZ)
+    bpy.utils.register_class(AlignToX0)
+    bpy.utils.register_class(AlignToY0)
+    bpy.utils.register_class(AlignToZ0)
+    bpy.utils.register_class(AlignXLeft)
+    bpy.utils.register_class(AlignXRight)
+    bpy.utils.register_class(AlignYFront)
+    bpy.utils.register_class(AlignYBack)
+    bpy.utils.register_class(AlignZTop)
+    bpy.utils.register_class(AlignZBottom)
+    bpy.utils.register_class(AlignXYZ)
     
 # Keympa Config   
     
@@ -1927,6 +2240,10 @@ def register():
         #ProportionalEditEdt
         km = wm.keyconfigs.addon.keymaps.new(name = 'Mesh')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'O', 'PRESS').properties.name = "pie.proportional_edt"
+        
+        #Align
+        km = wm.keyconfigs.addon.keymaps.new(name = 'Mesh')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'X', 'PRESS', alt=True).properties.name = "pie.align"
         
         addon_keymaps.append(km)
 
@@ -2039,6 +2356,21 @@ def unregister():
     bpy.utils.unregister_class(ProportionalRandomEdt)
     # Preferences
     bpy.utils.unregister_class(WazouPieMenuPrefs)
+    # Align
+    bpy.utils.unregister_class(PieAlign)
+    bpy.utils.unregister_class(AlignX)
+    bpy.utils.unregister_class(AlignY)
+    bpy.utils.unregister_class(AlignZ)
+    bpy.utils.unregister_class(AlignToX0)
+    bpy.utils.unregister_class(AlignToY0)
+    bpy.utils.unregister_class(AlignToZ0)
+    bpy.utils.unregister_class(AlignXLeft)
+    bpy.utils.unregister_class(AlignXRight)
+    bpy.utils.unregister_class(AlignYFront)
+    bpy.utils.unregister_class(AlignYBack)
+    bpy.utils.unregister_class(AlignZTop)
+    bpy.utils.unregister_class(AlignZBottom)
+    bpy.utils.unregister_class(AlignXYZ)
     
     wm = bpy.context.window_manager
 
@@ -2054,6 +2386,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
 
