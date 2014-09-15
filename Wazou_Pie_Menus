@@ -513,44 +513,32 @@ class ShadingFlat(bpy.types.Operator):
 ######################
 
 #Wire on selected objects
-class WireSelected(bpy.types.Operator):
-    bl_idname = "object.wire_selected"
-    bl_label = "Wire Selected"
+class WireSelectedAll(bpy.types.Operator):
+    bl_idname = "wire.selectedall"
+    bl_label = "Wire Selected All"
 
     @classmethod
     def poll(cls, context):
         return context.active_object is not None
 
     def execute(self, context):
-               
+             
         for obj in bpy.data.objects:
-            if obj.select:
+            if bpy.context.selected_objects:
+                if obj.select:
+                    if obj.show_wire:
+                        obj.show_all_edges = False
+                        obj.show_wire = False
+                    else:
+                        obj.show_all_edges = True
+                        obj.show_wire = True
+            elif not bpy.context.selected_objects:
                 if obj.show_wire:
                     obj.show_all_edges = False
                     obj.show_wire = False
                 else:
                     obj.show_all_edges = True
                     obj.show_wire = True
-        return {'FINISHED'}
-    
-#Wire on all objects
-class WireAll(bpy.types.Operator):
-    bl_idname = "object.wireall"
-    bl_label = "Wire All"
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-
-    def execute(self, context):
-        
-        for obj in bpy.data.objects:
-            if obj.show_wire:
-                obj.show_all_edges = False
-                obj.show_wire = False
-            else:
-                obj.show_all_edges = True
-                obj.show_wire = True
         return {'FINISHED'}
 
 #Grid show/hide with axes
@@ -2026,9 +2014,9 @@ class PieObjectShading(Menu):
         
         pie = layout.menu_pie()
         #4 - LEFT
-        pie.operator("object.wireall", text="Wire All", icon='WIRE')
+        pie.operator("wm.context_toggle", text="Only Render", icon='SOLID').data_path = "space_data.show_only_render"
         #6 - RIGHT
-        pie.operator("object.wire_selected", text="Wire Selected", icon='WIRE')
+        pie.operator("wire.selectedall", text="Wire", icon='WIRE')
         #2 - BOTTOM
         pie.operator("wm.context_toggle", text="Hidden Wire", icon='GHOST_ENABLED').data_path = "space_data.show_occlude_wire"
         #8 - TOP
@@ -2040,7 +2028,8 @@ class PieObjectShading(Menu):
         #1 - BOTTOM - LEFT
         box = pie.split().column()
         row = box.row(align=True)
-        box.operator("wm.context_toggle", text="Only Render", icon='SOLID').data_path = "space_data.show_only_render"
+        box.operator("wm.context_toggle", text="Double sided", icon='SNAP_FACE').data_path = "object.dataZ.show_double_sided"
+        box.operator("wm.context_toggle", text="Backface Culling", icon="ORTHO").data_path = "space_data.show_backface_culling"
         box.operator("scene.tooglegridaxis", text="Show/Hide Grid", icon="MESH_GRID")
         box.operator("wm.context_toggle", text="Matcaps", icon='MATCAP_02').data_path = "space_data.use_matcap"
         
@@ -2051,8 +2040,6 @@ class PieObjectShading(Menu):
         box.menu("meshdisplay.overlays", text="Mesh display")
         box.menu("auto.smooth_menu", text="Auto Smooth", icon='MESH_DATA')
         
-        
-      
 #Pie Pivot Point           
 class PiePivotPoint(Menu):
     bl_idname = "pie.pivotpoint"
@@ -2336,8 +2323,7 @@ def register():
     bpy.utils.register_class(AutoSmooth89)
     bpy.utils.register_class(AutoSmooth30)
     bpy.utils.register_class(AutoSmooth45) 
-    bpy.utils.register_class(WireAll)
-    bpy.utils.register_class(WireSelected)
+    bpy.utils.register_class(WireSelectedAll)
     bpy.utils.register_class(ToogleGridAxis)
     bpy.utils.register_class(MeshDisplayOverlays)
     bpy.utils.register_class(NormalsMenu)
@@ -2556,7 +2542,7 @@ def unregister():
     bpy.utils.unregister_class(AutoSmooth89)
     bpy.utils.unregister_class(AutoSmooth30)
     bpy.utils.unregister_class(AutoSmooth45) 
-    bpy.utils.unregister_class(WireAll)
+    bpy.utils.unregister_class(WireSelectedAll)
     bpy.utils.unregister_class(ToogleGridAxis)
     bpy.utils.unregister_class(MeshDisplayOverlays)
     bpy.utils.unregister_class(NormalsMenu)
