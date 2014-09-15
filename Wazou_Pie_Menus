@@ -2028,7 +2028,7 @@ class PieObjectShading(Menu):
         #1 - BOTTOM - LEFT
         box = pie.split().column()
         row = box.row(align=True)
-        box.operator("wm.context_toggle", text="Double sided", icon='SNAP_FACE').data_path = "object.dataZ.show_double_sided"
+        box.operator("wm.context_toggle", text="Double sided", icon='SNAP_FACE').data_path = "object.data.show_double_sided"
         box.operator("wm.context_toggle", text="Backface Culling", icon="ORTHO").data_path = "space_data.show_backface_culling"
         box.operator("scene.tooglegridaxis", text="Show/Hide Grid", icon="MESH_GRID")
         box.operator("wm.context_toggle", text="Matcaps", icon='MATCAP_02').data_path = "space_data.use_matcap"
