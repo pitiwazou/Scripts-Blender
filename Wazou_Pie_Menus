@@ -79,8 +79,6 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
             row.operator("wm.url_open", text="Wazou's Ghitub").url = "https://github.com/pitiwazou/Scripts-Blender"
             row.operator("wm.url_open", text="BlenderLounge Forum ").url = "http://blenderlounge.fr/forum/"
             
-        return {'FINISHED'}
-    
 #####################################
 #      Proportional Edit Object     #               
 #####################################
