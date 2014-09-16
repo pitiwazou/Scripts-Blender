@@ -67,6 +67,10 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
             layout.label(text="– Views Ortho > Q")
             layout.label(text="– CursorOrigin > Alt + Q")
             layout.label(text="– Proportionnal Editing > O")
+            layout.label(text="– Align > Alt + X")
+            layout.label(text="– Delete > X")
+            layout.label(text="– Apply transforms > Ctrl + A")
+            layout.label(text="– Selections > A")
 
         layout.prop(context.scene, "Enable_Tab_03", text="URL's", icon="URL")   
         if context.scene.Enable_Tab_03:
@@ -2700,6 +2704,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
 
