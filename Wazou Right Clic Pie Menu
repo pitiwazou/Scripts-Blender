@@ -113,12 +113,10 @@ class SubSurf2(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.object.subdivision_set(level=2)
         bpy.context.object.modifiers["Subsurf"].show_only_control_edges = True
-        if bpy.context.object.mode == "OBJECT":
-            bpy.ops.object.shade_smooth()
-            
-        elif bpy.context.object.mode == "EDIT":
-            bpy.ops.object.mode_set(mode = 'OBJECT')
-            bpy.ops.object.shade_smooth()
+        
+        if bpy.context.object.mode == "EDIT":
+            bpy.context.object.modifiers["Subsurf"].show_on_cage = True
+
             bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'} 
 
@@ -130,13 +128,7 @@ class SubSurf0(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.object.subdivision_set(level=0)
         bpy.context.object.modifiers["Subsurf"].show_only_control_edges = True
-        if bpy.context.object.mode == "OBJECT":
-            bpy.ops.object.shade_flat()
-            
-        elif bpy.context.object.mode == "EDIT":
-            bpy.ops.object.mode_set(mode = 'OBJECT')
-            bpy.ops.object.shade_flat()
-            bpy.ops.object.mode_set(mode = 'EDIT')
+        
         
         return {'FINISHED'}     
 
@@ -177,21 +169,19 @@ class View3dRightClicMenu(Menu):
         if ob.mode == 'OBJECT':
             
             #4 - LEFT
-            pie.operator("object.modifier_remove", text="Remove Mirror", icon='X_VEC').modifier="Mirror"
+            pie.operator("object.subsurf0", text="Subdiv Level 0", icon='MESH_ICOSPHERE')
             #6 - RIGHT
-            pie.operator("add.mirrorobject", text="Add Mirror", icon='MOD_MIRROR')
+            pie.operator("object.subsurf2", text="Subdiv Level 2", icon='MESH_UVSPHERE')
             #2 - BOTTOM
             pie.menu("AddMenu", text="Add Objects", icon="OBJECT_DATA")
-            
             #8 - TOP
             pie.operator("screen.redo_last", text="F6", icon='SCRIPTWIN')
             #7 - TOP - LEFT 
-            pie.operator("object.subsurf0", text="Subdiv Level 0", icon='MESH_ICOSPHERE')
+            pie.operator("object.modifier_remove", text="Remove Mirror", icon='X_VEC').modifier="Mirror"
             #9 - TOP - RIGHT
-            pie.operator("object.subsurf2", text="Subdiv Level 2", icon='MESH_UVSPHERE')
+            pie.operator("add.mirrorobject", text="Add Mirror", icon='MOD_MIRROR')
             #1 - BOTTOM - LEFT
             pie.operator("object.modifier_apply", text="Apply Subsurf", icon='MOD_SUBSURF').modifier="Subsurf"
-            
             #3 - BOTTOM - RIGHT
             pie.operator("object.modifier_apply", text="Apply Mirror", icon='MOD_MIRROR').modifier="Mirror"
             
@@ -264,5 +254,6 @@ if __name__ == "__main__":
     register()
 
     #bpy.ops.wm.call_menu_pie(name="View3dRightClicMenu")
+
 
 
