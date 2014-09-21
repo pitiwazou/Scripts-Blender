@@ -71,6 +71,7 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
             layout.label(text="– Delete > X")
             layout.label(text="– Apply transforms > Ctrl + A")
             layout.label(text="– Selections > A")
+            layout.label(text="– Text Editor > Ctrl + Alt + Right Mous Button")
 
         layout.prop(context.scene, "Enable_Tab_03", text="URL's", icon="URL")   
         if context.scene.Enable_Tab_03:
@@ -2307,7 +2308,33 @@ class PieSelectionsEM(Menu):
         box.operator("mesh.loop_to_region", text="Select Loop Inner Region", icon='FACESEL')
         #3 - BOTTOM - RIGHT  
         pie.operator("mesh.select_similar", text="Select Similar", icon='GHOST')
-                            
+
+# Pie Text Editor
+class PieTextEditor(Menu):
+    bl_idname = "pie.texteditor"
+    bl_label = "Pie Text Editor"
+
+    def draw(self, context):
+        layout = self.layout
+
+        pie = layout.menu_pie()
+        if bpy.context.area.type == 'TEXT_EDITOR':
+            # 1 - Ouest
+            pie.operator("text.comment", text="Comment", icon='FONT_DATA')
+            # 2 - Est
+            pie.operator("text.uncomment", text="Uncomment", icon='NLA')
+            # 3 - Sud
+            pie.operator("wm.save_mainfile", text="Save", icon='FILE_TICK')
+            # 4 - Nord
+            pie.operator("text.start_find", text="Search", icon='VIEWZOOM')
+            # 5 - Nord-Ouest
+            pie.operator("text.indent", text="Tab (indent)", icon='FORWARD')
+            # 6 - Nord-Est
+            pie.operator("text.unindent", text="UnTab (unindent)", icon='BACK')
+            # 7 - Sud-Ouest
+            pie.operator("text.save", text="Save Script", icon='SAVE_COPY')
+            
+                                        
 addon_keymaps = []
 
 def register():
@@ -2451,6 +2478,9 @@ def register():
     # Selections
     bpy.utils.register_class(PieSelectionsOM)
     bpy.utils.register_class(PieSelectionsEM)
+    #Text Editor
+    bpy.utils.register_class(PieTextEditor)
+    
     
     
     
@@ -2544,6 +2574,10 @@ def register():
         kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS').properties.name = "pie.selectionsem"
         addon_keymaps.append(km)
         
+        #Selection Edit Mode
+        km = wm.keyconfigs.addon.keymaps.new(name = 'Text', space_type = 'TEXT_EDITOR')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', ctrl=True, alt=True).properties.name = "pie.texteditor"
+        addon_keymaps.append(km)
         
 # Register / Unregister Classes
 def unregister():
@@ -2687,6 +2721,8 @@ def unregister():
     # Selections
     bpy.utils.unregister_class(PieSelectionsOM)
     bpy.utils.unregister_class(PieSelectionsEM)
+    #Text Editor
+    bpy.utils.unregister_class(PieTextEditor)
     
     wm = bpy.context.window_manager
 
@@ -2702,8 +2738,6 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-
-
 
 
 
