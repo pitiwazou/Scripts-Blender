@@ -34,6 +34,7 @@ Left shift Double click sets the 3D cursor.
 """
 
 import bpy
+import bmesh
 from bpy.types import Menu
 from bpy.props import IntProperty, FloatProperty, BoolProperty
 
@@ -115,21 +116,18 @@ class SubSurf2(bpy.types.Operator):
         bpy.context.object.modifiers["Subsurf"].show_only_control_edges = True
         
         if bpy.context.object.mode == "EDIT":
+            bpy.ops.object.subdivision_set(level=2)
             bpy.context.object.modifiers["Subsurf"].show_on_cage = True
-
             bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'} 
 
-#Subsurf 0
-class SubSurf0(bpy.types.Operator):  
-    bl_idname = "object.subsurf0"  
-    bl_label = "SubSurf 0"  
+#Remove Subsurf
+class RemoveSubsurf(bpy.types.Operator):  
+    bl_idname = "remove.subsurf"  
+    bl_label = "Remove Subsurf"  
   
     def execute(self, context):
-        bpy.ops.object.subdivision_set(level=0)
-        bpy.context.object.modifiers["Subsurf"].show_only_control_edges = True
-        
-        
+        bpy.ops.object.modifier_remove(modifier="Subsurf")
         return {'FINISHED'}     
 
 #Add Mirror Object
@@ -151,7 +149,30 @@ class AddMirrorEdit(bpy.types.Operator):
         bpy.ops.object.modifier_add(type='MIRROR')
         bpy.context.object.modifiers["Mirror"].use_clip = True
         bpy.context.object.modifiers["Mirror"].show_on_cage = True
-        return {'FINISHED'}       
+        return {'FINISHED'}   
+
+#Apply Mirror Edit
+class ApplyMirrorEdit(bpy.types.Operator):  
+    bl_idname = "apply.mirroredit"  
+    bl_label = "Apply Mirror Edit"  
+  
+    def execute(self, context):
+        bpy.ops.object.mode_set(mode = 'OBJECT')
+        bpy.ops.object.modifier_apply(modifier="Mirror")
+        bpy.ops.object.mode_set(mode = 'EDIT')
+        return {'FINISHED'}         
+
+#wazou Symetrize
+class WazouSymetrize(bpy.types.Operator):  
+    bl_idname = "wazou.symetrize"  
+    bl_label = "Wazou Symetrize"  
+  
+    def execute(self, context):
+        bpy.ops.mesh.select_all(action='TOGGLE')
+        bpy.ops.mesh.select_all(action='TOGGLE')
+        bpy.ops.mesh.symmetrize(direction='POSITIVE_X')
+        bpy.ops.mesh.select_all(action='TOGGLE')
+        return {'FINISHED'} 
 
 #Merge At Last
 class MergeAtLast(bpy.types.Operator):  
@@ -196,7 +217,81 @@ class MergeCollapse(bpy.types.Operator):
   
     def execute(self, context):
         bpy.ops.mesh.merge(type='COLLAPSE')
-        return {'FINISHED'}            
+        return {'FINISHED'}  
+    
+class VIEW3D_MT_edit_mesh_looptools(bpy.types.Menu):
+    bl_idname = "loop.tools" 
+    bl_label = "LoopTools"
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.operator("mesh.looptools_bridge", text="Bridge").loft = False
+        layout.operator("mesh.looptools_circle")
+        layout.operator("mesh.looptools_curve")
+        layout.operator("mesh.looptools_flatten")
+        layout.operator("mesh.looptools_gstretch")
+        layout.operator("mesh.looptools_bridge", text="Loft").loft = True
+        layout.operator("mesh.looptools_relax")
+        layout.operator("mesh.looptools_space") 
+
+#Apply Transforms
+class ApplyTransformAll(bpy.types.Operator):  
+    bl_idname = "apply.transformall"  
+    bl_label = "Apply Transform All"  
+    
+    def execute(self, context):
+        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+        return {'FINISHED'}           
+
+#Delete modifiers
+class DeleteModifiers(bpy.types.Operator):  
+    bl_idname = "delete.modifiers"  
+    bl_label = "Delete modifiers" 
+    
+    def execute(self, context):
+        selection = bpy.context.selected_objects
+        
+        if not(selection):  
+            for obj in bpy.data.objects:
+                for mod in obj.modifiers:
+                    bpy.context.scene.objects.active = obj
+                    bpy.ops.object.modifier_remove(modifier = mod.name)
+        else:
+            for obj in selection:
+                for mod in obj.modifiers:
+                    bpy.context.scene.objects.active = obj
+                    bpy.ops.object.modifier_remove(modifier = mod.name)  
+        return {'FINISHED'}  
+
+#Clear All
+class ClearAll(bpy.types.Operator):  
+    bl_idname = "clear.all"  
+    bl_label = "Clear All" 
+    
+    def execute(self, context):
+        selection = bpy.context.selected_objects
+        bpy.ops.object.location_clear()
+        bpy.ops.object.rotation_clear()
+        bpy.ops.object.scale_clear()
+        return {'FINISHED'}      
+
+#Separate Loose Parts
+class SeparateLooseParts(bpy.types.Operator):  
+    bl_idname = "separate.looseparts"  
+    bl_label = "Separate Loose Parts" 
+    
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+    
+    def execute(self, context):
+        bpy.ops.object.mode_set(mode = 'EDIT')
+        bpy.ops.mesh.separate(type='LOOSE')
+        bpy.ops.object.mode_set(mode = 'OBJECT')
+        bpy.ops.object.select_all(action='TOGGLE')
+        return {'FINISHED'}  
+                                   
 ######################
 #        Pies        #               
 ######################            
@@ -208,37 +303,81 @@ class View3dRightClicMenu(Menu):
         layout = self.layout
 
         pie = layout.menu_pie()
-        ob = context
+        #ob = context
         
-        if ob.mode == 'OBJECT':
+        if bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'OBJECT':
             
             #4 - LEFT
-            pie.operator("object.subsurf0", text="Subdiv Level 0", icon='MESH_ICOSPHERE')
+            pie.operator("remove.subsurf", text="Remove Subsurf", icon='X')
             #6 - RIGHT
             pie.operator("object.subsurf2", text="Subdiv Level 2", icon='MESH_UVSPHERE')
             #2 - BOTTOM
-            pie.menu("AddMenu", text="Add Objects", icon="OBJECT_DATA")
+            box = pie.split().column()
+            row = box.row(align=True)
+            box.operator("mesh.primitive_cube_add", text="Cube", icon='MESH_CUBE')
+            box.operator("mesh.primitive_plane_add", text="Plane", icon='MESH_PLANE')
+            box.operator("mesh.primitive_uv_sphere_add", text="UV-Sphere", icon='MESH_UVSPHERE')
+            box.operator("mesh.primitive_cylinder_add", text="Cylinder", icon='MESH_CYLINDER')
+            row = box.row(align=True)
+            row = box.split(percentage=0.33)
+            row.operator("object.camera_add", text="", icon='OUTLINER_OB_CAMERA')
+            row.operator("object.lamp_add", text="", icon='LAMP_AREA').type = 'AREA'
+            row.operator("object.lamp_add", text="", icon='LAMP_SUN').type = 'SUN'
+            row.operator("object.lamp_add", text="", icon='LAMP_HEMI').type = 'HEMI'
+            box.menu("AddMenu", text="Objects", icon="OBJECT_DATA")
             #8 - TOP
             pie.operator("screen.redo_last", text="F6", icon='SCRIPTWIN')
             #7 - TOP - LEFT 
-            pie.operator("object.modifier_remove", text="Remove Mirror", icon='X_VEC').modifier="Mirror"
+            box = pie.split().column()
+            row = box.split(percentage=0.5)
+            row.operator("add.mirrorobject", text="Add Mirror", icon='MOD_MIRROR')
+            row.operator("object.automirror", icon = 'MOD_MIRROR')
+            row = box.row(align=True)
+            row = box.split(percentage=0.5)
+            row.operator("object.modifier_apply", text="Apply Mirror", icon='MOD_MIRROR').modifier="Mirror"
+            row.operator("object.modifier_remove", text="Del Mirror", icon='X').modifier="Mirror"
+            row = box.row(align=True)
+            row = box.split(percentage=0.5)
+            row.operator("object.modifier_apply", text="Apply Subsurf", icon='MOD_SUBSURF').modifier="Subsurf"
+            row.operator("delete.modifiers", text="Del Modifiers", icon='GROUP')
             #9 - TOP - RIGHT
-            pie.operator("add.mirrorobject", text="Add Mirror", icon='MOD_MIRROR')
+            box = pie.split().column()
+            row = box.row(align=True)
+            box.operator("apply.transformall", text="Freeze Transforms", icon='FREEZE')
+            box.operator("clear.all", text="Clear All", icon='MANIPUL')
             #1 - BOTTOM - LEFT
-            pie.operator("object.modifier_apply", text="Apply Mirror", icon='MOD_MIRROR').modifier="Mirror"
+            box = pie.split().column()
+            row = box.row(align=True)
+            box.operator("Object.join", text="Join", icon='FULLSCREEN_EXIT')
+            box.operator("separate.looseparts", text="Separate", icon='FULLSCREEN_ENTER')
             #3 - BOTTOM - RIGHT
-            pie.operator("object.modifier_apply", text="Apply Subsurf", icon='MOD_SUBSURF').modifier="Subsurf"
+            pie.operator("object.delete", text="Delete", icon='CANCEL').use_global=False
+
             
-        elif ob.mode == 'EDIT_MESH':
+            
+            
+        elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'EDIT':    
+
+
+
+        
             
             #4 - LEFT
             box = pie.split().column()
             row = box.row(align=True)
-            box.operator("mesh.flip_normals", icon = 'FULLSCREEN_ENTER')
+            box.operator("mesh.subdivide", text="Subdivide", icon='GRID').smoothness=1
+            box.operator("mesh.vertices_smooth", text="Smooth", icon='UV_VERTEXSEL')
+            row = box.row(align=True)
+            row = box.split(percentage=0.5)
+            row.operator("wm.context_toggle", text="Mirror X ").data_path = "object.data.use_mirror_x"
+            row.operator("wazou.symetrize", text="Symetrize")
+
+            #6 - RIGHT
+            box = pie.split().column()
+            row = box.row(align=True)
+            box.operator("mesh.flip_normals", icon = 'FILE_REFRESH')
             box.operator("mesh.normals_make_consistent", icon = 'MATCUBE')
             box.operator("mesh.remove_doubles",icon='X_VEC')
-            #6 - RIGHT
-            pie.operator("wm.context_toggle", text="X mirror", icon='X_VEC').data_path = "object.data.use_mirror_x"
             #2 - BOTTOM
             box = pie.split().column()
             row = box.row(align=True)
@@ -247,7 +386,6 @@ class View3dRightClicMenu(Menu):
                 box.operator("merge.atcenter", text="Merge At Center", icon='AUTOMERGE_ON')
                 box.operator("merge.atlast", text="Merge At Last", icon='AUTOMERGE_ON')
                 box.operator("merge.atfirst", text="Merge At First", icon='AUTOMERGE_ON')
-               
             #Edges    
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (False, False, True):
                 box.operator("merge.atcenter", text="Merge At Center", icon='AUTOMERGE_ON')
@@ -258,7 +396,6 @@ class View3dRightClicMenu(Menu):
                 box.operator("merge.atcenter", text="Merge At Center", icon='AUTOMERGE_ON')
                 box.operator("merge.atcursor", text="At Cursor", icon='AUTOMERGE_ON')
                 box.operator("merge.collapse", text="Collapse", icon='AUTOMERGE_ON')
-                
             #Vertex - Edges - Faces
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (True, True, True):
                 box.operator("merge.atlast", text="Merge At Last", icon='AUTOMERGE_ON')
@@ -266,23 +403,20 @@ class View3dRightClicMenu(Menu):
                 box.operator("merge.atcenter", text="Merge At Center", icon='AUTOMERGE_ON')
                 box.operator("merge.atcursor", text="Merge At Cursor", icon='AUTOMERGE_ON')
                 box.operator("merge.collapse", text="Collapse", icon='AUTOMERGE_ON') 
-                
             #Vertex - Edges
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (True, True, False):
                 box.operator("merge.atlast", text="Merge At Last", icon='AUTOMERGE_ON')
                 box.operator("merge.atfirst", text="Merge At First", icon='AUTOMERGE_ON')
                 box.operator("merge.atcenter", text="Merge At Center", icon='AUTOMERGE_ON')
                 box.operator("merge.atcursor", text="Merge At Cursor", icon='AUTOMERGE_ON')
-                box.operator("merge.collapse", text="Collapse", icon='AUTOMERGE_ON')   
-            
+                box.operator("merge.collapse", text="Collapse", icon='AUTOMERGE_ON')  
             #Vertex - Faces
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (True, False, True):
                 box.operator("merge.atlast", text="Merge At Last", icon='AUTOMERGE_ON')
                 box.operator("merge.atfirst", text="Merge At First", icon='AUTOMERGE_ON')
                 box.operator("merge.atcenter", text="Merge At Center", icon='AUTOMERGE_ON')
                 box.operator("merge.atcursor", text="Merge At Cursor", icon='AUTOMERGE_ON')
-                box.operator("merge.collapse", text="Collapse", icon='AUTOMERGE_ON')  
-                   
+                box.operator("merge.collapse", text="Collapse", icon='AUTOMERGE_ON') 
             #Edges - Faces
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (False, True, True):
                 box.operator("merge.atlast", text="Merge At Last", icon='AUTOMERGE_ON')
@@ -295,34 +429,123 @@ class View3dRightClicMenu(Menu):
             #8 - TOP
             pie.operator("screen.redo_last", text="F6", icon='SCRIPTWIN')
             #7 - TOP - LEFT 
-            pie.operator("mesh.loopcut", text="Loopcut", icon='EDIT_VEC').smoothness=1
-            #9 - TOP - RIGHT
-            pie.operator("mesh.inset",text="Inset", icon='EDIT_VEC').use_select_inset=False
-            #1 - BOTTOM - LEFT
             box = pie.split().column()
             row = box.row(align=True)
-            box.operator("add.mirroredit", text="Add Mirror", icon='MOD_MIRROR')
-            box.operator("object.modifier_remove", text="Remove Mirror", icon='X_VEC').modifier="Mirror"
+            box.operator("mesh.loopcut", text="Loopcut", icon='EDIT_VEC').smoothness=1
+            box.operator("mesh.inset",text="Inset", icon='EDIT_VEC').use_select_inset=False
+            box.operator("mesh.bevel",text="Bevel", icon='MOD_BEVEL')
+            #9 - TOP - RIGHT
+            box = pie.split().column()
+            row = box.row(align=True)
+            box.menu("loop.tools")
+            box.operator("mesh.poke", text="Poke Faces")
+            box.operator("mesh.fill_grid", text="Grid Fill")
+            #1 - BOTTOM - LEFT
+            box = pie.split().column()
+            row = box.split(percentage=0.5)
+            row.operator("add.mirroredit", text="Add Mirror", icon='MOD_MIRROR')
+            row.operator("object.automirror", icon = 'MOD_MIRROR')
+            row = box.row(align=True)
+            row = box.split(percentage=0.5)
+            row.operator("apply.mirroredit", text="Apply Mirror", icon='MOD_MIRROR')
+            row.operator("object.modifier_remove", text="Del Mirror", icon='X_VEC').modifier="Mirror"
             #3 - BOTTOM - RIGHT
             box = pie.split().column()
             row = box.row(align=True)
             box.operator("object.subsurf2", text="Subdiv Level 2", icon='MESH_UVSPHERE')
-            box.operator("object.subsurf0", text="Subdiv Level 0", icon='MESH_ICOSPHERE')
+            box.operator("remove.subsurf", text="Remove Subsurf", icon='X')
+            box.operator("mesh.separate")
+            
+        elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'SCULPT':
+            
+            
+            #4 - LEFT
+            pie.operator("enable.dyntopo", text="Enable Dyntopo", icon='LINE_DATA')
+            #6 - RIGHT
+            box = pie.split().column()
+            row = box.row(align=True)
+            box.operator("sculpt.optimize", text="Optimize")
+            box.operator("sculpt.detail_flood_fill", text="Detail flood Fill")
+            box.operator("sculpt.symmetrizeplusx", text="Symmetrize +X to -X")
+            box.operator("sculpt.symmetrizemoinsx", text="Symmetrize -X to +X")
+            #2 - BOTTOM
+            pie.operator("wm.context_toggle", text="X Symetry", icon='MOD_MIRROR').use_symmetry_x = True
+            #8 - TOP
+            
+
+            #7 - TOP - LEFT 
+            
+            #9 - TOP - RIGHT
+            
+            #1 - BOTTOM - LEFT
+            
+            #3 - BOTTOM - RIGHT
+            
+#Enable Dyntopo
+class EnableDyntopo(bpy.types.Operator):  
+    bl_idname = "enable.dyntopo"  
+    bl_label = "Enable Dyntopo" 
+    
+    def execute(self, context):
+        bpy.ops.sculpt.dynamic_topology_toggle()
+        bpy.context.scene.tool_settings.sculpt.detail_refine_method = 'SUBDIVIDE_COLLAPSE'
+        bpy.context.scene.tool_settings.sculpt.detail_type_method = 'CONSTANT'
+        bpy.context.scene.tool_settings.sculpt.use_smooth_shading = True
+        return {'FINISHED'} 
+
+#Sculpt Symmetrize +X to -X
+class SculptSymmetrizePlusX(bpy.types.Operator):  
+    bl_idname = "sculpt.symmetrizeplusx"  
+    bl_label = "Sculpt Symmetrize +X to -X" 
+    
+    def execute(self, context):
+        bpy.ops.sculpt.symmetrize()
+        if bpy.context.scene.tool_settings.sculpt.symmetrize_direction ==  'NEGATIVE_X' :
+            bpy.context.scene.tool_settings.sculpt.symmetrize_direction = 'POSITIVE_X'
+        return {'FINISHED'}     
+
+#Sculpt Symmetrize -X to +X
+class SculptSymmetrizeMoinsX(bpy.types.Operator):  
+    bl_idname = "sculpt.symmetrizemoinsx"  
+    bl_label = "Sculpt Symmetrize - X to + X" 
+    
+    def execute(self, context):
+        bpy.ops.sculpt.symmetrize()
+        if bpy.context.scene.tool_settings.sculpt.symmetrize_direction ==  'POSITIVE_X' :
+            bpy.context.scene.tool_settings.sculpt.symmetrize_direction = 'NEGATIVE_X'
+        return {'FINISHED'} 
+    
+
 
 addon_keymaps = []
 def register():
     bpy.utils.register_class(View3dRightClicMenu)
+    bpy.utils.register_class(WazouRightMenuPiePrefs)
+    #Object
     bpy.utils.register_class(AddMenu)
     bpy.utils.register_class(SubSurf2)
-    bpy.utils.register_class(SubSurf0)
+    bpy.utils.register_class(RemoveSubsurf)
     bpy.utils.register_class(AddMirrorObject)
+    bpy.utils.register_class(VIEW3D_MT_edit_mesh_looptools)
+    bpy.utils.register_class(ApplyTransformAll)
+    bpy.utils.register_class(DeleteModifiers)
+    bpy.utils.register_class(ClearAll)
+    bpy.utils.register_class(SeparateLooseParts)
+    #Edit
     bpy.utils.register_class(AddMirrorEdit)
-    bpy.utils.register_class(WazouRightMenuPiePrefs)
+    bpy.utils.register_class(ApplyMirrorEdit)
     bpy.utils.register_class(MergeAtCursor)
     bpy.utils.register_class(MergeAtFirst)
     bpy.utils.register_class(MergeAtCenter)
     bpy.utils.register_class(MergeCollapse)
     bpy.utils.register_class(MergeAtLast)
+    bpy.utils.register_class(WazouSymetrize)
+    #Sculpt
+    bpy.utils.register_class(EnableDyntopo)
+    bpy.utils.register_class(SculptSymmetrizePlusX)
+    bpy.utils.register_class(SculptSymmetrizeMoinsX)
+    
+    
     
 # Keympa Config   
     
@@ -333,28 +556,38 @@ def register():
         #Right Clic
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS').properties.name = "pie.rightclicmenu"  
-    
-
+        
 def unregister():
     bpy.utils.unregister_class(View3dRightClicMenu)
+    bpy.utils.unregister_class(WazouRightMenuPiePrefs)
+    #Object
     bpy.utils.unregister_class(AddMenu)
     bpy.utils.unregister_class(SubSurf2)
-    bpy.utils.unregister_class(SubSurf0)
+    bpy.utils.unregister_class(RemoveSubsurf)
     bpy.utils.unregister_class(AddMirrorObject)
+    bpy.utils.unregister_class(VIEW3D_MT_edit_mesh_looptools)
+    bpy.utils.unregister_class(ApplyTransformAll)
+    bpy.utils.unregister_class(DeleteModifiers)
+    bpy.utils.unregister_class(ClearAll)
+    bpy.utils.unregister_class(SeparateLooseParts)
+    #Edit
     bpy.utils.unregister_class(AddMirrorEdit)
-    bpy.utils.unregister_class(WazouRightMenuPiePrefs)
+    bpy.utils.unregister_class(ApplyMirrorEdit)
     bpy.utils.unregister_class(MergeAtCursor)
     bpy.utils.unregister_class(MergeAtFirst)
     bpy.utils.unregister_class(MergeAtCenter)
     bpy.utils.unregister_class(MergeCollapse)
     bpy.utils.unregister_class(MergeAtLast)
+    bpy.utils.unregister_class(WazouSymetrize)
+    #Sculpt
+    bpy.utils.unregister_class(EnableDyntopo)
+    bpy.utils.unregister_class(SculptSymmetrizePlusX)
+    bpy.utils.unregister_class(SculptSymmetrizeMoinsX)
+    
     
 if __name__ == "__main__":
     register()
 
     #bpy.ops.wm.call_menu_pie(name="View3dRightClicMenu")
-
-
-
 
 
