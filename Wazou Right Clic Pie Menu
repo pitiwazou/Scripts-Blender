@@ -305,7 +305,7 @@ class View3dRightClicMenu(Menu):
         pie = layout.menu_pie()
         #ob = context
         
-        if bpy.context.area.type == 'VIEW_3D':
+        if bpy.context.area.type == 'VIEW_3D' and not bpy.context.object:
             
             #4 - LEFT
             pie.operator("remove.subsurf", text="Remove Subsurf", icon='X')
@@ -352,16 +352,56 @@ class View3dRightClicMenu(Menu):
             box.operator("separate.looseparts", text="Separate", icon='FULLSCREEN_ENTER')
             #3 - BOTTOM - RIGHT
             pie.operator("object.delete", text="Delete", icon='CANCEL').use_global=False
-
-            
-            
-            
-        elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'EDIT':    
-
-
-
         
+        elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'OBJECT':
+            #4 - LEFT
+            pie.operator("remove.subsurf", text="Remove Subsurf", icon='X')
+            #6 - RIGHT
+            pie.operator("object.subsurf2", text="Subdiv Level 2", icon='MESH_UVSPHERE')
+            #2 - BOTTOM
+            box = pie.split().column()
+            row = box.row(align=True)
+            box.operator("mesh.primitive_cube_add", text="Cube", icon='MESH_CUBE')
+            box.operator("mesh.primitive_plane_add", text="Plane", icon='MESH_PLANE')
+            box.operator("mesh.primitive_uv_sphere_add", text="UV-Sphere", icon='MESH_UVSPHERE')
+            box.operator("mesh.primitive_cylinder_add", text="Cylinder", icon='MESH_CYLINDER')
+            row = box.row(align=True)
+            row = box.split(percentage=0.33)
+            row.operator("object.camera_add", text="", icon='OUTLINER_OB_CAMERA')
+            row.operator("object.lamp_add", text="", icon='LAMP_AREA').type = 'AREA'
+            row.operator("object.lamp_add", text="", icon='LAMP_SUN').type = 'SUN'
+            row.operator("object.lamp_add", text="", icon='LAMP_HEMI').type = 'HEMI'
+            box.menu("AddMenu", text="Objects", icon="OBJECT_DATA")
+            #8 - TOP
+            pie.operator("screen.redo_last", text="F6", icon='SCRIPTWIN')
+            #7 - TOP - LEFT 
+            box = pie.split().column()
+            row = box.split(percentage=0.5)
+            row.operator("add.mirrorobject", text="Add Mirror", icon='MOD_MIRROR')
+            row.operator("object.automirror", icon = 'MOD_MIRROR')
+            row = box.row(align=True)
+            row = box.split(percentage=0.5)
+            row.operator("object.modifier_apply", text="Apply Mirror", icon='MOD_MIRROR').modifier="Mirror"
+            row.operator("object.modifier_remove", text="Del Mirror", icon='X').modifier="Mirror"
+            row = box.row(align=True)
+            row = box.split(percentage=0.5)
+            row.operator("object.modifier_apply", text="Apply Subsurf", icon='MOD_SUBSURF').modifier="Subsurf"
+            row.operator("delete.modifiers", text="Del Modifiers", icon='GROUP')
+            #9 - TOP - RIGHT
+            box = pie.split().column()
+            row = box.row(align=True)
+            box.operator("apply.transformall", text="Freeze Transforms", icon='FREEZE')
+            box.operator("clear.all", text="Clear All", icon='MANIPUL')
+            #1 - BOTTOM - LEFT
+            box = pie.split().column()
+            row = box.row(align=True)
+            box.operator("Object.join", text="Join", icon='FULLSCREEN_EXIT')
+            box.operator("separate.looseparts", text="Separate", icon='FULLSCREEN_ENTER')
+            #3 - BOTTOM - RIGHT
+            pie.operator("object.delete", text="Delete", icon='CANCEL').use_global=False
             
+        elif bpy.context.object.mode == 'EDIT':    
+
             #4 - LEFT
             box = pie.split().column()
             row = box.row(align=True)
@@ -589,5 +629,7 @@ if __name__ == "__main__":
     register()
 
     #bpy.ops.wm.call_menu_pie(name="View3dRightClicMenu")
+
+
 
 
