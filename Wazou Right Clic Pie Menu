@@ -305,7 +305,7 @@ class View3dRightClicMenu(Menu):
         pie = layout.menu_pie()
         #ob = context
         
-        if bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'OBJECT':
+        if bpy.context.area.type == 'VIEW_3D':
             
             #4 - LEFT
             pie.operator("remove.subsurf", text="Remove Subsurf", icon='X')
