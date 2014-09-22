@@ -57,7 +57,7 @@ class WazouRightMenuPiePrefs(bpy.types.AddonPreferences):
             row = layout.row()
             layout.label(text="– Object/Edit mode > RMB")
             layout.label(text="– Cusor > Alt + double clic")
-        
+            
         layout.prop(context.scene, "Enable_Tab_RMB_02", text="URL's", icon="URL") 
         if context.scene.Enable_Tab_RMB_02:
             row = layout.row()    
@@ -405,7 +405,7 @@ class View3dRightClicMenu(Menu):
             #4 - LEFT
             box = pie.split().column()
             row = box.row(align=True)
-            box.operator("mesh.subdivide", text="Subdivide", icon='GRID').smoothness=1
+            box.operator("mesh.subdivide", text="Subdivide", icon='GRID').smoothness=0
             box.operator("mesh.vertices_smooth", text="Smooth", icon='UV_VERTEXSEL')
             row = box.row(align=True)
             row = box.split(percentage=0.5)
@@ -478,8 +478,11 @@ class View3dRightClicMenu(Menu):
             box = pie.split().column()
             row = box.row(align=True)
             box.menu("loop.tools")
-            box.operator("mesh.poke", text="Poke Faces")
-            box.operator("mesh.fill_grid", text="Grid Fill")
+            box.operator("mesh.offset_edges", text="Offset Edges", icon='UV_EDGESEL')
+            row = box.row(align=True)
+            row = box.split(percentage=0.5)
+            row.operator("mesh.poke", text="Poke Faces")
+            row.operator("mesh.fill_grid", text="Grid Fill")
             #1 - BOTTOM - LEFT
             box = pie.split().column()
             row = box.split(percentage=0.5)
@@ -633,6 +636,8 @@ if __name__ == "__main__":
     register()
 
     #bpy.ops.wm.call_menu_pie(name="View3dRightClicMenu")
+
+
 
 
 
