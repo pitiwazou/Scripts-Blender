@@ -1644,8 +1644,10 @@ class ShrinkwrapUpte(bpy.types.Operator):
             if vert.select:
                 bpy.ops.mesh.select_all(action='TOGGLE')
                 bpy.ops.shrink.update()
-            elif not vert.select:  
-                bpy.ops.shrink.update()   
+                bpy.ops.meshview_toggle.retopo(view_xray=True, view_hiddenwire=True)
+            elif not vert.select: 
+                bpy.ops.shrink.update()
+                bpy.ops.meshview_toggle.retopo(view_xray=True, view_hiddenwire=True)
         return {'FINISHED'}    
 
 #Shrinkwrap Update On Sel
@@ -1656,6 +1658,8 @@ class ShrinkwrapUpteOnSel(bpy.types.Operator):
     def execute(self, context):
         
         bpy.ops.shrink.update(use_only_sel=True)
+        bpy.ops.meshview_toggle.retopo(view_xray=True, view_hiddenwire=True)
+        
         return {'FINISHED'}  
                  
 ######################
@@ -2852,6 +2856,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
 
