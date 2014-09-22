@@ -25,7 +25,7 @@ bl_info = {
     "category": "3D View",}
     
 import bpy
-from bpy.types import Menu   
+from bpy.types import Menu, Header   
 from bpy.props import IntProperty, FloatProperty, BoolProperty
 import bmesh
 from mathutils import *
@@ -72,6 +72,7 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
             layout.label(text="– Apply transforms > Ctrl + A")
             layout.label(text="– Selections > A")
             layout.label(text="– Text Editor > Ctrl + Alt + Right Mous Button")
+            layout.label(text="– Animation > Ctrl + A")
 
         layout.prop(context.scene, "Enable_Tab_03", text="URL's", icon="URL")   
         if context.scene.Enable_Tab_03:
@@ -1533,7 +1534,27 @@ class DeleteLimitedDissolve(bpy.types.Operator):
   
     def execute(self, context):
         bpy.ops.mesh.dissolve_limited(angle_limit=3.14159, use_dissolve_boundaries=False)
-        return {'FINISHED'}     
+        return {'FINISHED'} 
+    
+####################
+#    Animation     #               
+####################
+
+#Insert Auto Keyframe
+class InsertAutoKeyframe(bpy.types.Operator):  
+    bl_idname = "insert.autokeyframe"  
+    bl_label = "Insert Auto Keyframe"  
+    
+    def execute(self, context):
+        
+        toolsettings = context.scene.tool_settings
+        
+        if toolsettings.use_keyframe_insert_auto == (True):
+            toolsettings.use_keyframe_insert_auto = False
+
+        if toolsettings.use_keyframe_insert_auto == False:
+            toolsettings.use_keyframe_insert_auto = True
+        return {'FINISHED'}          
 ###########################
 #    Apply Transforms     #               
 ###########################
@@ -1607,7 +1628,36 @@ class ClearAll(bpy.types.Operator):
         bpy.ops.object.rotation_clear()
         bpy.ops.object.scale_clear()
         return {'FINISHED'}  
-              
+
+############################
+#    Shrinkwrap Update     #               
+############################
+
+#Shrinkwrap Update
+class ShrinkwrapUpte(bpy.types.Operator):  
+    bl_idname = "shrinkwrap.upte"  
+    bl_label = "Shrinkwrap Update"
+    
+    def execute(self, context):
+        
+        for vert in bpy.context.object.data.vertices:
+            if vert.select:
+                bpy.ops.mesh.select_all(action='TOGGLE')
+                bpy.ops.shrink.update()
+            elif not vert.select:  
+                bpy.ops.shrink.update()   
+        return {'FINISHED'}    
+
+#Shrinkwrap Update On Sel
+class ShrinkwrapUpteOnSel(bpy.types.Operator):  
+    bl_idname = "shrinkwrap.updateonsel"  
+    bl_label = "Shrinkwrap Update On Sel"
+    
+    def execute(self, context):
+        
+        bpy.ops.shrink.update(use_only_sel=True)
+        return {'FINISHED'}  
+                 
 ######################
 #    Views Ortho     #               
 ######################
@@ -2142,14 +2192,17 @@ class PieRetopo(Menu):
         #8 - TOP
         pie.operator("gpencil.surfsk_add_surface", text="Add Bsurface", icon = 'MOD_DYNAMICPAINT')
         #7 - TOP - LEFT 
-        pie.operator("retopo.space", icon='ALIGN', text="Space")
-        #9 - TOP - RIGHT
-        pie.operator("shrink.update", icon = 'MOD_SHRINKWRAP')
-        #1 - BOTTOM - LEFT
         box = pie.split().column()
         row = box.row(align=True)
         box.operator("setup.retopomesh", icon = 'UV_FACESEL')
         box.operator("object.automirror", icon = 'MOD_MIRROR')
+        #9 - TOP - RIGHT
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.operator("shrinkwrap.upte", text = "Shrinkwrap Update", icon = 'MOD_SHRINKWRAP')
+        box.operator("shrinkwrap.updateonsel", text = "SU On Selected", icon = 'MOD_SHRINKWRAP')
+        #1 - BOTTOM - LEFT
+        pie.operator("retopo.space", icon='ALIGN', text="Space")
         #3 - BOTTOM - RIGHT
         pie.operator("polysculpt.retopo", text = "Sculpt Mesh", icon = 'SCULPTMODE_HLT')
 
@@ -2319,22 +2372,66 @@ class PieTextEditor(Menu):
 
         pie = layout.menu_pie()
         if bpy.context.area.type == 'TEXT_EDITOR':
-            # 1 - Ouest
+            #4 - LEFT
             pie.operator("text.comment", text="Comment", icon='FONT_DATA')
-            # 2 - Est
+            #6 - RIGHT
             pie.operator("text.uncomment", text="Uncomment", icon='NLA')
-            # 3 - Sud
+            #2 - BOTTOM
             pie.operator("wm.save_mainfile", text="Save", icon='FILE_TICK')
-            # 4 - Nord
+            #8 - TOP
             pie.operator("text.start_find", text="Search", icon='VIEWZOOM')
-            # 5 - Nord-Ouest
+            #7 - TOP - LEFT
             pie.operator("text.indent", text="Tab (indent)", icon='FORWARD')
-            # 6 - Nord-Est
+            #9 - TOP - RIGHT
             pie.operator("text.unindent", text="UnTab (unindent)", icon='BACK')
-            # 7 - Sud-Ouest
+            #1 - BOTTOM - LEFT
             pie.operator("text.save", text="Save Script", icon='SAVE_COPY')
+            #3 - BOTTOM - RIGHT 
             
-                                        
+# Pie Animation            
+class PieAnimation(Menu):
+    # label is displayed at the center of the pie menu.
+    bl_idname = "pie.animation"
+    bl_label = "Pie Animation"
+    
+
+    def draw(self, context):
+        layout = self.layout
+
+        pie = layout.menu_pie()
+        
+        #4 - LEFT
+        pie.operator("screen.animation_play", text="Reverse", icon='PLAY_REVERSE').reverse = True
+        #6 - RIGHT
+        if not context.screen.is_animation_playing:# Play / Pause
+            pie.operator("screen.animation_play", text="Play", icon='PLAY')
+        else:
+            pie.operator("screen.animation_play", text="Stop", icon='PAUSE')
+        #2 - BOTTOM
+        #pie.operator(toolsettings, "use_keyframe_insert_keyingset", toggle=True, text="Auto Keyframe ", icon='REC')
+        pie.operator("insert.autokeyframe", text="Auto Keyframe ", icon='REC')
+        #8 - TOP
+        pie.menu("VIEW3D_MT_object_animation", icon = "CLIP")
+        #7 - TOP - LEFT
+        pie.operator("screen.frame_jump", text="Jump REW", icon='REW').end = False   
+        #9 - TOP - RIGHT
+        pie.operator("screen.frame_jump", text="Jump FF", icon='FF').end = True
+        #1 - BOTTOM - LEFT
+        pie.operator("screen.keyframe_jump", text="Previous FR", icon='PREV_KEYFRAME').next = False   
+        #3 - BOTTOM - RIGHT 
+        pie.operator("screen.keyframe_jump", text="Next FR", icon='NEXT_KEYFRAME').next = True
+
+#Search Menu
+def SearchMenu(self, context):
+    layout = self.layout
+    
+    layout.operator("wm.search_menu", text="", icon ='VIEWZOOM')
+    
+def view3d_Search_menu(self, context):
+    layout = self.layout
+    
+    layout.menu("SearchMenu") 
+                                           
 addon_keymaps = []
 
 def register():
@@ -2401,6 +2498,8 @@ def register():
     bpy.utils.register_class(AlignToX)
     bpy.utils.register_class(RetopoSpace)
     bpy.utils.register_class(LapRelax)
+    bpy.utils.register_class(ShrinkwrapUpte)
+    bpy.utils.register_class(ShrinkwrapUpteOnSel)
     # Shading
     bpy.utils.register_class(ShadingVariable)
     bpy.utils.register_class(PieShadingView)
@@ -2480,9 +2579,11 @@ def register():
     bpy.utils.register_class(PieSelectionsEM)
     #Text Editor
     bpy.utils.register_class(PieTextEditor)
-    
-    
-    
+    #Animation
+    bpy.utils.register_class(PieAnimation)
+    bpy.utils.register_class(InsertAutoKeyframe)
+    #Search Menu
+    bpy.types.VIEW3D_HT_header.append(SearchMenu)
     
     
 # Keympa Config   
@@ -2574,11 +2675,16 @@ def register():
         kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS').properties.name = "pie.selectionsem"
         addon_keymaps.append(km)
         
-        #Selection Edit Mode
+        #Tex Editor
         km = wm.keyconfigs.addon.keymaps.new(name = 'Text', space_type = 'TEXT_EDITOR')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', ctrl=True, alt=True).properties.name = "pie.texteditor"
         addon_keymaps.append(km)
         
+        #Animation
+        km = wm.keyconfigs.addon.keymaps.new(name='Object Non-modal')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS', alt=True).properties.name = "pie.animation"
+        addon_keymaps.append(km)
+      
 # Register / Unregister Classes
 def unregister():
     # Pie Menu Select Mode
@@ -2644,6 +2750,8 @@ def unregister():
     bpy.utils.unregister_class(AlignToX)
     bpy.utils.unregister_class(RetopoSpace)
     bpy.utils.unregister_class(LapRelax)
+    bpy.utils.unregister_class(ShrinkwrapUpte)
+    bpy.utils.unregister_class(ShrinkwrapUpteOnSel)
     # Shading
     bpy.utils.unregister_class(ShadingVariable)
     bpy.utils.unregister_class(PieShadingView) 
@@ -2723,6 +2831,12 @@ def unregister():
     bpy.utils.unregister_class(PieSelectionsEM)
     #Text Editor
     bpy.utils.unregister_class(PieTextEditor)
+    #Animation
+    bpy.utils.unregister_class(PieAnimation)
+    bpy.utils.unregister_class(InsertAutoKeyframe)
+    #Search Menu
+    bpy.types.VIEW3D_HT_header.append(SearchMenu)
+    
     
     wm = bpy.context.window_manager
 
@@ -2738,6 +2852,10 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
+
+
+
 
 
 
