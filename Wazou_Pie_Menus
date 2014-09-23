@@ -53,7 +53,8 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
         
         layout.prop(context.scene, "Enable_Tab_02", text="Shortcuts", icon="QUESTION")
         if context.scene.Enable_Tab_02:
-            row = layout.row()    
+            row = layout.row()   
+            layout.label(text="– Open, save, import, export > Ctrl + S") 
             layout.label(text="– Object/Edit mode > Tab")
             layout.label(text="– Views > Space")
             layout.label(text="– Sculpt > W & Alt + W")
@@ -2958,6 +2959,7 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
 
 
