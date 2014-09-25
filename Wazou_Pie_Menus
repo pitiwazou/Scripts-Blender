@@ -228,7 +228,7 @@ class ProportionalConnectedEdt(bpy.types.Operator):
 
 class ProportionalProjectedEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.projected"
-    bl_label = "Proportional Connected EditMode"
+    bl_label = "Proportional projected EditMode"
     
     def execute(self, context):
         layout = self.layout 
@@ -1020,6 +1020,18 @@ class VertsEdgesFaces(bpy.types.Operator):
             bpy.context.tool_settings.mesh_select_mode = (True, True, True)
             return {'FINISHED'}
         
+#Select All By Selection       
+class SelectAllBySelection(bpy.types.Operator):
+    bl_idname = "object.selectallbyselection"
+    bl_label = "Verts Edges Faces"
+    
+    def execute(self, context):
+        layout = self.layout  
+        
+        bpy.ops.mesh.select_all(action='TOGGLE')
+        bpy.ops.mesh.select_all(action='TOGGLE')
+        return {'FINISHED'}        
+        
 ######################
 #       Views        #               
 ######################
@@ -1157,21 +1169,6 @@ class PivotBottom(bpy.types.Operator):
 #   Retopo    #               
 ###############
 
-#Align to X
-class AlignToX(bpy.types.Operator):  
-    bl_idname = "object.align2x"  
-    bl_label = "Align To X"  
-  
-    def execute(self, context):
-        bpy.ops.object.mode_set(mode = 'OBJECT')
-        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
-
-        for vert in bpy.context.object.data.vertices:
-            if vert.select: 
-                vert.co[0] = 0
-        bpy.ops.object.editmode_toggle() 
-        return {'FINISHED'} 
-
 #LapRelax
 class LapRelax(bpy.types.Operator):
     bl_idname = "mesh.laprelax"
@@ -1303,7 +1300,6 @@ class AlignToX0(bpy.types.Operator):
   
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
-        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
         for vert in bpy.context.object.data.vertices:
             if vert.select: 
@@ -1318,7 +1314,6 @@ class AlignToY0(bpy.types.Operator):
   
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
-        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
         for vert in bpy.context.object.data.vertices:
             if vert.select: 
@@ -1333,7 +1328,6 @@ class AlignToZ0(bpy.types.Operator):
   
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
-        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
         for vert in bpy.context.object.data.vertices:
             if vert.select: 
@@ -1507,22 +1501,7 @@ class AlignZBottom(bpy.types.Operator):
                 vert.co[axe] = max
         bpy.ops.object.mode_set(mode='EDIT')  
         return {'FINISHED'}  
-    
-# Align X, Y, Z
-class AlignXYZ(bpy.types.Menu):
-    bl_idname = "align.xyz"
-    bl_label = "Align Direction"
-
-    def draw(self, context):
-        layout = self.layout
-
-        layout.operator("alignx.left", text="Align X Left", icon='TRIA_LEFT')
-        layout.operator("alignx.right", text="Align X Right", icon='TRIA_RIGHT')
-        layout.operator("aligny.front", text="Align Y Front", icon='PLUS')
-        layout.operator("aligny.back", text="Align Y Back", icon='DISCLOSURE_TRI_DOWN')
-        layout.operator("alignz.top", text="Align Z Top", icon='TRIA_UP')
-        layout.operator("alignz.bottom", text="Align Z Bottom", icon='TRIA_DOWN')   
-
+  
 #################
 #    Delete     #               
 #################
@@ -1548,14 +1527,14 @@ class InsertAutoKeyframe(bpy.types.Operator):
     
     def execute(self, context):
         
-        toolsettings = context.scene.tool_settings
-        
-        if toolsettings.use_keyframe_insert_auto == (True):
-            toolsettings.use_keyframe_insert_auto = False
-
-        if toolsettings.use_keyframe_insert_auto == False:
-            toolsettings.use_keyframe_insert_auto = True
-        return {'FINISHED'}          
+        if bpy.context.scene.tool_settings.use_keyframe_insert_auto == True :
+            bpy.context.scene.tool_settings.use_keyframe_insert_auto = False
+            
+        if bpy.context.scene.tool_settings.use_keyframe_insert_auto == False : 
+            bpy.context.scene.tool_settings.use_keyframe_insert_auto = True
+            
+        return {'FINISHED'}  
+    
 ###########################
 #    Apply Transforms     #               
 ###########################
@@ -2034,7 +2013,7 @@ class PieSnaping(Menu):
         #2 - BOTTOM
         pie.operator("snap.edge", text="Edge", icon='SNAP_EDGE')
         #8 - TOP
-        pie.operator("snap.active", text="Snap On/Off", icon='SNAP_ON')
+        pie.prop(context.tool_settings, "use_snap", text="Snap On/Off")
         #7 - TOP - LEFT 
         pie.operator("snap.volume", text="Volume", icon='SNAP_VOLUME')
         #9 - TOP - RIGHT
@@ -2184,7 +2163,7 @@ class PieProportionalObj(Menu):
         #2 - BOTTOM
         pie.operator("proportional_obj.smooth", text="Smooth", icon='SMOOTHCURVE')
         #8 - TOP
-        pie.operator("proportional_obj.active", text="Proportional On/Off", icon='PROP_ON')
+        pie.prop(context.tool_settings, "use_proportional_edit_objects", text="Proportional On/Off")
         #7 - TOP - LEFT 
         pie.operator("proportional_obj.linear", text="Linear", icon='LINCURVE')
         #9 - TOP - RIGHT
@@ -2237,7 +2216,7 @@ class PieRetopo(Menu):
         #4 - LEFT
         pie.operator("mesh.looptools_gstretch", text="GStretch", icon='GREASEPENCIL')
         #6 - RIGHT
-        pie.operator("object.align2x", icon='MOD_WIREFRAME')
+        pie.operator("align.2x0", icon='MOD_WIREFRAME')
         #2 - BOTTOM
         pie.operator("mesh.laprelax", icon = 'MOD_LATTICE')
         #8 - TOP
@@ -2280,7 +2259,21 @@ class PieAlign(Menu):
         #9 - TOP - RIGHT
         pie.operator("align.2z0", text="Align To Z-0")
         #1 - BOTTOM - LEFT
-        pie.menu("align.xyz")
+        #pie.menu("align.xyz")
+        box = pie.split().box().column()
+        box.label("Align :")
+        row = box.row(align=True)
+        row.label("X")
+        row.operator("alignx.left", text="Neg")
+        row.operator("alignx.right", text="Pos")
+        row = box.row(align=True)
+        row.label("Y")
+        row.operator("aligny.front", text="Neg")
+        row.operator("aligny.back", text="Pos")
+        row = box.row(align=True)
+        row.label("Z")
+        row.operator("alignz.bottom", text="Neg")
+        row.operator("alignz.top", text="Pos")
         #3 - BOTTOM - RIGHT
         box = pie.split().column()
         row = box.row(align=True)
@@ -2400,18 +2393,19 @@ class PieSelectionsEM(Menu):
         #2 - BOTTOM
         pie.operator("mesh.select_all", text="Invert Selection", icon='ZOOM_PREVIOUS').action='INVERT'
         #8 - TOP
-        pie.operator("mesh.select_all", text="Select All", icon='RENDER_REGION').action='TOGGLE'
+        pie.operator("mesh.select_all", text="De/Select All", icon='RENDER_REGION').action='TOGGLE'
         #7 - TOP - LEFT
-        pie.operator("mesh.loop_multi_select", text="Select Ring", icon='ZOOM_PREVIOUS').ring=True
-        #9 - TOP - RIGHT
-        pie.operator("mesh.loop_multi_select", text="Select Loop", icon='ZOOM_PREVIOUS').ring=False
-        #1 - BOTTOM - LEFT
         box = pie.split().column()
         row = box.row(align=True)
         box.operator("mesh.select_nth", text="Checker Select", icon='PARTICLE_POINT')
         box.operator("mesh.loop_to_region", text="Select Loop Inner Region", icon='FACESEL')
+        box.operator("mesh.select_similar", text="Select Similar", icon='GHOST')
+        #9 - TOP - RIGHT
+        pie.operator("object.selectallbyselection", text="Complete Select", icon='RENDER_REGION')
+        #1 - BOTTOM - LEFT
+        pie.operator("mesh.loop_multi_select", text="Select Ring", icon='ZOOM_PREVIOUS').ring=True
         #3 - BOTTOM - RIGHT  
-        pie.operator("mesh.select_similar", text="Select Similar", icon='GHOST')
+        pie.operator("mesh.loop_multi_select", text="Select Loop", icon='ZOOM_PREVIOUS').ring=False
 
 # Pie Text Editor
 class PieTextEditor(Menu):
@@ -2539,6 +2533,7 @@ def register():
     bpy.utils.register_class(ClassTexturePaint)
     bpy.utils.register_class(ClassVertexPaint)
     bpy.utils.register_class(ClassWeightPaint)
+    bpy.utils.register_class(SelectAllBySelection)
     # View Menu
     bpy.utils.register_class(PieAreaViews)
     bpy.utils.register_class(JoinArea)
@@ -2590,7 +2585,6 @@ def register():
     bpy.utils.register_class(OrientationVariable)
     # Retopo
     bpy.utils.register_class(PieRetopo)
-    bpy.utils.register_class(AlignToX)
     bpy.utils.register_class(RetopoSpace)
     bpy.utils.register_class(LapRelax)
     bpy.utils.register_class(ShrinkwrapUpte)
@@ -2656,7 +2650,6 @@ def register():
     bpy.utils.register_class(AlignYBack)
     bpy.utils.register_class(AlignZTop)
     bpy.utils.register_class(AlignZBottom)
-    bpy.utils.register_class(AlignXYZ)
     # Delete
     bpy.utils.register_class(PieDelete)
     bpy.utils.register_class(DeleteLimitedDissolve)
@@ -2692,102 +2685,121 @@ def register():
     if wm.keyconfigs.addon:
         #Select Mode
         km = wm.keyconfigs.addon.keymaps.new(name='Object Non-modal')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS').properties.name = "pie.objecteditmode"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS')
+        kmi.properties.name = "pie.objecteditmode"
         
         #Views numpad
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS').properties.name = "pie.viewnumpad"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS')
+        kmi.properties.name = "pie.viewnumpad"
        
         #Views
         km = wm.keyconfigs.addon.keymaps.new(name='Screen')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS').properties.name = "pie.areaviews"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS')
+        kmi.properties.name = "pie.areaviews"
         
         #Sculpt Pie Menu
         km = wm.keyconfigs.addon.keymaps.new(name='Sculpt')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS').properties.name = "pie.sculpt"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS')
+        kmi.properties.name = "pie.sculpt"
         
         #Sculpt Pie Menu 2
         km = wm.keyconfigs.addon.keymaps.new(name='Sculpt')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS', alt=True).properties.name = "pie.sculpttwo"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS', alt=True)
+        kmi.properties.name = "pie.sculpttwo"
         
         #Origin/Pivot
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True).properties.name = "pie.originpivot"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True)
+        kmi.properties.name = "pie.originpivot"
         
         #Manipulators
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', ctrl=True).properties.name = "pie.manipulator"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', ctrl=True)
+        kmi.properties.name = "pie.manipulator"
         
         #Snapping
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS', shift=True).properties.name = "pie.snapping"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS', shift=True)
+        kmi.properties.name = "pie.snapping"
         
         #Orientation
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', alt=True).properties.name = "pie.orientation"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', alt=True)
+        kmi.properties.name = "pie.orientation"
         
         #Retopo
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', shift=True).properties.name = "pie.retopo"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', shift=True)
+        kmi.properties.name = "pie.retopo"
         
         #Shading
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS').properties.name = "pie.shadingview"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS')
+        kmi.properties.name = "pie.shadingview"
         
         #Object shading
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS', shift=True).properties.name = "pie.objectshading"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS', shift=True)
+        kmi.properties.name = "pie.objectshading"
         
         #Pivot Point
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS', alt=True).properties.name = "pie.pivotpoint"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS', alt=True)
+        kmi.properties.name = "pie.pivotpoint"
         
         #ProportionalEditObj
         km = wm.keyconfigs.addon.keymaps.new(name = 'Object Mode')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'O', 'PRESS').properties.name = "pie.proportional_obj"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'O', 'PRESS')
+        kmi.properties.name = "pie.proportional_obj"
 
         #ProportionalEditEdt
         km = wm.keyconfigs.addon.keymaps.new(name = 'Mesh')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'O', 'PRESS').properties.name = "pie.proportional_edt"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'O', 'PRESS')
+        kmi.properties.name = "pie.proportional_edt"
         
         #Align
         km = wm.keyconfigs.addon.keymaps.new(name = 'Mesh')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'X', 'PRESS', alt=True).properties.name = "pie.align"
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'X', 'PRESS', alt=True)
+        kmi.properties.name = "pie.align"
         
         #Delete
         km = wm.keyconfigs.addon.keymaps.new(name = 'Mesh')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'X', 'PRESS').properties.name = "pie.delete"
-        addon_keymaps.append(km)
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'X', 'PRESS')
+        kmi.properties.name = "pie.delete"
         
         #Apply Transform
         km = wm.keyconfigs.addon.keymaps.new(name = 'Object Mode')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS', ctrl=True).properties.name = "pie.applytranforms"
-        addon_keymaps.append(km)
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS', ctrl=True)
+        kmi.properties.name = "pie.applytranforms"
         
         #Selection Object Mode
         km = wm.keyconfigs.addon.keymaps.new(name = 'Object Mode')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS').properties.name = "pie.selectionsom"
-        addon_keymaps.append(km)
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS')
+        kmi.properties.name = "pie.selectionsom"
         
         #Selection Edit Mode
         km = wm.keyconfigs.addon.keymaps.new(name = 'Mesh')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS').properties.name = "pie.selectionsem"
-        addon_keymaps.append(km)
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS')
+        kmi.properties.name = "pie.selectionsem"
         
         #Tex Editor
         km = wm.keyconfigs.addon.keymaps.new(name = 'Text', space_type = 'TEXT_EDITOR')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', ctrl=True, alt=True).properties.name = "pie.texteditor"
-        addon_keymaps.append(km)
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', ctrl=True, alt=True)
+        kmi.properties.name = "pie.texteditor"
         
         #Animation
         km = wm.keyconfigs.addon.keymaps.new(name='Object Non-modal')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS', alt=True).properties.name = "pie.animation"
-        addon_keymaps.append(km)
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS', alt=True)
+        kmi.properties.name = "pie.animation"
         
         #Save/Open/...
         km = wm.keyconfigs.addon.keymaps.new(name='Window')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', ctrl=True).properties.name = "pie.saveopen"
-      
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', ctrl=True)
+        kmi.properties.name = "pie.saveopen"
+        
+        addon_keymaps.append(km)
+        
 # Register / Unregister Classes
 def unregister():
     # Pie Menu Select Mode
@@ -2799,6 +2811,7 @@ def unregister():
     bpy.utils.unregister_class(ClassTexturePaint)
     bpy.utils.unregister_class(ClassVertexPaint)
     bpy.utils.unregister_class(ClassWeightPaint)
+    bpy.utils.unregister_class(SelectAllBySelection)
     # View Menu
     bpy.utils.unregister_class(PieAreaViews)
     bpy.utils.unregister_class(JoinArea)
@@ -2850,7 +2863,6 @@ def unregister():
     bpy.utils.unregister_class(OrientationVariable)
     #Retopo
     bpy.utils.unregister_class(PieRetopo)
-    bpy.utils.unregister_class(AlignToX)
     bpy.utils.unregister_class(RetopoSpace)
     bpy.utils.unregister_class(LapRelax)
     bpy.utils.unregister_class(ShrinkwrapUpte)
@@ -2916,7 +2928,6 @@ def unregister():
     bpy.utils.unregister_class(AlignYBack)
     bpy.utils.unregister_class(AlignZTop)
     bpy.utils.unregister_class(AlignZBottom)
-    bpy.utils.unregister_class(AlignXYZ)
     # Delete
     bpy.utils.unregister_class(PieDelete)
     bpy.utils.unregister_class(DeleteLimitedDissolve)
@@ -2959,6 +2970,9 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
+
+
 
 
 
