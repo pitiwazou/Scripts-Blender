@@ -29,7 +29,7 @@ bl_info = {
 Right Click Pie Menu
 This adds a the Right Click Pie Menu in the View3D.
 Left mouse is SELECTION.
-Left shift Double click sets the 3D cursor.
+Left Alt + Double click sets the 3D cursor.
 
 """
 
@@ -174,51 +174,7 @@ class WazouSymetrize(bpy.types.Operator):
         bpy.ops.mesh.select_all(action='TOGGLE')
         return {'FINISHED'} 
 
-#Merge At Last
-class MergeAtLast(bpy.types.Operator):  
-    bl_idname = "merge.atlast"  
-    bl_label = "Merge At Last"  
-  
-    def execute(self, context):
-        bpy.ops.mesh.merge(type='LAST')
-        return {'FINISHED'}  
-    
-#Merge At First
-class MergeAtFirst(bpy.types.Operator):  
-    bl_idname = "merge.atfirst"  
-    bl_label = "Merge At First"  
-  
-    def execute(self, context):
-        bpy.ops.mesh.merge(type='FIRST')
-        return {'FINISHED'}   
-    
-#Merge At Center
-class MergeAtCenter(bpy.types.Operator):  
-    bl_idname = "merge.atcenter"  
-    bl_label = "Merge At Centert"  
-  
-    def execute(self, context):
-        bpy.ops.mesh.merge(type='CENTER')
-        return {'FINISHED'}        
-    
-#Merge At Cursor
-class MergeAtCursor(bpy.types.Operator):  
-    bl_idname = "merge.atcursor"  
-    bl_label = "Merge At Cursor"  
-  
-    def execute(self, context):
-        bpy.ops.mesh.merge(type='CURSOR')
-        return {'FINISHED'}    
-    
-#Merge Collapse
-class MergeCollapse(bpy.types.Operator):  
-    bl_idname = "merge.collapse"  
-    bl_label = "Merge Collapse"  
-  
-    def execute(self, context):
-        bpy.ops.mesh.merge(type='COLLAPSE')
-        return {'FINISHED'}  
-    
+#Looptools    
 class VIEW3D_MT_edit_mesh_looptools(bpy.types.Menu):
     bl_idname = "loop.tools" 
     bl_label = "LoopTools"
@@ -423,49 +379,47 @@ class View3dRightClicMenu(Menu):
             row = box.row(align=True)
             #Vertex
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (True, False, False):
-                box.operator("merge.atcenter", text="Merge At Center", icon='AUTOMERGE_ON')
-                box.operator("merge.atlast", text="Merge At Last", icon='AUTOMERGE_ON')
-                box.operator("merge.atfirst", text="Merge At First", icon='AUTOMERGE_ON')
+                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
+                box.operator("mesh.merge", text="Merge At Last", icon='AUTOMERGE_ON').type='LAST'
+                box.operator("mesh.merge", text="Merge At First", icon='AUTOMERGE_ON').type='FIRST'
             #Edges    
-            if tuple (bpy.context.tool_settings.mesh_select_mode) == (False, False, True):
-                box.operator("merge.atcenter", text="Merge At Center", icon='AUTOMERGE_ON')
-                box.operator("merge.atcursor", text="Merge At Cursor", icon='AUTOMERGE_ON')
-                box.operator("merge.collapse", text="Collapse", icon='AUTOMERGE_ON')
-            #Faces
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (False, True, False):
-                box.operator("merge.atcenter", text="Merge At Center", icon='AUTOMERGE_ON')
-                box.operator("merge.atcursor", text="At Cursor", icon='AUTOMERGE_ON')
-                box.operator("merge.collapse", text="Collapse", icon='AUTOMERGE_ON')
+                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
+                box.operator("mesh.merge", text="Merge At Cursor", icon='AUTOMERGE_ON').type='CURSOR'
+                box.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE'
+            #Faces
+            if tuple (bpy.context.tool_settings.mesh_select_mode) == (False, False, True):
+                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
+                box.operator("mesh.merge", text="Merge At Cursor", icon='AUTOMERGE_ON').type='CURSOR'
+                box.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE'
             #Vertex - Edges - Faces
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (True, True, True):
-                box.operator("merge.atlast", text="Merge At Last", icon='AUTOMERGE_ON')
-                box.operator("merge.atfirst", text="Merge At First", icon='AUTOMERGE_ON')
-                box.operator("merge.atcenter", text="Merge At Center", icon='AUTOMERGE_ON')
-                box.operator("merge.atcursor", text="Merge At Cursor", icon='AUTOMERGE_ON')
-                box.operator("merge.collapse", text="Collapse", icon='AUTOMERGE_ON') 
+                box.operator("mesh.merge", text="Merge At Last", icon='AUTOMERGE_ON').type='LAST'
+                box.operator("mesh.merge", text="Merge At First", icon='AUTOMERGE_ON').type='FIRST'
+                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
+                box.operator("mesh.merge", text="Merge At Cursor", icon='AUTOMERGE_ON').type='CURSOR'
+                box.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE' 
             #Vertex - Edges
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (True, True, False):
-                box.operator("merge.atlast", text="Merge At Last", icon='AUTOMERGE_ON')
-                box.operator("merge.atfirst", text="Merge At First", icon='AUTOMERGE_ON')
-                box.operator("merge.atcenter", text="Merge At Center", icon='AUTOMERGE_ON')
-                box.operator("merge.atcursor", text="Merge At Cursor", icon='AUTOMERGE_ON')
-                box.operator("merge.collapse", text="Collapse", icon='AUTOMERGE_ON')  
+                box.operator("mesh.merge", text="Merge At Last", icon='AUTOMERGE_ON').type='LAST'
+                box.operator("mesh.merge", text="Merge At First", icon='AUTOMERGE_ON').type='FIRST'
+                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
+                box.operator("mesh.merge", text="Merge At Cursor", icon='AUTOMERGE_ON').type='CURSOR'
+                box.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE' 
             #Vertex - Faces
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (True, False, True):
-                box.operator("merge.atlast", text="Merge At Last", icon='AUTOMERGE_ON')
-                box.operator("merge.atfirst", text="Merge At First", icon='AUTOMERGE_ON')
-                box.operator("merge.atcenter", text="Merge At Center", icon='AUTOMERGE_ON')
-                box.operator("merge.atcursor", text="Merge At Cursor", icon='AUTOMERGE_ON')
-                box.operator("merge.collapse", text="Collapse", icon='AUTOMERGE_ON') 
+                box.operator("mesh.merge", text="Merge At Last", icon='AUTOMERGE_ON').type='LAST'
+                box.operator("mesh.merge", text="Merge At First", icon='AUTOMERGE_ON').type='FIRST'
+                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
+                box.operator("mesh.merge", text="Merge At Cursor", icon='AUTOMERGE_ON').type='CURSOR'
+                box.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE'
             #Edges - Faces
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (False, True, True):
-                box.operator("merge.atlast", text="Merge At Last", icon='AUTOMERGE_ON')
-                box.operator("merge.atfirst", text="Merge At First", icon='AUTOMERGE_ON')
-                box.operator("merge.atcenter", text="Merge At Center", icon='AUTOMERGE_ON')
-                box.operator("merge.atcursor", text="Merge At Cursor", icon='AUTOMERGE_ON')
-                box.operator("merge.collapse", text="Collapse", icon='AUTOMERGE_ON')        
-            
-            
+                box.operator("mesh.merge", text="Merge At Last", icon='AUTOMERGE_ON').type='LAST'
+                box.operator("mesh.merge", text="Merge At First", icon='AUTOMERGE_ON').type='FIRST'
+                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
+                box.operator("mesh.merge", text="Merge At Cursor", icon='AUTOMERGE_ON').type='CURSOR'
+                box.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE'   
             #8 - TOP
             pie.operator("screen.redo_last", text="F6", icon='SCRIPTWIN')
             #7 - TOP - LEFT 
@@ -515,7 +469,6 @@ class View3dRightClicMenu(Menu):
             pie.operator("wm.context_toggle", text="X Symetry", icon='MOD_MIRROR').use_symmetry_x = True
             #8 - TOP
             
-
             #7 - TOP - LEFT 
             
             #9 - TOP - RIGHT
@@ -577,11 +530,6 @@ def register():
     #Edit
     bpy.utils.register_class(AddMirrorEdit)
     bpy.utils.register_class(ApplyMirrorEdit)
-    bpy.utils.register_class(MergeAtCursor)
-    bpy.utils.register_class(MergeAtFirst)
-    bpy.utils.register_class(MergeAtCenter)
-    bpy.utils.register_class(MergeCollapse)
-    bpy.utils.register_class(MergeAtLast)
     bpy.utils.register_class(WazouSymetrize)
     #Sculpt
     bpy.utils.register_class(EnableDyntopo)
@@ -602,7 +550,8 @@ def register():
         
         #Right Clic
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS').properties.name = "pie.rightclicmenu"  
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS')
+        kmi.properties.name = "pie.rightclicmenu"  
         
 def unregister():
     bpy.utils.unregister_class(View3dRightClicMenu)
@@ -620,11 +569,6 @@ def unregister():
     #Edit
     bpy.utils.unregister_class(AddMirrorEdit)
     bpy.utils.unregister_class(ApplyMirrorEdit)
-    bpy.utils.unregister_class(MergeAtCursor)
-    bpy.utils.unregister_class(MergeAtFirst)
-    bpy.utils.unregister_class(MergeAtCenter)
-    bpy.utils.unregister_class(MergeCollapse)
-    bpy.utils.unregister_class(MergeAtLast)
     bpy.utils.unregister_class(WazouSymetrize)
     #Sculpt
     bpy.utils.unregister_class(EnableDyntopo)
@@ -636,6 +580,8 @@ if __name__ == "__main__":
     register()
 
     #bpy.ops.wm.call_menu_pie(name="View3dRightClicMenu")
+
+
 
 
 
