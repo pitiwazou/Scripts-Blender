@@ -19,7 +19,7 @@
 bl_info = {
     "name": "Wazou Right clic Pie",
     "author": "Cédric Lepiller",
-    "version": (0, 1, 0),
+    "version": (0, 1, 1),
     "blender": (2, 7, 1),
     "location": "View3D > RMB",
     "description": "Right Click Pie Menu",
@@ -267,7 +267,7 @@ class CreateHole(bpy.types.Operator):
         bpy.ops.transform.resize(value=(0.8, 0.8, 0.8))
         bpy.ops.mesh.delete(type='FACE')
         return {'FINISHED'} 
-                                   
+                                  
 ######################
 #        Pies        #               
 ######################            
@@ -374,66 +374,51 @@ class View3dRightClicMenu(Menu):
 
             #4 - LEFT
             box = pie.split().column()
-            row = box.row(align=True)
-            box.operator("mesh.subdivide", text="Subdivide", icon='GRID').smoothness=0
-            box.operator("mesh.vertices_smooth", text="Smooth", icon='UV_VERTEXSEL')
+            row = box.split(percentage=0.55)
+            row.operator("mesh.subdivide", text="Subdivide", icon='GRID').smoothness=0
+            row.operator("mesh.vertices_smooth", text="Smooth", icon='UV_VERTEXSEL')
             row = box.row(align=True)
             row = box.split(percentage=0.5)
-            row.operator("wm.context_toggle", text="Mirror X ").data_path = "object.data.use_mirror_x"
-            row.operator("wazou.symetrize", text="Symetrize")
+            row.operator("wm.context_toggle", text="Mirror X ", icon='MOD_MIRROR').data_path = "object.data.use_mirror_x"
+            row.operator("wazou.symetrize", text="Symetrize", icon='UV_EDGESEL')
 
             #6 - RIGHT
             box = pie.split().column()
+            row = box.split(percentage=0.4)
+            row.operator("mesh.flip_normals",text="Flip N", icon = 'FILE_REFRESH')
+            row.operator("mesh.normals_make_consistent",text="consistant", icon = 'MATCUBE')
             row = box.row(align=True)
-            box.operator("mesh.flip_normals", icon = 'FILE_REFRESH')
-            box.operator("mesh.normals_make_consistent", icon = 'MATCUBE')
-            box.operator("mesh.remove_doubles",icon='X_VEC')
+            row = box.split(percentage=0.5)
+            row.operator("wm.context_toggle", text="Show Norms", icon='FACESEL').data_path = "object.data.show_normal_face"
+            row.operator("mesh.remove_doubles", text="rem D2l",icon='X_VEC')
             #2 - BOTTOM
             box = pie.split().column()
             row = box.row(align=True)
             #Vertex
-            if tuple (bpy.context.tool_settings.mesh_select_mode) == (True, False, False):
-                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
-                box.operator("mesh.merge", text="Merge At Last", icon='AUTOMERGE_ON').type='LAST'
-                box.operator("mesh.merge", text="Merge At First", icon='AUTOMERGE_ON').type='FIRST'
+            if tuple (bpy.context.tool_settings.mesh_select_mode) == (True, False, False) :
+                box.label("Merge at :")
+                row = box.row(align=True)
+                row = box.split(percentage=0.33)
+                row.operator("mesh.merge", text="First", icon='AUTOMERGE_ON').type='FIRST'
+                row.operator("mesh.merge", text="Center", icon='AUTOMERGE_ON').type='CENTER'
+                row.operator("mesh.merge", text="Last", icon='AUTOMERGE_ON').type='LAST'
             #Edges    
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (False, True, False):
-                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
-                box.operator("mesh.merge", text="Merge At Cursor", icon='AUTOMERGE_ON').type='CURSOR'
-                box.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE'
+                box.label("Merge at :")
+                row = box.row(align=True)
+                row = box.split(percentage=0.33)
+                row.operator("mesh.merge", text="Cursor", icon='CURSOR').type='CURSOR'
+                row.operator("mesh.merge", text="Center", icon='AUTOMERGE_ON').type='CENTER'
+                row.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE'
             #Faces
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (False, False, True):
-                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
-                box.operator("mesh.merge", text="Merge At Cursor", icon='AUTOMERGE_ON').type='CURSOR'
-                box.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE'
-            #Vertex - Edges - Faces
-            if tuple (bpy.context.tool_settings.mesh_select_mode) == (True, True, True):
-                box.operator("mesh.merge", text="Merge At Last", icon='AUTOMERGE_ON').type='LAST'
-                box.operator("mesh.merge", text="Merge At First", icon='AUTOMERGE_ON').type='FIRST'
-                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
-                box.operator("mesh.merge", text="Merge At Cursor", icon='AUTOMERGE_ON').type='CURSOR'
-                box.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE' 
-            #Vertex - Edges
-            if tuple (bpy.context.tool_settings.mesh_select_mode) == (True, True, False):
-                box.operator("mesh.merge", text="Merge At Last", icon='AUTOMERGE_ON').type='LAST'
-                box.operator("mesh.merge", text="Merge At First", icon='AUTOMERGE_ON').type='FIRST'
-                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
-                box.operator("mesh.merge", text="Merge At Cursor", icon='AUTOMERGE_ON').type='CURSOR'
-                box.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE' 
-            #Vertex - Faces
-            if tuple (bpy.context.tool_settings.mesh_select_mode) == (True, False, True):
-                box.operator("mesh.merge", text="Merge At Last", icon='AUTOMERGE_ON').type='LAST'
-                box.operator("mesh.merge", text="Merge At First", icon='AUTOMERGE_ON').type='FIRST'
-                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
-                box.operator("mesh.merge", text="Merge At Cursor", icon='AUTOMERGE_ON').type='CURSOR'
-                box.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE'
-            #Edges - Faces
-            if tuple (bpy.context.tool_settings.mesh_select_mode) == (False, True, True):
-                box.operator("mesh.merge", text="Merge At Last", icon='AUTOMERGE_ON').type='LAST'
-                box.operator("mesh.merge", text="Merge At First", icon='AUTOMERGE_ON').type='FIRST'
-                box.operator("mesh.merge", text="Merge At Center", icon='AUTOMERGE_ON').type='CENTER'
-                box.operator("mesh.merge", text="Merge At Cursor", icon='AUTOMERGE_ON').type='CURSOR'
-                box.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE'   
+                box.label("Merge at :")
+                row = box.row(align=True)
+                row = box.split(percentage=0.33)
+                row.operator("mesh.merge", text="Cursor", icon='CURSOR').type='CURSOR'
+                row.operator("mesh.merge", text="Center", icon='AUTOMERGE_ON').type='CENTER'
+                row.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE'
+             
             #8 - TOP
             pie.operator("screen.redo_last", text="F6", icon='SCRIPTWIN')
             #7 - TOP - LEFT 
@@ -447,9 +432,9 @@ class View3dRightClicMenu(Menu):
             row.operator("object.createhole",text="Hole", icon='CLIPUV_DEHLT')
             #9 - TOP - RIGHT
             box = pie.split().column()
-            row = box.row(align=True)
-            box.menu("loop.tools")
-            box.operator("mesh.offset_edges", text="Offset Edges", icon='UV_EDGESEL')
+            row = box.split(percentage=0.6)
+            row.operator("mesh.offset_edges", text="Offset Edges", icon='UV_EDGESEL')
+            row.menu("loop.tools")
             row = box.row(align=True)
             row = box.split(percentage=0.5)
             row.operator("mesh.poke", text="Poke Faces")
@@ -465,10 +450,13 @@ class View3dRightClicMenu(Menu):
             row.operator("object.modifier_remove", text="Del Mirror", icon='X_VEC').modifier="Mirror"
             #3 - BOTTOM - RIGHT
             box = pie.split().column()
-            row = box.row(align=True)
-            box.operator("object.subsurf2", text="Subdiv Level 2", icon='MESH_UVSPHERE')
-            box.operator("remove.subsurf", text="Remove Subsurf", icon='X')
-            box.operator("mesh.separate")
+            row = box.split(percentage=0.4)
+            row.operator("object.subsurf2", text="Subd 2", icon='MESH_UVSPHERE')
+            row.operator("remove.subsurf", text="Remove Subd", icon='X')
+            row = pie.split().column()
+            row = box.split(percentage=0.5)
+            row.operator("mesh.separate")
+            row.menu("AddMenu", text="Add Obj", icon="OBJECT_DATA")
             
         elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'SCULPT':
             
