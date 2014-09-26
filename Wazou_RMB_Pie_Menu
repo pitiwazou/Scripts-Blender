@@ -247,6 +247,26 @@ class SeparateLooseParts(bpy.types.Operator):
         bpy.ops.object.mode_set(mode = 'OBJECT')
         bpy.ops.object.select_all(action='TOGGLE')
         return {'FINISHED'}  
+
+#Create Hole
+class CreateHole(bpy.types.Operator):                  
+    """This Operator create a hole on a selection"""                   
+    bl_idname = "object.createhole"                     
+    bl_label = "Create Hole on a Selection"        
+
+    @classmethod                                     
+    def poll(cls, context):                         
+        return context.active_object is not None 
+
+    def execute(self, context):                     
+        
+        bpy.ops.mesh.extrude_region_move()
+        bpy.ops.transform.resize(value=(0.6, 0.6, 0.6))
+        bpy.ops.mesh.looptools_circle()
+        bpy.ops.mesh.extrude_region_move()
+        bpy.ops.transform.resize(value=(0.8, 0.8, 0.8))
+        bpy.ops.mesh.delete(type='FACE')
+        return {'FINISHED'} 
                                    
 ######################
 #        Pies        #               
@@ -259,14 +279,14 @@ class View3dRightClicMenu(Menu):
         layout = self.layout
 
         pie = layout.menu_pie()
-        #ob = context
+        
         
         if bpy.context.area.type == 'VIEW_3D' and not bpy.context.object:
             
             #4 - LEFT
-            pie.operator("remove.subsurf", text="Remove Subsurf", icon='X')
+            pie.operator("wm.read_homefile", text="New", icon='NEW')
             #6 - RIGHT
-            pie.operator("object.subsurf2", text="Subdiv Level 2", icon='MESH_UVSPHERE')
+            pie.operator("file.save_incremental", text="Incremental Save", icon='SAVE_COPY')
             #2 - BOTTOM
             box = pie.split().column()
             row = box.row(align=True)
@@ -282,32 +302,26 @@ class View3dRightClicMenu(Menu):
             row.operator("object.lamp_add", text="", icon='LAMP_HEMI').type = 'HEMI'
             box.menu("AddMenu", text="Objects", icon="OBJECT_DATA")
             #8 - TOP
-            pie.operator("screen.redo_last", text="F6", icon='SCRIPTWIN')
+            pie.operator("wm.save_mainfile", text="Save", icon='FILE_TICK')
             #7 - TOP - LEFT 
-            box = pie.split().column()
-            row = box.split(percentage=0.5)
-            row.operator("add.mirrorobject", text="Add Mirror", icon='MOD_MIRROR')
-            row.operator("object.automirror", icon = 'MOD_MIRROR')
-            row = box.row(align=True)
-            row = box.split(percentage=0.5)
-            row.operator("object.modifier_apply", text="Apply Mirror", icon='MOD_MIRROR').modifier="Mirror"
-            row.operator("object.modifier_remove", text="Del Mirror", icon='X').modifier="Mirror"
-            row = box.row(align=True)
-            row = box.split(percentage=0.5)
-            row.operator("object.modifier_apply", text="Apply Subsurf", icon='MOD_SUBSURF').modifier="Subsurf"
-            row.operator("delete.modifiers", text="Del Modifiers", icon='GROUP')
+            pie.operator("wm.open_mainfile", text="Open file", icon='FILE_FOLDER')
             #9 - TOP - RIGHT
-            box = pie.split().column()
-            row = box.row(align=True)
-            box.operator("apply.transformall", text="Freeze Transforms", icon='FREEZE')
-            box.operator("clear.all", text="Clear All", icon='MANIPUL')
+            pie.operator("wm.save_as_mainfile", text="Save As...", icon='SAVE_AS')
             #1 - BOTTOM - LEFT
             box = pie.split().column()
+            row = box.split(percentage=0.5)
+            row.operator("import_scene.obj", text="Imp OBJ", icon='IMPORT')
+            row.operator("export_scene.obj", text="Exp OBJ", icon='EXPORT')
             row = box.row(align=True)
-            box.operator("Object.join", text="Join", icon='FULLSCREEN_EXIT')
-            box.operator("separate.looseparts", text="Separate", icon='FULLSCREEN_ENTER')
+            row = box.split(percentage=0.5)
+            row.operator("import_scene.fbx", text="Imp FBX", icon='IMPORT')
+            row.operator("export_scene.fbx", text="Exp FBX", icon='EXPORT')
             #3 - BOTTOM - RIGHT
-            pie.operator("object.delete", text="Delete", icon='CANCEL').use_global=False
+            box = pie.split().column()
+            row = box.split(percentage=0.455)
+            row.operator("wm.link", text="Link", icon='LINK_BLEND')
+            row.operator("wm.append", text="Append", icon='APPEND_BLEND')
+            
         
         elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'OBJECT':
             #4 - LEFT
@@ -424,10 +438,13 @@ class View3dRightClicMenu(Menu):
             pie.operator("screen.redo_last", text="F6", icon='SCRIPTWIN')
             #7 - TOP - LEFT 
             box = pie.split().column()
+            row = box.split(percentage=0.5)
+            row.operator("mesh.loopcut", text="Loopcut", icon='EDIT_VEC').smoothness=1
+            row.operator("mesh.inset",text="Inset", icon='EDIT_VEC').use_select_inset=False
             row = box.row(align=True)
-            box.operator("mesh.loopcut", text="Loopcut", icon='EDIT_VEC').smoothness=1
-            box.operator("mesh.inset",text="Inset", icon='EDIT_VEC').use_select_inset=False
-            box.operator("mesh.bevel",text="Bevel", icon='MOD_BEVEL')
+            row = box.split(percentage=0.5)
+            row.operator("mesh.bevel",text="Bevel", icon='MOD_BEVEL')
+            row.operator("object.createhole",text="Hole", icon='CLIPUV_DEHLT')
             #9 - TOP - RIGHT
             box = pie.split().column()
             row = box.row(align=True)
@@ -531,10 +548,12 @@ def register():
     bpy.utils.register_class(AddMirrorEdit)
     bpy.utils.register_class(ApplyMirrorEdit)
     bpy.utils.register_class(WazouSymetrize)
+    bpy.utils.register_class(CreateHole)
     #Sculpt
     bpy.utils.register_class(EnableDyntopo)
     bpy.utils.register_class(SculptSymmetrizePlusX)
     bpy.utils.register_class(SculptSymmetrizeMoinsX)
+    
     
     
     
@@ -570,6 +589,7 @@ def unregister():
     bpy.utils.unregister_class(AddMirrorEdit)
     bpy.utils.unregister_class(ApplyMirrorEdit)
     bpy.utils.unregister_class(WazouSymetrize)
+    bpy.utils.unregister_class(CreateHole)
     #Sculpt
     bpy.utils.unregister_class(EnableDyntopo)
     bpy.utils.unregister_class(SculptSymmetrizePlusX)
@@ -580,6 +600,7 @@ if __name__ == "__main__":
     register()
 
     #bpy.ops.wm.call_menu_pie(name="View3dRightClicMenu")
+
 
 
 
