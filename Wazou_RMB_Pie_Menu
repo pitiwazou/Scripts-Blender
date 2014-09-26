@@ -325,9 +325,17 @@ class View3dRightClicMenu(Menu):
         
         elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'OBJECT':
             #4 - LEFT
-            pie.operator("remove.subsurf", text="Remove Subsurf", icon='X')
+            pie.operator("Object.join", text="Join", icon='FULLSCREEN_EXIT')
             #6 - RIGHT
-            pie.operator("object.subsurf2", text="Subdiv Level 2", icon='MESH_UVSPHERE')
+            is_subsurf = False
+            for mode in bpy.context.object.modifiers :
+                if mode.type == 'SUBSURF' :
+                    is_subsurf = True
+            if is_subsurf == True :
+                pie.operator("remove.subsurf", text="Remove Subsurf", icon='X')
+            else :
+               pie.operator("object.subsurf2", text="Subdiv Level 2", icon='MESH_UVSPHERE')
+                
             #2 - BOTTOM
             box = pie.split().column()
             row = box.row(align=True)
@@ -363,10 +371,7 @@ class View3dRightClicMenu(Menu):
             box.operator("apply.transformall", text="Freeze Transforms", icon='FREEZE')
             box.operator("clear.all", text="Clear All", icon='MANIPUL')
             #1 - BOTTOM - LEFT
-            box = pie.split().column()
-            row = box.row(align=True)
-            box.operator("Object.join", text="Join", icon='FULLSCREEN_EXIT')
-            box.operator("separate.looseparts", text="Separate", icon='FULLSCREEN_ENTER')
+            pie.operator("separate.looseparts", text="Separate", icon='FULLSCREEN_ENTER')
             #3 - BOTTOM - RIGHT
             pie.operator("object.delete", text="Delete", icon='CANCEL').use_global=False
             
@@ -588,6 +593,7 @@ if __name__ == "__main__":
     register()
 
     #bpy.ops.wm.call_menu_pie(name="View3dRightClicMenu")
+
 
 
 
