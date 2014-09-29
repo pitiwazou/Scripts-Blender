@@ -1,0 +1,108 @@
+import bpy
+
+class LampsParametersAddLamps(bpy.types.Panel):
+   
+    bl_label = "Add Lamps"
+    bl_idname = "OBJECT_PT_Lamps_Add"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'TOOLS'
+    bl_category = "Tools"
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.operator("object.lamp_add", text="Add Lamp", icon='LAMP_AREA')
+
+class LampsParameters(bpy.types.Panel):
+   
+    bl_label = "Lamps Parameters"
+    bl_idname = "OBJECT_PT_Lamps_Parameters"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'TOOLS'
+    bl_category = "Tools"
+    
+    
+
+    def draw(self, context):
+        layout = self.layout
+        
+        obj = context.object
+        row = layout.row(align=True)
+        
+        if context.object.data.type == 'AREA':
+            row.prop(obj, "name", text="", icon='LAMP_AREA')
+            
+        if context.object.data.type == 'HEMI':    
+            row.prop(obj, "name", text="", icon='LAMP_HEMI')   
+        
+        if context.object.data.type == 'SPOT':    
+            row.prop(obj, "name", text="", icon='LAMP_SPOT')
+        
+        if context.object.data.type == 'SUN':    
+            row.prop(obj, "name", text="", icon='LAMP_SUN')    
+            
+        if context.object.data.type == 'POINT':    
+            row.prop(obj, "name", text="", icon='LAMP_POINT')     
+               
+        row.prop(context.object, "hide", icon='VISIBLE_IPO_ON', text="")
+        row.prop(context.object, "hide_select", icon='RESTRICT_SELECT_OFF', text="")
+        row.prop(context.object, "hide_render", icon='RESTRICT_RENDER_OFF', text="")
+        row.operator("object.delete", text="", icon='PANEL_CLOSE')
+        layout.prop(context.object.data, "type", text="Type ") 
+        
+        if context.object.data.type in {'POINT', 'SUN'}:
+            layout.prop(context.object.data, "shadow_soft_size", text="Size")
+            row = layout.row(align=True)
+            row.prop(context.object.data.cycles, "use_multiple_importance_sampling", text="MIS")  
+            row.prop(context.object.data.cycles, "cast_shadow", text="Shadow")
+            
+        if context.object.data.type == 'AREA':
+            layout.prop(context.object.data, "shape", text="")
+            
+            if context.object.data.shape == 'SQUARE':
+                layout.prop(context.object.data, "size")
+                
+            elif context.object.data.shape == 'RECTANGLE':
+                layout.prop(context.object.data, "size")
+                layout.prop(context.object.data, "size_y")
+            row = layout.row()
+            #find_node = (output_type)
+            row.prop(context.object.data.cycles, "use_multiple_importance_sampling", text="MIS")  
+            row.prop(context.object.data.cycles, "cast_shadow", text="Shadow")
+            
+            #node = find_node_input(output_type)
+            #layout.prop(bpy.data.node_groups["Shader Nodetree"].nodes["Emission"].inputs[0], "default_value")    
+             
+                
+        if context.object.data.type == 'HEMI':
+            row = layout.row(align=True)
+            row.prop(context.object.data.cycles, "use_multiple_importance_sampling", text="MIS")  
+            row.prop(context.object.data.cycles, "cast_shadow", text="Shadow")
+            layout.label(text="Not supported, interpreted as sun lamp")
+            
+        if context.object.data.type == 'SPOT':
+            layout.prop(context.object.data, "shadow_soft_size", text="Size")
+            row = layout.row(align=True)
+            row.prop(context.object.data.cycles, "use_multiple_importance_sampling", text="MIS")  
+            row.prop(context.object.data.cycles, "cast_shadow", text="Shadow")
+            layout.label("Spot Shape :")
+            layout.prop(context.object.data, "spot_size", text="Size")
+            layout.prop(context.object.data, "spot_blend", text="Blend", slider=True)
+            layout.prop(context.object.data, "show_cone")
+        
+                 
+            
+        
+def register():
+    bpy.utils.register_class(LampsParametersAddLamps)
+    bpy.utils.register_class(LampsParameters)
+    
+    
+    
+def unregister():
+    bpy.utils.unregister_class(LampsParametersAddLamps)
+    bpy.utils.unregister_class(LampsParameters)
+    bpy.utils.unregister_class(AlignLampToView)
+    
+    
+if __name__ == "__main__":
+    register()
