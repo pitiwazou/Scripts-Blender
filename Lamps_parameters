@@ -2,107 +2,238 @@ import bpy
 
 class LampsParametersAddLamps(bpy.types.Panel):
    
-    bl_label = "Add Lamps"
+    bl_label = "Add Lamp/Camera"
     bl_idname = "OBJECT_PT_Lamps_Add"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'TOOLS'
-    bl_category = "Tools"
+    bl_category = "Render"
     
     def draw(self, context):
         layout = self.layout
         layout.operator("object.lamp_add", text="Add Lamp", icon='LAMP_AREA')
+        layout.operator("object.camera_add", text="Add Camera", icon='OUTLINER_OB_CAMERA')
+        
+        
+#Align Lamp To View
+class AlignLampToView(bpy.types.Operator):  
+    bl_idname = "object.aligntoview"  
+    bl_label = "Align Lamp To View"  
+    
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
 
-class LampsParameters(bpy.types.Panel):
+    def execute(self, context):
+             
+        for obj in bpy.data.objects:
+            if bpy.context.selected_objects:
+                bpy.ops.transform.transform(mode='ALIGN', value=(0, 0, 0, 0), axis=(0, 0, 0), constraint_axis=(False, False, False), constraint_orientation='VIEW', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
+        return {'FINISHED'}     
+    
+def find_node_input(node, name):
+    for input in node.inputs:
+        if input.name == name:
+            return input
+
+    return None
+
+class LampProperties(bpy.types.Panel):
    
-    bl_label = "Lamps Parameters"
-    bl_idname = "OBJECT_PT_Lamps_Parameters"
+    bl_label = "Lamp Properties"
+    bl_idname = "OBJECT_PT_Lamp_Properties"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'TOOLS'
-    bl_category = "Tools"
+    bl_category = "Render"
     
-    
-
     def draw(self, context):
-        layout = self.layout
         
         obj = context.object
+        ob = bpy.context.object
+        
+        layout = self.layout
         row = layout.row(align=True)
         
-        if context.object.data.type == 'AREA':
-            row.prop(obj, "name", text="", icon='LAMP_AREA')
-            
-        if context.object.data.type == 'HEMI':    
-            row.prop(obj, "name", text="", icon='LAMP_HEMI')   
+        #for ob in bpy.context.scene.objects:
+        if ob.type == 'LAMP':
         
-        if context.object.data.type == 'SPOT':    
-            row.prop(obj, "name", text="", icon='LAMP_SPOT')
-        
-        if context.object.data.type == 'SUN':    
-            row.prop(obj, "name", text="", icon='LAMP_SUN')    
-            
-        if context.object.data.type == 'POINT':    
-            row.prop(obj, "name", text="", icon='LAMP_POINT')     
-               
-        row.prop(context.object, "hide", icon='VISIBLE_IPO_ON', text="")
-        row.prop(context.object, "hide_select", icon='RESTRICT_SELECT_OFF', text="")
-        row.prop(context.object, "hide_render", icon='RESTRICT_RENDER_OFF', text="")
-        row.operator("object.delete", text="", icon='PANEL_CLOSE')
-        layout.prop(context.object.data, "type", text="Type ") 
-        
-        if context.object.data.type in {'POINT', 'SUN'}:
-            layout.prop(context.object.data, "shadow_soft_size", text="Size")
-            row = layout.row(align=True)
-            row.prop(context.object.data.cycles, "use_multiple_importance_sampling", text="MIS")  
-            row.prop(context.object.data.cycles, "cast_shadow", text="Shadow")
-            
-        if context.object.data.type == 'AREA':
-            layout.prop(context.object.data, "shape", text="")
-            
-            if context.object.data.shape == 'SQUARE':
-                layout.prop(context.object.data, "size")
+            if obj.data.type == 'AREA':
+                row.prop(ob, "name", text="", icon='LAMP_AREA')
                 
-            elif context.object.data.shape == 'RECTANGLE':
-                layout.prop(context.object.data, "size")
-                layout.prop(context.object.data, "size_y")
-            row = layout.row()
-            #find_node = (output_type)
-            row.prop(context.object.data.cycles, "use_multiple_importance_sampling", text="MIS")  
-            row.prop(context.object.data.cycles, "cast_shadow", text="Shadow")
+            if obj.data.type == 'HEMI':    
+                row.prop(ob, "name", text="", icon='LAMP_HEMI')   
             
-            #node = find_node_input(output_type)
-            #layout.prop(bpy.data.node_groups["Shader Nodetree"].nodes["Emission"].inputs[0], "default_value")    
-             
+            if obj.data.type == 'SPOT':    
+                row.prop(ob, "name", text="", icon='LAMP_SPOT')
+            
+            if obj.data.type == 'SUN':    
+                row.prop(ob, "name", text="", icon='LAMP_SUN')    
                 
-        if context.object.data.type == 'HEMI':
-            row = layout.row(align=True)
-            row.prop(context.object.data.cycles, "use_multiple_importance_sampling", text="MIS")  
-            row.prop(context.object.data.cycles, "cast_shadow", text="Shadow")
-            layout.label(text="Not supported, interpreted as sun lamp")
-            
-        if context.object.data.type == 'SPOT':
-            layout.prop(context.object.data, "shadow_soft_size", text="Size")
-            row = layout.row(align=True)
-            row.prop(context.object.data.cycles, "use_multiple_importance_sampling", text="MIS")  
-            row.prop(context.object.data.cycles, "cast_shadow", text="Shadow")
-            layout.label("Spot Shape :")
-            layout.prop(context.object.data, "spot_size", text="Size")
-            layout.prop(context.object.data, "spot_blend", text="Blend", slider=True)
-            layout.prop(context.object.data, "show_cone")
+            if obj.data.type == 'POINT':    
+                row.prop(ob, "name", text="", icon='LAMP_POINT')     
+                   
+            row.prop(obj, "hide", icon='VISIBLE_IPO_ON', text="")
+            row.prop(obj, "hide_select", icon='RESTRICT_SELECT_OFF', text="")
+            row.prop(obj, "hide_render", icon='RESTRICT_RENDER_OFF', text="")
+            row.operator("object.delete", text="", icon='PANEL_CLOSE')
+            layout.prop(obj.data, "type", text="Type ") 
         
+            if obj.data.type in {'POINT', 'SUN'}:
+                layout.prop(obj.data, "shadow_soft_size", text="Size")
+                row = layout.row(align=True)
+                row.prop(obj.data.cycles, "use_multiple_importance_sampling", text="MIS")  
+                row.prop(obj.data.cycles, "cast_shadow", text="Shadow")
+                
+            if obj.data.type == 'AREA':
+                layout.prop(obj.data, "shape", text="")
+                
+                if obj.data.shape == 'SQUARE':
+                    layout.prop(ob.data, "size")
+                    
+                elif obj.data.shape == 'RECTANGLE':
+                    layout.prop(obj.data, "size")
+                    layout.prop(obj.data, "size_y")
+                row = layout.row()
+                #find_node = (output_type)
+                row.prop(obj.data.cycles, "use_multiple_importance_sampling", text="MIS")  
+                row.prop(obj.data.cycles, "cast_shadow", text="Shadow")
+                #layout.prop("object.aligntoview", text="view_align")
+                #node = find_node(context.object, 'OUTPUT_LAMP')    
+                #layout.prop(bpy.data.node_groups["Shader Nodetree"].nodes["Emission"].inputs[1], "default_value" )
+                
+
+                #node = find_node_input(output_type)
+                #layout.prop(bpy.data.node_groups["Shader Nodetree"].nodes["Emission"].inputs[0], "default_value")    
                  
+                    
+            if obj.data.type == 'HEMI':
+                row = layout.row(align=True)
+                row.prop(obj.data.cycles, "use_multiple_importance_sampling", text="MIS")  
+                row.prop(obj.data.cycles, "cast_shadow", text="Shadow")
+                layout.label(text="Not supported, interpreted as sun lamp")
+                
+            if obj.data.type == 'SPOT':
+                layout.prop(obj.data, "shadow_soft_size", text="Size")
+                row = layout.row(align=True)
+                row.prop(obj.data.cycles, "use_multiple_importance_sampling", text="MIS")  
+                row.prop(obj.data.cycles, "cast_shadow", text="Shadow")
+                layout.label("Spot Shape :")
+                layout.prop(obj.data, "spot_size", text="Size")
+                layout.prop(obj.object.data, "spot_blend", text="Blend", slider=True)
+                layout.prop(obj.data, "show_cone")
+                    
+        else :
             
+            layout.label("No Lamp Selected", icon='ERROR')
+                 
+
+class CameraProperties(bpy.types.Panel):
+   
+    bl_label = "Camera Properties"
+    bl_idname = "OBJECT_PT_camera_Properties"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'TOOLS'
+    bl_category = "Render"
+    
+    def draw(self, context):
+        ob = bpy.context.object
+        obj = context.object
+        layout = self.layout
+        
+        
+        #for ob in bpy.context.scene.objects:
+        if ob.type == 'CAMERA':
+            
+            row = layout.row(align=True)
+            
+            row.prop(ob, "name", text="", icon='OUTLINER_DATA_CAMERA')
+            row.prop(obj, "hide", icon='VISIBLE_IPO_ON', text="")
+            row.prop(obj, "hide_select", icon='RESTRICT_SELECT_OFF', text="")
+            row.prop(obj, "hide_render", icon='RESTRICT_RENDER_OFF', text="")
+            row.operator("object.delete", text="", icon='PANEL_CLOSE')
+            
+            row = layout.row(align=True)
+            row.operator("view3d.viewnumpad", text="Look Into Camera", icon='VISIBLE_IPO_ON').type='CAMERA'
+            row.operator("wm.context_toggle", text="Lock Cam to View", icon='LOCKED').data_path = "space_data.lock_camera"
+            
+            layout.label("Lens :")
+            layout.prop(context.object.data, "type", text="")
+            row = layout.row(align=True)
+            if context.object.data.type == 'PERSP':
+                row.prop(context.object.data, "lens_unit", text="")
+                if context.object.data.lens_unit == 'MILLIMETERS':
+                    row.prop(context.object.data, "lens", text="Focal Length")
+                if context.object.data.lens_unit == 'FOV':
+                    row.prop(context.object.data, "angle", text="FOV")   
+                
+            if context.object.data.type == 'ORTHO': 
+                layout.prop(context.object.data, "ortho_scale", text="Orthographic Scale")   
+            
+            if context.object.data.type == 'PANO': 
+                row = layout.row(align=True)
+                row.prop(context.object.data.cycles, "fisheye_lens", text="Lens") 
+                row.prop(context.object.data.cycles, "fisheye_fov", text="FOV") 
+                
+            split = layout.split(percentage=0.4)
+            col = split.column()
+            col.label("Shift :")
+            col.prop(context.object.data, "shift_x", text="X")
+            col.prop(context.object.data, "shift_y", text="Y")
+
+            
+            col = split.column(align=True)
+            col.label("Clipping :")
+            col.prop(context.object.data, "clip_start", text="Start")
+            col.prop(context.object.data, "clip_end", text="End")
+            
+            layout.label("Display :")
+            row = layout.row(align=True)
+            row.prop(context.object.data, "show_limits", text="Limits")
+            row.prop(context.object.data, "show_mist", text="Mist")
+            row = layout.row(align=True)
+            row.prop(context.object.data, "show_title_safe", text="Safe Areas")
+            row.prop(context.object.data, "show_sensor", text="Sensor")
+            row = layout.row(align=True)
+            row.prop(context.object.data, "show_name", text="Name")
+            
+            layout.label("Composition guides :")
+            layout.prop(context.object.data, "show_guide", text="Composition guides")
+            
+            #layout.prop(context.object.data, "CAMERA_MT_presets", text="Camera Presets")
+            
+            layout.label("Depth of Field :")
+            
+            row = layout.row()
+            row.prop(context.object.data, "dof_object", text="")
+            row.prop(context.object.data, "dof_distance", text="Distance")
+            
+            layout.prop(context.object.data.cycles, "aperture_type", text="")
+            
+            if context.object.data.cycles.aperture_type == 'RADIUS':
+                layout.prop(context.object.data.cycles, "aperture_size", text="size")
+                    
+            elif context.object.data.cycles.aperture_type == 'FSTOP':
+                layout.prop(context.object.data.cycles, "aperture_fstop", text="size")
+                
+            split = layout.split(percentage=0.6)    
+            col = split.column(align=True)
+            col.prop(context.object.data.cycles, "aperture_blades", text="Blades")
+            col.prop(context.object.data.cycles, "aperture_rotation", text="Rotation")
+            col.prop(context.object.data.cycles, "aperture_ratio", text="Ratio")
+            
+        else:
+            layout.label("No Camera Selected", icon='ERROR')            
         
 def register():
     bpy.utils.register_class(LampsParametersAddLamps)
-    bpy.utils.register_class(LampsParameters)
+    bpy.utils.register_class(LampProperties)
+    bpy.utils.register_class(CameraProperties)
     
     
     
 def unregister():
-    bpy.utils.unregister_class(LampsParametersAddLamps)
-    bpy.utils.unregister_class(LampsParameters)
-    bpy.utils.unregister_class(AlignLampToView)
-    
+    bpy.utils.unregister_class(LampParametersAddLamps)
+    bpy.utils.unregister_class(LampProperties)
+    bpy.utils.unregister_class(CameraProperties)
     
 if __name__ == "__main__":
     register()
