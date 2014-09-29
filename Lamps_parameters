@@ -124,7 +124,10 @@ class LampProperties(bpy.types.Panel):
         else :
             
             layout.label("No Lamp Selected", icon='ERROR')
-                 
+
+bpy.types.Scene.part_lens = bpy.props.BoolProperty(default=True)
+bpy.types.Scene.part_display = bpy.props.BoolProperty(default=False) 
+bpy.types.Scene.part_dof = bpy.props.BoolProperty(default=False)                 
 
 class CameraProperties(bpy.types.Panel):
    
@@ -138,8 +141,7 @@ class CameraProperties(bpy.types.Panel):
         ob = bpy.context.object
         obj = context.object
         layout = self.layout
-        
-        
+           
         #for ob in bpy.context.scene.objects:
         if ob.type == 'CAMERA':
             
@@ -155,71 +157,81 @@ class CameraProperties(bpy.types.Panel):
             row.operator("view3d.viewnumpad", text="Look Into Camera", icon='VISIBLE_IPO_ON').type='CAMERA'
             row.operator("wm.context_toggle", text="Lock Cam to View", icon='LOCKED').data_path = "space_data.lock_camera"
             
-            layout.label("Lens :")
-            layout.prop(context.object.data, "type", text="")
-            row = layout.row(align=True)
-            if context.object.data.type == 'PERSP':
-                row.prop(context.object.data, "lens_unit", text="")
-                if context.object.data.lens_unit == 'MILLIMETERS':
-                    row.prop(context.object.data, "lens", text="Focal Length")
-                if context.object.data.lens_unit == 'FOV':
-                    row.prop(context.object.data, "angle", text="FOV")   
-                
-            if context.object.data.type == 'ORTHO': 
-                layout.prop(context.object.data, "ortho_scale", text="Orthographic Scale")   
-            
-            if context.object.data.type == 'PANO': 
+             
+            if context.scene.part_lens==True:
+                layout.prop(context.scene, "part_lens", text="Lens", icon='TRIA_DOWN') 
+                layout.prop(context.object.data, "type", text="")
                 row = layout.row(align=True)
-                row.prop(context.object.data.cycles, "fisheye_lens", text="Lens") 
-                row.prop(context.object.data.cycles, "fisheye_fov", text="FOV") 
-                
-            split = layout.split(percentage=0.4)
-            col = split.column()
-            col.label("Shift :")
-            col.prop(context.object.data, "shift_x", text="X")
-            col.prop(context.object.data, "shift_y", text="Y")
-
-            
-            col = split.column(align=True)
-            col.label("Clipping :")
-            col.prop(context.object.data, "clip_start", text="Start")
-            col.prop(context.object.data, "clip_end", text="End")
-            
-            layout.label("Display :")
-            row = layout.row(align=True)
-            row.prop(context.object.data, "show_limits", text="Limits")
-            row.prop(context.object.data, "show_mist", text="Mist")
-            row = layout.row(align=True)
-            row.prop(context.object.data, "show_title_safe", text="Safe Areas")
-            row.prop(context.object.data, "show_sensor", text="Sensor")
-            row = layout.row(align=True)
-            row.prop(context.object.data, "show_name", text="Name")
-            
-            layout.label("Composition guides :")
-            layout.prop(context.object.data, "show_guide", text="Composition guides")
-            
-            #layout.prop(context.object.data, "CAMERA_MT_presets", text="Camera Presets")
-            
-            layout.label("Depth of Field :")
-            
-            row = layout.row()
-            row.prop(context.object.data, "dof_object", text="")
-            row.prop(context.object.data, "dof_distance", text="Distance")
-            
-            layout.prop(context.object.data.cycles, "aperture_type", text="")
-            
-            if context.object.data.cycles.aperture_type == 'RADIUS':
-                layout.prop(context.object.data.cycles, "aperture_size", text="size")
+                if context.object.data.type == 'PERSP':
+                    row.prop(context.object.data, "lens_unit", text="")
+                    if context.object.data.lens_unit == 'MILLIMETERS':
+                        row.prop(context.object.data, "lens", text="Focal Length")
+                    if context.object.data.lens_unit == 'FOV':
+                        row.prop(context.object.data, "angle", text="FOV")   
                     
-            elif context.object.data.cycles.aperture_type == 'FSTOP':
-                layout.prop(context.object.data.cycles, "aperture_fstop", text="size")
+                if context.object.data.type == 'ORTHO': 
+                    layout.prop(context.object.data, "ortho_scale", text="Orthographic Scale")   
                 
-            split = layout.split(percentage=0.6)    
-            col = split.column(align=True)
-            col.prop(context.object.data.cycles, "aperture_blades", text="Blades")
-            col.prop(context.object.data.cycles, "aperture_rotation", text="Rotation")
-            col.prop(context.object.data.cycles, "aperture_ratio", text="Ratio")
+                if context.object.data.type == 'PANO': 
+                    row = layout.row(align=True)
+                    row.prop(context.object.data.cycles, "fisheye_lens", text="Lens") 
+                    row.prop(context.object.data.cycles, "fisheye_fov", text="FOV") 
+                    
+                split = layout.split(percentage=0.4)
+                col = split.column()
+                col.label("Shift :")
+                col.prop(context.object.data, "shift_x", text="X")
+                col.prop(context.object.data, "shift_y", text="Y")
+
+                
+                col = split.column(align=True)
+                col.label("Clipping :")
+                col.prop(context.object.data, "clip_start", text="Start")
+                col.prop(context.object.data, "clip_end", text="End")
+            else:
+                layout.prop(context.scene, "part_lens", text="Lens", icon='TRIA_RIGHT') 
+              
+            if context.scene.part_display==True: 
+                layout.prop(context.scene, "part_display", text="Display", icon='TRIA_DOWN')
+                row = layout.row(align=True)
+                row.prop(context.object.data, "show_limits", text="Limits")
+                row.prop(context.object.data, "show_mist", text="Mist")
+                row = layout.row(align=True)
+                row.prop(context.object.data, "show_title_safe", text="Safe Areas")
+                row.prop(context.object.data, "show_sensor", text="Sensor")
+                row = layout.row(align=True)
+                row.prop(context.object.data, "show_name", text="Name")
+                
+                layout.label("Composition guides :")
+                layout.prop(context.object.data, "show_guide", text="Composition guides")
+            else:
+                layout.prop(context.scene, "part_display", text="Display", icon='TRIA_RIGHT')    
+                #layout.prop(context.object.data, "CAMERA_MT_presets", text="Camera Presets")
             
+             
+            if context.scene.part_dof==True:
+                layout.prop(context.scene, "part_dof", text="Depth of Field", icon='TRIA_DOWN') 
+                row = layout.row(align=True)
+                row.prop(context.object.data, "dof_object", text="")
+                row.prop(context.object.data.cycles, "aperture_type", text="")
+                
+                row = layout.row(align=True)
+                row.prop(context.object.data, "dof_distance", text="Distance")
+                
+                if context.object.data.cycles.aperture_type == 'RADIUS':
+                    row.prop(context.object.data.cycles, "aperture_size", text="size")
+                        
+                elif context.object.data.cycles.aperture_type == 'FSTOP':
+                    row.prop(context.object.data.cycles, "aperture_fstop", text="size")
+                layout.separator()    
+                row = layout.row()
+                row.prop(context.object.data.cycles, "aperture_blades", text="Blades")
+                row.prop(context.object.data.cycles, "aperture_rotation", text="Rotation")
+                split = layout.split(percentage= 0.49)
+                col = split.column()
+                col.prop(context.object.data.cycles, "aperture_ratio", text="Ratio")
+            else:
+                layout.prop(context.scene, "part_dof", text="Depth of Field", icon='TRIA_RIGHT')
         else:
             layout.label("No Camera Selected", icon='ERROR')            
         
