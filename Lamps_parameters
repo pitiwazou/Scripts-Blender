@@ -1,42 +1,217 @@
 import bpy
+from bpy.types import Menu, Panel, UIList
+from rna_prop_ui import PropertyPanel
 
-class LampsParametersAddLamps(bpy.types.Panel):
+class CAM_UL_mylist(bpy.types.UIList):
+    bl_idname = "object.cameralist"
+    bl_label = "Camera_List"
+    
+    
+    @classmethod
+    def poll(cls, context):
+        
+        obj = context.object
+        return (obj and obj.type in {'CAMERA'})
+
+    def draw(self, context):
+        layout = self.layout
+
+        ob = context.object
+        camera = bpy.data.objects[cam.name]
+
+        row = layout.row()
+        row.template_list(ob, "camera", "")
+
+        col = row.column(align=True)
+        col.operator("object.camera_add", icon='ZOOMIN', text="")
+        col.operator("object.delete", icon='ZOOMOUT', text="").all = False
+        
+
+    
+
+#Lock Camera Transforms
+class LockCameraTransforms(bpy.types.Operator):  
+    bl_idname = "object.lockcameratransforms"  
+    bl_label = "Lock Camera Transforms"  
+    
+    def execute(self, context):
+           
+        if bpy.context.object.lock_rotation[0] == False:
+            bpy.context.object.lock_rotation[0] = True
+            bpy.context.object.lock_rotation[1] = True
+            bpy.context.object.lock_rotation[2] = True
+            bpy.context.object.lock_location[0] = True
+            bpy.context.object.lock_location[1] = True
+            bpy.context.object.lock_location[2] = True
+            bpy.context.object.lock_scale[0] = True
+            bpy.context.object.lock_scale[1] = True
+            bpy.context.object.lock_scale[2] = True
+            
+        elif bpy.context.object.lock_rotation[0] == True :
+             bpy.context.object.lock_rotation[0] = False
+             bpy.context.object.lock_rotation[1] = False
+             bpy.context.object.lock_rotation[2] = False
+             bpy.context.object.lock_location[0] = False
+             bpy.context.object.lock_location[1] = False
+             bpy.context.object.lock_location[2] = False
+             bpy.context.object.lock_scale[0] = False
+             bpy.context.object.lock_scale[1] = False
+             bpy.context.object.lock_scale[2] = False
+
+        return {'FINISHED'}
+           
+#Cameras props
+bpy.types.Scene.part_lens = bpy.props.BoolProperty(default=True)
+bpy.types.Scene.part_display = bpy.props.BoolProperty(default=False) 
+bpy.types.Scene.part_dof = bpy.props.BoolProperty(default=False) 
+bpy.types.Scene.part_camera = bpy.props.BoolProperty(default=False)                  
+
+#Cameras
+class CameraProperties(bpy.types.Panel):
    
-    bl_label = "Add Lamp/Camera"
-    bl_idname = "OBJECT_PT_Lamps_Add"
+    bl_label = "Camera Properties"
+    bl_idname = "OBJECT_PT_camera_Properties"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'TOOLS'
     bl_category = "Render"
     
     def draw(self, context):
+        ob = bpy.context.object
+        obj = context.object
         layout = self.layout
-        layout.operator("object.lamp_add", text="Add Lamp", icon='LAMP_AREA')
-        layout.operator("object.camera_add", text="Add Camera", icon='OUTLINER_OB_CAMERA')
-        
-        
-#Align Lamp To View
-class AlignLampToView(bpy.types.Operator):  
-    bl_idname = "object.aligntoview"  
-    bl_label = "Align Lamp To View"  
-    
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
+           
+        #Base Camera
+        if ob.type == 'CAMERA':
+            #layout.template_list(ob,"object.cameralist")
+            row = layout.row(align=True)
+            
+            row.prop(ob, "name", text="", icon='OUTLINER_DATA_CAMERA')
+            row.prop(obj, "hide", icon='VISIBLE_IPO_ON', text="")
+            row.prop(obj, "hide_select", icon='RESTRICT_SELECT_OFF', text="")
+            row.prop(obj, "hide_render", icon='RESTRICT_RENDER_OFF', text="")
+            row.operator("view3d.object_as_camera", text="", icon='CURSOR')
+            row.operator("object.delete", text="", icon='PANEL_CLOSE')
+            row = layout.row(align=True)
+            row.operator("view3d.viewnumpad", text="View Camera", icon='VISIBLE_IPO_ON').type='CAMERA'
+            if bpy.context.space_data.lock_camera == False:
+                row.operator("wm.context_toggle", text="Lock Cam to View", icon='UNLOCKED').data_path = "space_data.lock_camera"
+            elif bpy.context.space_data.lock_camera == True:
+                row.operator("wm.context_toggle", text="Lock Cam to View", icon='LOCKED').data_path = "space_data.lock_camera"
+                
+            row = layout.row(align=True)
+            row.operator("view3d.camera_to_view", text="Cam to view", icon = 'MAN_TRANS')
+            if bpy.context.object.lock_rotation[0] == False:
+                row.operator("object.lockcameratransforms", text="Lock Transforms", icon = 'UNLOCKED')
+            elif  bpy.context.object.lock_rotation[0] == True:
+                row.operator("object.lockcameratransforms", text="Lock Transforms", icon = 'LOCKED')
+            
+            #Lens    
+            if context.scene.part_lens==True:
+                layout.prop(context.scene, "part_lens", text="Lens", icon='TRIA_DOWN') 
+                layout.prop(context.object.data, "type", text="")
+                row = layout.row(align=True)
+                if context.object.data.type == 'PERSP':
+                    row.prop(context.object.data, "lens_unit", text="")
+                    if context.object.data.lens_unit == 'MILLIMETERS':
+                        row.prop(context.object.data, "lens", text="Focal Length")
+                    if context.object.data.lens_unit == 'FOV':
+                        row.prop(context.object.data, "angle", text="FOV")   
+                    
+                if context.object.data.type == 'ORTHO': 
+                    layout.prop(context.object.data, "ortho_scale", text="Orthographic Scale")   
+                
+                if context.object.data.type == 'PANO': 
+                    row.prop(context.object.data, "lens_unit", text="")
+                    if context.object.data.lens_unit == 'MILLIMETERS':
+                        row.prop(context.object.data, "lens", text="Focal Length")
+                    if context.object.data.lens_unit == 'FOV':
+                        row.prop(context.object.data, "angle", text="FOV") 
+                     
+                    
+                split = layout.split(percentage=0.4)
+                col = split.column()
+                col.label("Shift :")
+                col.prop(context.object.data, "shift_x", text="X")
+                col.prop(context.object.data, "shift_y", text="Y")
 
-    def execute(self, context):
-             
-        for obj in bpy.data.objects:
-            if bpy.context.selected_objects:
-                bpy.ops.transform.transform(mode='ALIGN', value=(0, 0, 0, 0), axis=(0, 0, 0), constraint_axis=(False, False, False), constraint_orientation='VIEW', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
-        return {'FINISHED'}     
-    
-def find_node_input(node, name):
-    for input in node.inputs:
-        if input.name == name:
-            return input
+                
+                col = split.column(align=True)
+                col.label("Clipping :")
+                col.prop(context.object.data, "clip_start", text="Start")
+                col.prop(context.object.data, "clip_end", text="End")
+            else:
+                layout.prop(context.scene, "part_lens", text="Lens", icon='TRIA_RIGHT') 
+            
+            #Display  
+            if context.scene.part_display==True: 
+                layout.prop(context.scene, "part_display", text="Display", icon='TRIA_DOWN')
+                row = layout.row(align=True)
+                row.prop(context.object.data, "show_limits", text="Limits")
+                row.prop(context.object.data, "show_mist", text="Mist")
+                row = layout.row(align=True)
+                row.prop(context.object.data, "show_title_safe", text="Safe Areas")
+                row.prop(context.object.data, "show_sensor", text="Sensor")
+                row = layout.row(align=True)
+                row.prop(context.object.data, "show_name", text="Name")
+                
+                layout.label("Composition guides :")
+                layout.prop(context.object.data, "show_guide", text="Composition guides")
+            else:
+                layout.prop(context.scene, "part_display", text="Display", icon='TRIA_RIGHT')   
+            
+            #Depth Of Field 
+            if context.scene.part_dof==True:
+                layout.prop(context.scene, "part_dof", text="Depth of Field", icon='TRIA_DOWN') 
+                row = layout.row(align=True)
+                row.prop(context.object.data, "dof_object", text="")
+                row.prop(context.object.data.cycles, "aperture_type", text="")
+                
+                row = layout.row(align=True)
+                row.prop(context.object.data, "dof_distance", text="Distance")
+                
+                if context.object.data.cycles.aperture_type == 'RADIUS':
+                    row.prop(context.object.data.cycles, "aperture_size", text="size")
+                        
+                elif context.object.data.cycles.aperture_type == 'FSTOP':
+                    row.prop(context.object.data.cycles, "aperture_fstop", text="size")
+                layout.separator()    
+                row = layout.row()
+                row.prop(context.object.data.cycles, "aperture_blades", text="Blades")
+                row.prop(context.object.data.cycles, "aperture_rotation", text="Rotation")
+                split = layout.split(percentage= 0.49)
+                col = split.column()
+                col.prop(context.object.data.cycles, "aperture_ratio", text="Ratio")
+            else:
+                layout.prop(context.scene, "part_dof", text="Depth of Field", icon='TRIA_RIGHT')
+            
+            #Camera
+            if context.scene.part_camera==True:
+                layout.prop(context.scene, "part_camera", text="Camera", icon='TRIA_DOWN')
+                row = layout.row(align=True)
+                row.menu("CAMERA_MT_presets", text=bpy.types.CAMERA_MT_presets.bl_label)
+                #row.prop(context.object.data, "CAMERA_MT_presets", text="Camera Presets")
+                row.operator("camera.preset_add", text="", icon='ZOOMIN')
+                row.operator("camera.preset_add", text="", icon='ZOOMOUT').remove_active = True
+                
+                layout.prop(context.object.data, "sensor_fit", text="")
+                if context.object.data.sensor_fit == 'AUTO':
+                    layout.prop(context.object.data, "sensor_width", text="Size")
+                    
+                if context.object.data.sensor_fit == 'HORIZONTAL':
+                    layout.prop(context.object.data, "sensor_width", text="Width")
+                    layout.prop(context.object.data, "sensor_height", text="Height")
+                    
+                if context.object.data.sensor_fit == 'VERTICAL':
+                    layout.prop(context.object.data, "sensor_width", text="Size")
+                    layout.prop(context.object.data, "sensor_height", text="Height")
+                
+            else:
+                layout.prop(context.scene, "part_camera", text="Camera", icon='TRIA_RIGHT')    
+        else:
+            layout.label("No Camera Selected", icon='ERROR')            
 
-    return None
 
+#Lamps
 class LampProperties(bpy.types.Panel):
    
     bl_label = "Lamp Properties"
@@ -125,127 +300,23 @@ class LampProperties(bpy.types.Panel):
             
             layout.label("No Lamp Selected", icon='ERROR')
 
-bpy.types.Scene.part_lens = bpy.props.BoolProperty(default=True)
-bpy.types.Scene.part_display = bpy.props.BoolProperty(default=False) 
-bpy.types.Scene.part_dof = bpy.props.BoolProperty(default=False)                 
-
-class CameraProperties(bpy.types.Panel):
-   
-    bl_label = "Camera Properties"
-    bl_idname = "OBJECT_PT_camera_Properties"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'TOOLS'
-    bl_category = "Render"
-    
-    def draw(self, context):
-        ob = bpy.context.object
-        obj = context.object
-        layout = self.layout
-           
-        #for ob in bpy.context.scene.objects:
-        if ob.type == 'CAMERA':
-            
-            row = layout.row(align=True)
-            
-            row.prop(ob, "name", text="", icon='OUTLINER_DATA_CAMERA')
-            row.prop(obj, "hide", icon='VISIBLE_IPO_ON', text="")
-            row.prop(obj, "hide_select", icon='RESTRICT_SELECT_OFF', text="")
-            row.prop(obj, "hide_render", icon='RESTRICT_RENDER_OFF', text="")
-            row.operator("object.delete", text="", icon='PANEL_CLOSE')
-            
-            row = layout.row(align=True)
-            row.operator("view3d.viewnumpad", text="Look Into Camera", icon='VISIBLE_IPO_ON').type='CAMERA'
-            row.operator("wm.context_toggle", text="Lock Cam to View", icon='LOCKED').data_path = "space_data.lock_camera"
-            
-             
-            if context.scene.part_lens==True:
-                layout.prop(context.scene, "part_lens", text="Lens", icon='TRIA_DOWN') 
-                layout.prop(context.object.data, "type", text="")
-                row = layout.row(align=True)
-                if context.object.data.type == 'PERSP':
-                    row.prop(context.object.data, "lens_unit", text="")
-                    if context.object.data.lens_unit == 'MILLIMETERS':
-                        row.prop(context.object.data, "lens", text="Focal Length")
-                    if context.object.data.lens_unit == 'FOV':
-                        row.prop(context.object.data, "angle", text="FOV")   
-                    
-                if context.object.data.type == 'ORTHO': 
-                    layout.prop(context.object.data, "ortho_scale", text="Orthographic Scale")   
-                
-                if context.object.data.type == 'PANO': 
-                    row = layout.row(align=True)
-                    row.prop(context.object.data.cycles, "fisheye_lens", text="Lens") 
-                    row.prop(context.object.data.cycles, "fisheye_fov", text="FOV") 
-                    
-                split = layout.split(percentage=0.4)
-                col = split.column()
-                col.label("Shift :")
-                col.prop(context.object.data, "shift_x", text="X")
-                col.prop(context.object.data, "shift_y", text="Y")
-
-                
-                col = split.column(align=True)
-                col.label("Clipping :")
-                col.prop(context.object.data, "clip_start", text="Start")
-                col.prop(context.object.data, "clip_end", text="End")
-            else:
-                layout.prop(context.scene, "part_lens", text="Lens", icon='TRIA_RIGHT') 
-              
-            if context.scene.part_display==True: 
-                layout.prop(context.scene, "part_display", text="Display", icon='TRIA_DOWN')
-                row = layout.row(align=True)
-                row.prop(context.object.data, "show_limits", text="Limits")
-                row.prop(context.object.data, "show_mist", text="Mist")
-                row = layout.row(align=True)
-                row.prop(context.object.data, "show_title_safe", text="Safe Areas")
-                row.prop(context.object.data, "show_sensor", text="Sensor")
-                row = layout.row(align=True)
-                row.prop(context.object.data, "show_name", text="Name")
-                
-                layout.label("Composition guides :")
-                layout.prop(context.object.data, "show_guide", text="Composition guides")
-            else:
-                layout.prop(context.scene, "part_display", text="Display", icon='TRIA_RIGHT')    
-                #layout.prop(context.object.data, "CAMERA_MT_presets", text="Camera Presets")
-            
-             
-            if context.scene.part_dof==True:
-                layout.prop(context.scene, "part_dof", text="Depth of Field", icon='TRIA_DOWN') 
-                row = layout.row(align=True)
-                row.prop(context.object.data, "dof_object", text="")
-                row.prop(context.object.data.cycles, "aperture_type", text="")
-                
-                row = layout.row(align=True)
-                row.prop(context.object.data, "dof_distance", text="Distance")
-                
-                if context.object.data.cycles.aperture_type == 'RADIUS':
-                    row.prop(context.object.data.cycles, "aperture_size", text="size")
-                        
-                elif context.object.data.cycles.aperture_type == 'FSTOP':
-                    row.prop(context.object.data.cycles, "aperture_fstop", text="size")
-                layout.separator()    
-                row = layout.row()
-                row.prop(context.object.data.cycles, "aperture_blades", text="Blades")
-                row.prop(context.object.data.cycles, "aperture_rotation", text="Rotation")
-                split = layout.split(percentage= 0.49)
-                col = split.column()
-                col.prop(context.object.data.cycles, "aperture_ratio", text="Ratio")
-            else:
-                layout.prop(context.scene, "part_dof", text="Depth of Field", icon='TRIA_RIGHT')
-        else:
-            layout.label("No Camera Selected", icon='ERROR')            
         
 def register():
-    bpy.utils.register_class(LampsParametersAddLamps)
     bpy.utils.register_class(LampProperties)
     bpy.utils.register_class(CameraProperties)
+    bpy.utils.register_class(LockCameraTransforms)
+    #bpy.utils.register_class(CAM_UL_mylist)
+    
     
     
     
 def unregister():
-    bpy.utils.unregister_class(LampParametersAddLamps)
     bpy.utils.unregister_class(LampProperties)
     bpy.utils.unregister_class(CameraProperties)
+    bpy.utils.unregister_class(LockCameraTransforms)
+    #bpy.utils.unregister_class(CAM_UL_mylist)
     
 if __name__ == "__main__":
     register()
+
+
