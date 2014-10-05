@@ -30,7 +30,7 @@
 bl_info = {
     "name": "Retopology Tools",
     "author": "Cédric Lepiller", "Gert De Roost for the Laprelax code" 
-    "version": (0, 1, 0),
+    "version": (0, 1, 1),
     "blender": (2, 7, 0),
     "location": "View 3D > Toolbar > Tools tab > Retopology (panel)",
     "description": "Tools for fast retopology",
@@ -545,7 +545,7 @@ class RetopologyTools(bpy.types.Panel):
                     layout.separator()
                     layout.operator("mesh.laprelax", icon = 'MOD_LATTICE')
                     layout.menu("loop.tools")
-                    layout.operator("object.createhole", icon='CLIPUV_DEHLT', text="Creat Hole")
+                    layout.operator("object.createhole", icon='CLIPUV_DEHLT', text="Create Hole")
                     layout.operator("object.align2x", icon='MOD_WIREFRAME')
                     box = layout.box()
                     row = box.row()
