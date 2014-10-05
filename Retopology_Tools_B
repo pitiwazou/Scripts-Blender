@@ -533,7 +533,7 @@ class RetopologyTools(bpy.types.Panel):
             if bpy.context.object.select: 
             
                 #Tools    
-                if context.scene.retopo_Tools==True:
+                if context.scene.retopo_Tools==False:
                     layout.prop(context.scene, "retopo_Tools", text="Tools", icon='TRIA_DOWN') 
                     
                     layout.operator("setup.retopomesh", icon = 'UV_FACESEL')
