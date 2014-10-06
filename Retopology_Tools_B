@@ -615,7 +615,7 @@ class RetopologyTools(bpy.types.Panel):
                     row.operator("wire.selectedall", text="Wire", icon='WIRE')
                     if bpy.context.object.mode == "EDIT":
                         row = layout.row()
-                        row.operator("mesh.flip_normals", icon = 'FULLSCREEN_ENTER')
+                        row.operator("mesh.flip_normals", icon = 'FILE_REFRESH')
                         row.operator("mesh.normals_make_consistent", icon = 'MATCUBE')
                         row = layout.row()
                         row.operator("wm.context_toggle", text="Show Norms", icon='FACESEL').data_path = "object.data.show_normal_face"
@@ -696,7 +696,6 @@ class RetopologyTools(bpy.types.Panel):
                         row.operator("object.subsurf2", text="Add Subsurf", icon='MOD_SUBSURF')
                     
                     row.operator("object.applysubsurf", text="Apply Subsurf", icon='FILE_TICK')
-                    
                     layout.operator("delete.modifiers", text="Delete Modifiers", icon='X')
                     
                     #On/Off, Edit, Cage
