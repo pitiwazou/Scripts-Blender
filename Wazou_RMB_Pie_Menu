@@ -355,16 +355,25 @@ class View3dRightClicMenu(Menu):
             #7 - TOP - LEFT 
             box = pie.split().column()
             row = box.split(percentage=0.5)
-            row.operator("add.mirrorobject", text="Add Mirror", icon='MOD_MIRROR')
+            is_mirror = False
+            for mode in bpy.context.object.modifiers :
+                if mode.type == 'MIRROR' :
+                    is_mirror = True
+            if is_mirror == True :
+                row.operator("object.modifier_remove", text="Del Mirror",icon='X').modifier="Mirror"   
+                
+            else:
+                row.operator("add.mirrorobject", text="Add Mirror", icon='MOD_MIRROR')
+                  
             row.operator("object.automirror", icon = 'MOD_MIRROR')
             row = box.row(align=True)
             row = box.split(percentage=0.5)
-            row.operator("object.modifier_apply", text="Apply Mirror", icon='MOD_MIRROR').modifier="Mirror"
-            row.operator("object.modifier_remove", text="Del Mirror", icon='X').modifier="Mirror"
-            row = box.row(align=True)
-            row = box.split(percentage=0.5)
-            row.operator("object.modifier_apply", text="Apply Subsurf", icon='MOD_SUBSURF').modifier="Subsurf"
+            row.operator("object.modifier_apply", text="Apply Mirror", icon='FILE_TICK').modifier="Mirror"
             row.operator("delete.modifiers", text="Del Modifiers", icon='GROUP')
+            row = box.row(align=True)
+            row = box.split(percentage=0.491)
+            row.operator("object.modifier_apply", text="Apply Subsurf", icon='FILE_TICK').modifier="Subsurf"
+            
             #9 - TOP - RIGHT
             box = pie.split().column()
             row = box.row(align=True)
@@ -395,7 +404,7 @@ class View3dRightClicMenu(Menu):
             row = box.row(align=True)
             row = box.split(percentage=0.5)
             row.operator("wm.context_toggle", text="Show Norms", icon='FACESEL').data_path = "object.data.show_normal_face"
-            row.operator("mesh.remove_doubles", text="rem D2l",icon='X_VEC')
+            row.operator("mesh.remove_doubles", text="rem D2l",icon='X')
             #2 - BOTTOM
             box = pie.split().column()
             row = box.row(align=True)
@@ -447,17 +456,34 @@ class View3dRightClicMenu(Menu):
             #1 - BOTTOM - LEFT
             box = pie.split().column()
             row = box.split(percentage=0.5)
-            row.operator("add.mirroredit", text="Add Mirror", icon='MOD_MIRROR')
+            is_mirror1 = False
+            for mode in bpy.context.object.modifiers :
+                if mode.type == 'MIRROR' :
+                    is_mirror1 = True
+            if is_mirror1 == True :
+                row.operator("object.modifier_remove", text="Del Mirror", icon='X_VEC').modifier="Mirror"
+                
+            else:
+                row.operator("add.mirroredit", text="Add Mirror", icon='MOD_MIRROR')
+            
             row.operator("object.automirror", icon = 'MOD_MIRROR')
             row = box.row(align=True)
-            row = box.split(percentage=0.5)
-            row.operator("apply.mirroredit", text="Apply Mirror", icon='MOD_MIRROR')
-            row.operator("object.modifier_remove", text="Del Mirror", icon='X_VEC').modifier="Mirror"
+            row = box.split(percentage=1)
+            row.operator("apply.mirroredit", text="Apply Mirror", icon='FILE_TICK')
+            
             #3 - BOTTOM - RIGHT
             box = pie.split().column()
             row = box.split(percentage=0.4)
-            row.operator("object.subsurf2", text="Subd 2", icon='MESH_UVSPHERE')
-            row.operator("remove.subsurf", text="Remove Subd", icon='X')
+            is_subsurf1 = False
+            for mode in bpy.context.object.modifiers :
+                if mode.type == 'SUBSURF' :
+                    is_subsurf1 = True
+            if is_subsurf1 == True :
+                box.operator("remove.subsurf", text="Remove Subsurf", icon='X')
+            else :
+               box.operator("object.subsurf2", text="Add Subsurf", icon='MOD_SUBSURF')
+            
+            
             row = pie.split().column()
             row = box.split(percentage=0.5)
             row.operator("mesh.separate")
