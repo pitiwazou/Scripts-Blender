@@ -378,9 +378,6 @@ class ApplySubSurf(bpy.types.Operator):
             bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'}   
     
-############################
-#    Shrinkwrap Update     #               
-############################
 
 #Shrinkwrap Update
 class ShrinkwrapUpte(bpy.types.Operator):  
@@ -458,6 +455,22 @@ class SursurfCageOnOff(bpy.types.Operator):
         
         return {'FINISHED'}  
 
+
+#Sursurf Optimal Display
+class SursurfOptimalDisplay(bpy.types.Operator):
+    bl_idname = "object.subsurfoptimaldisplay"
+    bl_label = "Sursurf Optimal Display"
+    
+    def execute(self, context):
+        layout = self.layout 
+        
+        if bpy.context.object.modifiers["Subsurf"].show_only_control_edges == (True) :
+            bpy.context.object.modifiers["Subsurf"].show_only_control_edges = False
+            
+        elif bpy.context.object.modifiers["Subsurf"].show_only_control_edges == (False) :
+             bpy.context.object.modifiers["Subsurf"].show_only_control_edges = True
+        
+        return {'FINISHED'}  
 #######Mirror###########
 
 #Mirror On/Off
@@ -508,7 +521,21 @@ class MirrorCageOnOff(bpy.types.Operator):
         
         return {'FINISHED'}  
 
-
+#Mirror Clipping
+class MirrorClipping(bpy.types.Operator):
+    bl_idname = "object.mirrorclipping"
+    bl_label = "Mirror Clipping"
+    
+    def execute(self, context):
+        layout = self.layout 
+        
+        if bpy.context.object.modifiers["Mirror"].use_clip == (True) :
+            bpy.context.object.modifiers["Mirror"].use_clip = False
+            
+        elif bpy.context.object.modifiers["Mirror"].use_clip == (False) :
+             bpy.context.object.modifiers["Mirror"].use_clip = True
+        
+        return {'FINISHED'} 
                            
 #################### Panel       
 bpy.types.Scene.retopo_Tools = bpy.props.BoolProperty(default=True)
@@ -537,16 +564,21 @@ class RetopologyTools(bpy.types.Panel):
                     layout.prop(context.scene, "retopo_Tools", text="Tools", icon='TRIA_DOWN') 
                     
                     layout.operator("setup.retopomesh", icon = 'UV_FACESEL')
-                    layout.operator("gpencil.surfsk_add_surface", text="Add Bsurface", icon = 'MOD_DYNAMICPAINT')
-                    row = layout.row()
-                    row.operator("shrinkwrap.upte", text = "SU", icon = 'MOD_SHRINKWRAP')
-                    row.operator("shrinkwrap.updateonsel", text = "SU On Selected", icon = 'MOD_SHRINKWRAP')
                     layout.operator("polysculpt.retopo", text = "Sculpt Mesh", icon = 'SCULPTMODE_HLT')
-                    layout.separator()
-                    layout.operator("mesh.laprelax", icon = 'MOD_LATTICE')
-                    layout.menu("loop.tools")
-                    layout.operator("object.createhole", icon='CLIPUV_DEHLT', text="Create Hole")
-                    layout.operator("object.align2x", icon='MOD_WIREFRAME')
+                    
+                    if bpy.context.object.mode == "EDIT":
+                        layout.operator("gpencil.surfsk_add_surface", text="Add Bsurface", icon = 'MOD_DYNAMICPAINT')
+                        row = layout.row()
+                        row.operator("shrinkwrap.upte", text = "SU", icon = 'MOD_SHRINKWRAP')
+                        row.operator("shrinkwrap.updateonsel", text = "SU On Selected", icon = 'MOD_SHRINKWRAP')
+                        layout.separator()
+                        layout.operator("mesh.laprelax", icon = 'MOD_LATTICE')
+                        layout.menu("loop.tools")
+                        layout.operator("object.createhole", icon='CLIPUV_DEHLT', text="Create Hole")
+                        layout.operator("object.align2x", icon='MOD_WIREFRAME')
+                    else: 
+                        layout.separator() 
+                    
                     box = layout.box()
                     row = box.row()
                     row.prop(context.space_data, "show_occlude_wire")
@@ -581,16 +613,19 @@ class RetopologyTools(bpy.types.Panel):
                     row.operator("shading.smooth", text="Smooth")
                     row.operator("shading.flat", text="Flat")
                     row.operator("wire.selectedall", text="Wire", icon='WIRE')
-                    row = layout.row()
-                    row.operator("mesh.flip_normals", icon = 'FULLSCREEN_ENTER')
-                    row.operator("mesh.normals_make_consistent", icon = 'MATCUBE')
-                    row = layout.row()
-                    row.operator("wm.context_toggle", text="Show Norms", icon='FACESEL').data_path = "object.data.show_normal_face"
-                    row.operator("mesh.remove_doubles",icon='X')
+                    if bpy.context.object.mode == "EDIT":
+                        row = layout.row()
+                        row.operator("mesh.flip_normals", icon = 'FULLSCREEN_ENTER')
+                        row.operator("mesh.normals_make_consistent", icon = 'MATCUBE')
+                        row = layout.row()
+                        row.operator("wm.context_toggle", text="Show Norms", icon='FACESEL').data_path = "object.data.show_normal_face"
+                        row.operator("mesh.remove_doubles",icon='X')
+                    else: 
+                        layout.separator() 
+                    
+                    #Matcaps
                     view = context.space_data
-
                     col = layout.column()
-
                     if view.viewport_shade == 'SOLID':
                         col.prop(context.space_data, "use_matcap")
                         if view.use_matcap:
@@ -607,21 +642,90 @@ class RetopologyTools(bpy.types.Panel):
                     #Mirror
                     box = layout.box()
                     row = box.row()
-                    row.operator("add.mirrorobject", icon = 'MOD_MIRROR', text="Add Mirror")
-                    row.operator("object.automirror", icon = 'MOD_MIRROR')
+                    is_mirror = False
+                    for mode in bpy.context.object.modifiers :
+                        if mode.type == 'MIRROR' :
+                            is_mirror = True
+                    if is_mirror == True :
+                        row.operator("object.modifier_remove", text="Del Mirror", icon='X').modifier="Mirror"
+                    else:
+                        row.operator("add.mirrorobject", icon = 'MOD_MIRROR', text="Add Mirror")
                     
+                    row.operator("object.automirror", icon = 'MOD_MIRROR')
                     row = box.row()
                     row.operator("apply.mirror", text="Apply Mirror", icon='FILE_TICK')
-                    row.operator("object.modifier_remove", text="Del Mirror", icon='X').modifier="Mirror"
                     
+                    #On/Off, Edit, Cage
+                    row = box.row()
+                    for mode in bpy.context.object.modifiers :
+                        if mode.type == 'MIRROR' :
+                            is_mirror = True
+                    if is_mirror == True :
+
+                        #View On/Off
+                        if bpy.context.object.modifiers["Mirror"].show_viewport == (True) :
+                            row.operator("object.mirroronoff", text="View",icon='RESTRICT_VIEW_OFF')
+                        else:
+                            row.operator("object.mirroronoff", text="View",icon='VISIBLE_IPO_OFF')   
+                        #Edit On/Off
+                        if bpy.context.object.modifiers["Mirror"].show_in_editmode == (True) :
+                            row.operator("object.mirroreditonoff", text="Edit",icon='EDITMODE_HLT')
+                        else:
+                            row.operator("object.mirroreditonoff", text="Edit",icon='SNAP_VERTEX') 
+                        #Cage On/Off
+                        if bpy.context.object.modifiers["Mirror"].show_on_cage == (True) :
+                            row.operator("object.mirrorcageonoff", text="Cage",icon='OUTLINER_OB_MESH')
+                        else:
+                            row.operator("object.mirrorcageonoff", text="Cage",icon='OUTLINER_DATA_MESH') 
+                        #Clipping
+                        if bpy.context.object.modifiers["Mirror"].use_clip == (True) :
+                            row.operator("object.mirrorclipping", text="Clip",icon='UV_EDGESEL')
+                        else:
+                            row.operator("object.mirrorclipping", text="Clip",icon='SNAP_EDGE') 
                     #Subsurf
                     box = layout.box()
-                    box.operator("object.subsurf2", text="Add Subsurf", icon='MOD_SUBSURF')
                     row = box.row()
+                    is_subsurf = False
+                    for mode in bpy.context.object.modifiers :
+                        if mode.type == 'SUBSURF' :
+                            is_subsurf = True
+                    if is_subsurf == True :
+                        row.operator("object.removesubsurf2", text="Del Subsurf", icon='X')
+                        
+                    else :
+                        row.operator("object.subsurf2", text="Add Subsurf", icon='MOD_SUBSURF')
+                    
                     row.operator("object.applysubsurf", text="Apply Subsurf", icon='FILE_TICK')
-                    row.operator("object.removesubsurf2", text="Del Subsurf", icon='X')
+                    
                     layout.operator("delete.modifiers", text="Delete Modifiers", icon='X')
                     
+                    #On/Off, Edit, Cage
+                    row = box.row()
+                    for mode in bpy.context.object.modifiers :
+                        if mode.type == 'SUBSURF' :
+                            is_subsurf = True
+                    if is_subsurf == True :
+
+                        #View On/Off
+                        if bpy.context.object.modifiers["Subsurf"].show_viewport == (True) :
+                            row.operator("object.subsurfonoff", text="View",icon='RESTRICT_VIEW_OFF')
+                        else:
+                            row.operator("object.subsurfonoff", text="View",icon='VISIBLE_IPO_OFF')   
+                        #Edit On/Off
+                        if bpy.context.object.modifiers["Subsurf"].show_in_editmode == (True) :
+                            row.operator("object.subsurfeditonoff", text="Edit",icon='EDITMODE_HLT')
+                        else:
+                            row.operator("object.subsurfeditonoff", text="Edit",icon='SNAP_VERTEX') 
+                        #Cage On/Off
+                        if bpy.context.object.modifiers["Subsurf"].show_on_cage == (True) :
+                            row.operator("object.subsurfcageonoff", text="Cage",icon='OUTLINER_OB_MESH')
+                        else:
+                            row.operator("object.subsurfcageonoff", text="Cage",icon='OUTLINER_DATA_MESH')
+                        #Optimal display
+                        if bpy.context.object.modifiers["Subsurf"].show_only_control_edges == (True) :
+                            row.operator("object.subsurfoptimaldisplay", text="OD",icon='SOLID')
+                        else:
+                            row.operator("object.subsurfoptimaldisplay", text="OD",icon='WIRE')
                 else:
                     layout.prop(context.scene, "retopo_Modifiers", text="Modifiers", icon='TRIA_RIGHT')
         
@@ -659,11 +763,12 @@ def register():
     bpy.utils.register_class(SursurfOnOff) 
     bpy.utils.register_class(SursurfEditOnOff) 
     bpy.utils.register_class(SursurfCageOnOff) 
+    bpy.utils.register_class(SursurfOptimalDisplay) 
     
     bpy.utils.register_class(MirrorOnOff) 
     bpy.utils.register_class(MirrorEditOnOff) 
     bpy.utils.register_class(MirrorCageOnOff)
-    
+    bpy.utils.register_class(MirrorClipping)
     
 def unregister(): 
     bpy.utils.register_class(WazouRetopoTools)
@@ -690,10 +795,12 @@ def unregister():
     bpy.utils.unregister_class(SursurfOnOff) 
     bpy.utils.unregister_class(SursurfEditOnOff) 
     bpy.utils.unregister_class(SursurfCageOnOff)
+    bpy.utils.unregister_class(SursurfOptimalDisplay)
     
     bpy.utils.unregister_class(MirrorOnOff) 
     bpy.utils.unregister_class(MirrorEditOnOff) 
     bpy.utils.unregister_class(MirrorCageOnOff)
+    bpy.utils.unregister_class(MirrorClipping)
     
     
 if __name__ == "__main__": 
