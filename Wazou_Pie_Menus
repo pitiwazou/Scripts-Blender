@@ -547,9 +547,9 @@ class WireSelectedAll(bpy.types.Operator):
         return {'FINISHED'}
 
 #Grid show/hide with axes
-class ToogleGridAxis(bpy.types.Operator):
-    bl_idname = "scene.tooglegridaxis"
-    bl_label = "Toogle Grid and Axis in 3D view"
+class ToggleGridAxis(bpy.types.Operator):
+    bl_idname = "scene.togglegridaxis"
+    bl_label = "Toggle Grid and Axis in 3D view"
 
     def execute(self, context):
         bpy.context.space_data.show_axis_y = not bpy.context.space_data.show_axis_y
@@ -1624,9 +1624,11 @@ class ShrinkwrapUpte(bpy.types.Operator):
             if vert.select:
                 bpy.ops.mesh.select_all(action='TOGGLE')
                 bpy.ops.shrink.update()
+                bpy.ops.meshview_toggle.retopo()
             elif not vert.select:  
-                bpy.ops.shrink.update()   
-        return {'FINISHED'}    
+                bpy.ops.shrink.update() 
+                bpy.ops.meshview_toggle.retopo()  
+        return {'FINISHED'}   
 
 #Shrinkwrap Update On Sel
 class ShrinkwrapUpteOnSel(bpy.types.Operator):  
@@ -1636,6 +1638,7 @@ class ShrinkwrapUpteOnSel(bpy.types.Operator):
     def execute(self, context):
         
         bpy.ops.shrink.update(use_only_sel=True)
+        bpy.ops.meshview_toggle.retopo()
         return {'FINISHED'}  
 
 ########################
@@ -2113,7 +2116,7 @@ class PieObjectShading(Menu):
         row = box.row(align=True)
         box.operator("wm.context_toggle", text="Double sided", icon='SNAP_FACE').data_path = "object.data.show_double_sided"
         box.operator("wm.context_toggle", text="Backface Culling", icon="ORTHO").data_path = "space_data.show_backface_culling"
-        box.operator("scene.tooglegridaxis", text="Show/Hide Grid", icon="MESH_GRID")
+        box.operator("scene.togglegridaxis", text="Show/Hide Grid", icon="MESH_GRID")
         box.operator("wm.context_toggle", text="Matcaps", icon='MATCAP_02').data_path = "space_data.use_matcap"
         
         #3 - BOTTOM - RIGHT
@@ -2603,7 +2606,7 @@ def register():
     bpy.utils.register_class(AutoSmooth30)
     bpy.utils.register_class(AutoSmooth45) 
     bpy.utils.register_class(WireSelectedAll)
-    bpy.utils.register_class(ToogleGridAxis)
+    bpy.utils.register_class(ToggleGridAxis)
     bpy.utils.register_class(MeshDisplayOverlays)
     bpy.utils.register_class(NormalsMenu)
     bpy.utils.register_class(NormalSize01)
@@ -2881,7 +2884,7 @@ def unregister():
     bpy.utils.unregister_class(AutoSmooth30)
     bpy.utils.unregister_class(AutoSmooth45) 
     bpy.utils.unregister_class(WireSelectedAll)
-    bpy.utils.unregister_class(ToogleGridAxis)
+    bpy.utils.unregister_class(ToggleGridAxis)
     bpy.utils.unregister_class(MeshDisplayOverlays)
     bpy.utils.unregister_class(NormalsMenu)
     bpy.utils.unregister_class(NormalSize01)
