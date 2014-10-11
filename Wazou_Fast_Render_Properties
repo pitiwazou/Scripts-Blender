@@ -31,8 +31,28 @@ bl_info = {
 
 import bpy
 from bpy.types import Panel, Menu
+from bpy.props import IntProperty, FloatProperty, BoolProperty
 
+########################
+#      Properties      #               
+########################
 
+class FRP_Prefs(bpy.types.AddonPreferences):
+    """Creates the tools in a Panel, in the scene context of the properties editor"""
+    bl_idname = __name__
+
+    bpy.types.Scene.Enable_Tab_RMB_01 = bpy.props.BoolProperty(default=False)
+    
+    def draw(self, context):
+        layout = self.layout
+        
+        layout.prop(context.scene, "Enable_Tab_RMB_01", text="URL's", icon="URL")  
+        if context.scene.Enable_Tab_RMB_01:
+            row = layout.row()
+            row.operator("wm.url_open", text="Pitiwazou.com").url = "http://www.pitiwazou.com/"
+            row.operator("wm.url_open", text="Wazou's Ghitub").url = "https://github.com/pitiwazou/Scripts-Blender"
+            row.operator("wm.url_open", text="BlenderLounge Forum ").url = "http://blenderlounge.fr/forum/"      
+           
 class CyclesButtonsPanel():
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
@@ -271,10 +291,13 @@ class FRProperties(CyclesButtonsPanel, Panel):
 
 def register():
     bpy.utils.register_class(FRProperties) 
+    bpy.utils.register_class(FRP_Prefs)
+    
     
 
 def unregister():
     bpy.utils.unregister_class(FRProperties)  
+    bpy.utils.unregister_class(FRP_Prefs)
     
 if __name__ == "__main__":
     register()
