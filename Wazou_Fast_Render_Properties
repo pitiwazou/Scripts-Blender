@@ -120,7 +120,6 @@ class FRProperties(CyclesButtonsPanel, Panel):
         
         row = layout.row()
         row.prop(cscene, "film_transparent")
-        row.prop(rd, "use_border", text="Border")
         row = layout.split(percentage= 0.49)
         row.prop(rd, "use_motion_blur", text="Motion Blur")
         row.prop(rd, "motion_blur_shutter", text="Shutter")
@@ -128,21 +127,25 @@ class FRProperties(CyclesButtonsPanel, Panel):
 ############################################################
 ############################################################
         #Sampling        
-        layout.label("Sampling", icon='UV_VERTEXSEL')
-        split = layout.split()
+        layout.label("Sampling :", icon='UV_VERTEXSEL')
         
+        split = layout.split()
+
         col = split.column()
         sub = col.column(align=True)
-        sub.label("Sampling Settings:")
+        sub.label("Settings:")
         sub.prop(cscene, "seed")
         sub.prop(cscene, "sample_clamp_direct")
         sub.prop(cscene, "sample_clamp_indirect")
+
         
         col = split.column()
         sub = col.column(align=True)
-        sub.label(text="Sampling Samples:")
+        sub.label(text="Samples:")
         sub.prop(cscene, "samples", text="Render")
         sub.prop(cscene, "preview_samples", text="Preview")
+        sub.prop(cscene, "use_square_samples")
+        
         
 ############################################################        
 ############################################################        
