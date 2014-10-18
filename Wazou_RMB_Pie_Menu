@@ -19,7 +19,7 @@
 bl_info = {
     "name": "Wazou Right clic Pie",
     "author": "Cédric Lepiller",
-    "version": (0, 1, 1),
+    "version": (0, 1, 2),
     "blender": (2, 7, 1),
     "location": "View3D > RMB",
     "description": "Right Click Pie Menu",
@@ -37,6 +37,12 @@ import bpy
 import bmesh
 from bpy.types import Menu
 from bpy.props import IntProperty, FloatProperty, BoolProperty
+from bl_ui.properties_paint_common import (
+        UnifiedPaintPanel,
+        brush_texture_settings,
+        brush_texpaint_common,
+        brush_mask_texture_settings,
+        )
 
 ########################
 #      Properties      #               
@@ -267,10 +273,308 @@ class CreateHole(bpy.types.Operator):
         bpy.ops.transform.resize(value=(0.8, 0.8, 0.8))
         bpy.ops.mesh.delete(type='FACE')
         return {'FINISHED'} 
-                                  
+    
+#Symetry Lock X
+class SymetryLockX(bpy.types.Operator):
+    bl_idname = "object.symetrylockx"
+    bl_label = "Symetry Lock X"
+    
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.sculpt.use_symmetry_x == True:
+            bpy.context.scene.tool_settings.sculpt.use_symmetry_x = False
+        elif bpy.context.scene.tool_settings.sculpt.use_symmetry_x == False:
+            bpy.context.scene.tool_settings.sculpt.use_symmetry_x = True   
+        return {'FINISHED'}
+    
+#Symetry Lock Y
+class SymetryLockY(bpy.types.Operator):
+    bl_idname = "object.symetrylocky"
+    bl_label = "Symetry Lock Y"
+    
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.sculpt.use_symmetry_y == True:
+            bpy.context.scene.tool_settings.sculpt.use_symmetry_y = False
+        elif bpy.context.scene.tool_settings.sculpt.use_symmetry_y == False:
+            bpy.context.scene.tool_settings.sculpt.use_symmetry_y = True   
+        return {'FINISHED'}
+    
+#Symetry Lock Z
+class SymetryLockZ(bpy.types.Operator):
+    bl_idname = "object.symetrylockz"
+    bl_label = "Symetry Lock Z"
+    
+
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.sculpt.use_symmetry_z == True:
+            bpy.context.scene.tool_settings.sculpt.use_symmetry_z = False
+        elif bpy.context.scene.tool_settings.sculpt.use_symmetry_z == False:
+            bpy.context.scene.tool_settings.sculpt.use_symmetry_z = True   
+        return {'FINISHED'}   
+     
+#Dyntopo Shading
+class DyntopoSmoothShading(bpy.types.Operator):
+    bl_idname = "object.dtpsmoothshading"
+    bl_label = "Dyntopo Smooth Shading"
+    
+
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.sculpt.use_smooth_shading == True:
+            bpy.context.scene.tool_settings.sculpt.use_smooth_shading = False
+        elif bpy.context.scene.tool_settings.sculpt.use_smooth_shading == False:
+            bpy.context.scene.tool_settings.sculpt.use_smooth_shading = True   
+        return {'FINISHED'} 
+    
+#detail Variable Constant    
+class DetailSizevariable(bpy.types.Operator):
+    bl_idname = "object.detailsizevariable"
+    bl_label = "Detail Size Variable"
+    variable = bpy.props.FloatProperty()
+
+    def execute(self, context):
+        bpy.context.scene.tool_settings.sculpt.constant_detail = self.variable
+        return {'FINISHED'}  
+    
+#Detail Variable Relative         
+class DetailSizevariableRelative(bpy.types.Operator):
+    bl_idname = "object.detailsizevariablerelative"
+    bl_label = "Detail Size Variable  Relative"
+    variable = bpy.props.FloatProperty()
+
+    def execute(self, context):
+        bpy.context.scene.tool_settings.sculpt.detail_size = self.variable
+        return {'FINISHED'} 
+    
+#Detail Type    
+class DTPDetailType(bpy.types.Operator):
+    bl_idname = "object.detailtype"
+    bl_label = "Detail Type"
+    variable = bpy.props.StringProperty()
+
+    def execute(self, context):
+        bpy.context.scene.tool_settings.sculpt.detail_type_method = self.variable
+        return {'FINISHED'} 
+    
+#Detail Refine
+class DTPDetailRefine(bpy.types.Operator):
+    bl_idname = "object.detailrefine"
+    bl_label = "Detail Refine"
+    variable = bpy.props.StringProperty()
+
+    def execute(self, context):
+        bpy.context.scene.tool_settings.sculpt.detail_refine_method = self.variable
+        return {'FINISHED'} 
+
+#Enable Dyntopo
+class EnableDyntopo(bpy.types.Operator):  
+    bl_idname = "enable.dyntopo"  
+    bl_label = "Enable Dyntopo" 
+    
+    def execute(self, context):
+        bpy.ops.sculpt.dynamic_topology_toggle()
+        bpy.context.scene.tool_settings.sculpt.detail_refine_method = 'SUBDIVIDE_COLLAPSE'
+        bpy.context.scene.tool_settings.sculpt.detail_type_method = 'CONSTANT'
+        bpy.context.scene.tool_settings.sculpt.use_smooth_shading = True
+        return {'FINISHED'} 
+
+#Sculpt Symmetrize +X to -X
+class SculptSymmetrizePlusX(bpy.types.Operator):  
+    bl_idname = "sculpt.symmetrizeplusx"  
+    bl_label = "Sculpt Symmetrize +X to -X" 
+    
+    def execute(self, context):
+        bpy.ops.sculpt.symmetrize()
+        if bpy.context.scene.tool_settings.sculpt.symmetrize_direction ==  'NEGATIVE_X' :
+            bpy.context.scene.tool_settings.sculpt.symmetrize_direction = 'POSITIVE_X'
+        return {'FINISHED'}     
+
+#Sculpt Symmetrize -X to +X
+class SculptSymmetrizeMoinsX(bpy.types.Operator):  
+    bl_idname = "sculpt.symmetrizemoinsx"  
+    bl_label = "Sculpt Symmetrize - X to + X" 
+    
+    def execute(self, context):
+        bpy.ops.sculpt.symmetrize()
+        if bpy.context.scene.tool_settings.sculpt.symmetrize_direction ==  'POSITIVE_X' :
+            bpy.context.scene.tool_settings.sculpt.symmetrize_direction = 'NEGATIVE_X'
+        return {'FINISHED'} 
+
+#Sculpt Use symetry X
+class SculptUseSymmetryX(bpy.types.Operator):  
+    bl_idname = "sculpt.sculptusesymmetryx"  
+    bl_label = "Sculpt Use symetry X" 
+    
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.sculpt.use_symmetry_x == (True):
+            bpy.context.scene.tool_settings.sculpt.use_symmetry_x = False
+            
+        elif bpy.context.scene.tool_settings.sculpt.use_symmetry_x == (False) :
+             bpy.context.scene.tool_settings.sculpt.use_symmetry_x = True
+        return {'FINISHED'}     
+
+#Sculpt Use symetry Y
+class SculptUseSymmetryY(bpy.types.Operator):  
+    bl_idname = "sculpt.sculptusesymmetryy"  
+    bl_label = "Sculpt Use symetry Y" 
+    
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.sculpt.use_symmetry_y == (True):
+            bpy.context.scene.tool_settings.sculpt.use_symmetry_y = False
+            
+        elif bpy.context.scene.tool_settings.sculpt.use_symmetry_y == (False) :
+             bpy.context.scene.tool_settings.sculpt.use_symmetry_y = True
+        return {'FINISHED'}     
+
+#Sculpt Use symetry Z
+class SculptUseSymmetryZ(bpy.types.Operator):  
+    bl_idname = "sculpt.sculptusesymmetryz"  
+    bl_label = "Sculpt Use symetry Z" 
+    
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.sculpt.use_symmetry_z == (True):
+            bpy.context.scene.tool_settings.sculpt.use_symmetry_z = False
+            
+        elif bpy.context.scene.tool_settings.sculpt.use_symmetry_z == (False) :
+             bpy.context.scene.tool_settings.sculpt.use_symmetry_z = True
+        return {'FINISHED'} 
+                                          
 ######################
 #        Pies        #               
-######################            
+######################  
+#Pie Sculpt Constant/Relative
+class PieSculptConstantRelative(Menu):
+    bl_idname = "pie.sculptconstantrelative"
+    bl_label = "Pie Sculpt Constant/Relative"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("object.detailrefine", text="Subdiv Collapse").variable = 'SUBDIVIDE_COLLAPSE'
+        #6 - RIGHT
+        pie.operator("object.detailrefine", text="Collapse").variable = 'COLLAPSE'
+        #2 - BOTTOM
+        pie.operator("object.detailrefine", text="Subdivide").variable = 'SUBDIVIDE'
+        #8 - TOP
+        if bpy.context.tool_settings.sculpt.detail_type_method == 'CONSTANT':
+            pie.operator("object.detailtype", text="Relative").variable = 'RELATIVE'
+        elif bpy.context.tool_settings.sculpt.detail_type_method == 'RELATIVE': 
+            pie.operator("object.detailtype", text="Constant").variable = 'CONSTANT'
+        #7 - TOP - LEFT 
+        #9 - TOP - RIGHT
+        #1 - BOTTOM - LEFT
+        #3 - BOTTOM - RIGHT
+        
+#Pie Sculpt Detail Size Variable Constant
+class PieSculptDetailSizeVariableConstant(Menu):
+    bl_idname = "pie.sculptdetailsizevariableconstant"
+    bl_label = "Detail Size Values"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("object.detailsizevariable", text="1").variable = 1
+        #6 - RIGHT
+        pie.operator("object.detailsizevariable", text="15").variable = 15
+        #2 - BOTTOM
+        pie.operator("object.detailsizevariable", text="25").variable = 25
+        #8 - TOP
+        pie.operator("object.detailsizevariable", text="5").variable = 5
+        #7 - TOP - LEFT 
+        pie.operator("object.detailsizevariable", text="2").variable = 2
+        #9 - TOP - RIGHT
+        pie.operator("object.detailsizevariable", text="10").variable = 10
+        #1 - BOTTOM - LEFT
+        pie.operator("object.detailsizevariablerelative", text="30").variable = 30
+        #3 - BOTTOM - RIGHT
+        pie.operator("object.detailsizevariable", text="20").variable = 20
+        
+#Pie Sculpt Detail Size Variable Relative
+class PieSculptDetailSizeVariableRelative(Menu):
+    bl_idname = "pie.sculptdetailsizevariablerelative"
+    bl_label = "Detail Size Values"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        
+        pie.operator("object.detailsizevariablerelative", text="1").variable = 1
+        #6 - RIGHT
+        pie.operator("object.detailsizevariablerelative", text="15").variable = 15
+        #2 - BOTTOM
+        pie.operator("object.detailsizevariablerelative", text="25").variable = 25
+        #8 - TOP
+        pie.operator("object.detailsizevariablerelative", text="5").variable = 5
+        #7 - TOP - LEFT 
+        pie.operator("object.detailsizevariablerelative", text="2").variable = 2
+        #9 - TOP - RIGHT
+        pie.operator("object.detailsizevariablerelative", text="10").variable = 10
+        #1 - BOTTOM - LEFT
+        pie.operator("object.detailsizevariablerelative", text="30").variable = 30
+        #3 - BOTTOM - RIGHT
+        pie.operator("object.detailsizevariablerelative", text="20").variable = 20
+        
+#Pie Sculpt Mirror
+class PieSculptMirror(Menu):
+    bl_idname = "pie.sculptmirror"
+    bl_label = "Pie Sculpt Mirror"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        sculpt = context.tool_settings.sculpt
+        #4 - LEFT
+        pie.operator("sculpt.symmetrizemoinsx", text="-X to +X", icon='TRIA_RIGHT')
+        #6 - RIGHT
+        pie.operator("sculpt.symmetrizeplusx", text="+X to -X", icon='TRIA_LEFT')
+        #2 - BOTTOM
+        if bpy.context.scene.tool_settings.sculpt.use_symmetry_y == (True):
+            pie.operator("sculpt.sculptusesymmetryy", text="Unlock Y", icon='LOCKED')
+        else:
+            pie.operator("sculpt.sculptusesymmetryy", text="Lock Y", icon='UNLOCKED')
+        #8 - TOP
+        pie.operator("object.symetrylocky", text="Symmetrize Y", icon='MOD_MIRROR')
+        #7 - TOP - LEFT 
+        pie.operator("object.symetrylockx", text="Symmetrize X", icon='MOD_MIRROR')
+        #9 - TOP - RIGHT
+        pie.operator("object.symetrylockz", text="Symmetrize Z", icon='MOD_MIRROR')
+        #1 - BOTTOM - LEFT
+        if bpy.context.scene.tool_settings.sculpt.use_symmetry_x == (True):
+            pie.operator("sculpt.sculptusesymmetryx", text="Unlock X", icon='LOCKED')
+        else:
+            pie.operator("sculpt.sculptusesymmetryx", text="Lock X", icon='UNLOCKED')    
+        #3 - BOTTOM - RIGHT
+        if bpy.context.scene.tool_settings.sculpt.use_symmetry_z == (True):
+            pie.operator("sculpt.sculptusesymmetryz", text="Unlock Z", icon='LOCKED')
+        else:
+            pie.operator("sculpt.sculptusesymmetryz", text="Lock Z", icon='UNLOCKED') 
+
+#Pie Sculpt Curves
+class PieSculptCurves(Menu):
+    bl_idname = "pie.sculptcurves"
+    bl_label = "Pie Sculpt Curves"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("brush.curve_preset", icon='SMOOTHCURVE', text="Smooth").shape = 'SMOOTH'
+        #6 - RIGHT
+        pie.operator("brush.curve_preset", icon='SPHERECURVE', text="Rounde").shape = 'ROUND'
+        #2 - BOTTOM
+        pie.operator("brush.curve_preset", icon='ROOTCURVE', text="Root").shape = 'ROOT'
+        #8 - TOP
+        pie.operator("brush.curve_preset", icon='SHARPCURVE', text="Sharp").shape = 'SHARP'
+        #7 - TOP - LEFT 
+        pie.operator("brush.curve_preset", icon='LINCURVE', text="Line").shape = 'LINE'
+        #9 - TOP - RIGHT
+        pie.operator("brush.curve_preset", icon='NOCURVE', text="Max").shape = 'MAX'
+        #1 - BOTTOM - LEFT
+        #3 - BOTTOM - RIGHT
+########################################################################
+
+########################################################################
+#RMB          
 class View3dRightClicMenu(Menu):
     bl_idname = "pie.rightclicmenu"
     bl_label = "Right Clic Menu"
@@ -361,7 +665,6 @@ class View3dRightClicMenu(Menu):
                     is_mirror = True
             if is_mirror == True :
                 row.operator("object.modifier_remove", text="Del Mirror",icon='X').modifier="Mirror"   
-                
             else:
                 row.operator("add.mirrorobject", text="Add Mirror", icon='MOD_MIRROR')
                   
@@ -491,67 +794,77 @@ class View3dRightClicMenu(Menu):
             
         elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'SCULPT':
             
+            if context.sculpt_object.use_dynamic_topology_sculpting:
+                #4 - LEFT
+                pie.operator("sculpt.dynamic_topology_toggle", icon='X', text="Disable Dyntopo")
+                #6 - RIGHT
+                pie.operator("sculpt.detail_flood_fill", text="Detail flood Fill") 
+                #2 - BOTTOM
+                if bpy.context.scene.tool_settings.sculpt.use_smooth_shading == True:
+                    pie.operator("object.dtpsmoothshading", text="flat Shading", icon='MESH_ICOSPHERE')
+                else:
+                    pie.operator("object.dtpsmoothshading", text="Smooth Shading", icon='SOLID')
+                #8 - TOP
+                pie.operator("sculpt.sample_detail_size", text="Sample Detail Size", icon='EYEDROPPER')
+                #7 - TOP - LEFT 
+                pie.operator("wm.call_menu_pie", text="Contant/Relative", icon='MOD_MIRROR').name="pie.sculptconstantrelative"
+                #9 - TOP - RIGHT
+                if bpy.context.tool_settings.sculpt.detail_type_method == 'CONSTANT':
+                    pie.operator("wm.call_menu_pie", text="Detail Size Values", icon='NLA_PUSHDOWN').name="pie.sculptdetailsizevariableconstant"
+                elif bpy.context.tool_settings.sculpt.detail_type_method == 'RELATIVE':
+                    pie.operator("wm.call_menu_pie", text="Detail Size Values", icon='NLA_PUSHDOWN').name="pie.sculptdetailsizevariablerelative"
+                #1 - BOTTOM - LEFT
+                box = pie.split().column()
+                row = box.split(align=True)
+                box.operator("wm.call_menu_pie", text="Curves", icon='SHARPCURVE').name="pie.sculptcurves"
+                box.operator("wm.call_menu_pie", text="Symmetrize/Lock", icon='MOD_MIRROR').name="pie.sculptmirror" 
+                #3 - BOTTOM - RIGHT
+                pie.operator("sculpt.optimize", text="Optimize")
+                
+            else:
+                #4 - LEFT
+                pie.operator("enable.dyntopo", text="Enable Dyntopo", icon='LINE_DATA')
+                #6 - RIGHT
+                pie.operator("wm.call_menu_pie", text="Curves", icon='SHARPCURVE').name="pie.sculptcurves"
+                #2 - BOTTOM
+                pie.operator("wm.call_menu_pie", text="Symmetrize/Lock", icon='MOD_MIRROR').name="pie.sculptmirror" 
+                #8 - TOP
+                #7 - TOP - LEFT 
+                #9 - TOP - RIGHT
+                #1 - BOTTOM - LEFT
+                #3 - BOTTOM - RIGHT
+                
             
+
+
+   
+
+
+
+#Ctrl + RMB        
+class View3dCtrlRightClicMenu(Menu):
+    bl_idname = "pie.ctrlrightclicmenu"
+    bl_label = "Ctrl Right Clic Menu"
+
+    def draw(self, context):
+        layout = self.layout
+        if bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'SCULPT':
+            pie = layout.menu_pie()
             #4 - LEFT
-            pie.operator("enable.dyntopo", text="Enable Dyntopo", icon='LINE_DATA')
+            pie.operator("wm.call_menu_pie", text="Symmetrize/Lock", icon='MOD_MIRROR').name="pie.sculptmirror"  
             #6 - RIGHT
-            box = pie.split().column()
-            row = box.row(align=True)
-            box.operator("sculpt.optimize", text="Optimize")
-            box.operator("sculpt.detail_flood_fill", text="Detail flood Fill")
-            box.operator("sculpt.symmetrizeplusx", text="Symmetrize +X to -X")
-            box.operator("sculpt.symmetrizemoinsx", text="Symmetrize -X to +X")
+            pie.operator("wm.call_menu_pie", text="Curves", icon='SHARPCURVE').name="pie.sculptcurves"
             #2 - BOTTOM
-            pie.operator("wm.context_toggle", text="X Symetry", icon='MOD_MIRROR').use_symmetry_x = True
             #8 - TOP
-            
             #7 - TOP - LEFT 
-            
             #9 - TOP - RIGHT
-            
             #1 - BOTTOM - LEFT
-            
-            #3 - BOTTOM - RIGHT
-            
-#Enable Dyntopo
-class EnableDyntopo(bpy.types.Operator):  
-    bl_idname = "enable.dyntopo"  
-    bl_label = "Enable Dyntopo" 
-    
-    def execute(self, context):
-        bpy.ops.sculpt.dynamic_topology_toggle()
-        bpy.context.scene.tool_settings.sculpt.detail_refine_method = 'SUBDIVIDE_COLLAPSE'
-        bpy.context.scene.tool_settings.sculpt.detail_type_method = 'CONSTANT'
-        bpy.context.scene.tool_settings.sculpt.use_smooth_shading = True
-        return {'FINISHED'} 
-
-#Sculpt Symmetrize +X to -X
-class SculptSymmetrizePlusX(bpy.types.Operator):  
-    bl_idname = "sculpt.symmetrizeplusx"  
-    bl_label = "Sculpt Symmetrize +X to -X" 
-    
-    def execute(self, context):
-        bpy.ops.sculpt.symmetrize()
-        if bpy.context.scene.tool_settings.sculpt.symmetrize_direction ==  'NEGATIVE_X' :
-            bpy.context.scene.tool_settings.sculpt.symmetrize_direction = 'POSITIVE_X'
-        return {'FINISHED'}     
-
-#Sculpt Symmetrize -X to +X
-class SculptSymmetrizeMoinsX(bpy.types.Operator):  
-    bl_idname = "sculpt.symmetrizemoinsx"  
-    bl_label = "Sculpt Symmetrize - X to + X" 
-    
-    def execute(self, context):
-        bpy.ops.sculpt.symmetrize()
-        if bpy.context.scene.tool_settings.sculpt.symmetrize_direction ==  'POSITIVE_X' :
-            bpy.context.scene.tool_settings.sculpt.symmetrize_direction = 'NEGATIVE_X'
-        return {'FINISHED'} 
-    
-
+            #3 - BOTTOM - RIGHT    
 
 addon_keymaps = []
 def register():
     bpy.utils.register_class(View3dRightClicMenu)
+    bpy.utils.register_class(View3dCtrlRightClicMenu)
     bpy.utils.register_class(WazouRightMenuPiePrefs)
     #Object
     bpy.utils.register_class(AddMenu)
@@ -572,7 +885,22 @@ def register():
     bpy.utils.register_class(EnableDyntopo)
     bpy.utils.register_class(SculptSymmetrizePlusX)
     bpy.utils.register_class(SculptSymmetrizeMoinsX)
-    
+    bpy.utils.register_class(DetailSizevariable)
+    bpy.utils.register_class(SymetryLockX)
+    bpy.utils.register_class(SymetryLockY)
+    bpy.utils.register_class(SymetryLockZ)
+    bpy.utils.register_class(DyntopoSmoothShading)
+    bpy.utils.register_class(DTPDetailType)
+    bpy.utils.register_class(DTPDetailRefine)
+    bpy.utils.register_class(DetailSizevariableRelative)
+    bpy.utils.register_class(PieSculptMirror)
+    bpy.utils.register_class(SculptUseSymmetryX)
+    bpy.utils.register_class(SculptUseSymmetryY)
+    bpy.utils.register_class(SculptUseSymmetryZ)
+    bpy.utils.register_class(PieSculptCurves)
+    bpy.utils.register_class(PieSculptDetailSizeVariableRelative)
+    bpy.utils.register_class(PieSculptDetailSizeVariableConstant)
+    bpy.utils.register_class(PieSculptConstantRelative)
     
     
     
@@ -588,11 +916,17 @@ def register():
         
         #Right Clic
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS')
         kmi.properties.name = "pie.rightclicmenu"  
+        
+        #Ctrl + Right Clic
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS', ctrl=True)
+        kmi.properties.name = "pie.ctrlrightclicmenu" 
         
 def unregister():
     bpy.utils.unregister_class(View3dRightClicMenu)
+    bpy.utils.register_class(View3dCtrlRightClicMenu)
     bpy.utils.unregister_class(WazouRightMenuPiePrefs)
     #Object
     bpy.utils.unregister_class(AddMenu)
@@ -613,12 +947,34 @@ def unregister():
     bpy.utils.unregister_class(EnableDyntopo)
     bpy.utils.unregister_class(SculptSymmetrizePlusX)
     bpy.utils.unregister_class(SculptSymmetrizeMoinsX)
+    bpy.utils.unregister_class(DetailSizevariable)
+    bpy.utils.unregister_class(SymetryLockX)
+    bpy.utils.unregister_class(SymetryLockY)
+    bpy.utils.unregister_class(SymetryLockZ)
+    bpy.utils.unregister_class(DyntopoSmoothShading)
+    bpy.utils.unregister_class(DTPDetailType)
+    bpy.utils.unregister_class(DTPDetailRefine)
+    bpy.utils.unregister_class(DetailSizevariableRelative)
+    bpy.utils.unregister_class(PieSculptMirror)
+    bpy.utils.unregister_class(SculptUseSymmetryX)
+    bpy.utils.unregister_class(SculptUseSymmetryY)
+    bpy.utils.unregister_class(SculptUseSymmetryZ)
+    bpy.utils.unregister_class(PieSculptCurves)
+    bpy.utils.unregister_class(PieSculptDetailSizeVariableRelative)
+    bpy.utils.unregister_class(PieSculptDetailSizeVariableConstant)
+    bpy.utils.unregister_class(PieSculptConstantRelative)
+    
+    
+    
+    
+    
     
     
 if __name__ == "__main__":
     register()
 
     #bpy.ops.wm.call_menu_pie(name="View3dRightClicMenu")
+
 
 
 
