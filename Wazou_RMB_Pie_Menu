@@ -17,9 +17,9 @@
 # ##### END GPL LICENSE BLOCK #####
 
 bl_info = {
-    "name": "Wazou Right clic Pie",
+    "name": "Wazou Right clic Pie Menu",
     "author": "Cédric Lepiller",
-    "version": (0, 1, 2),
+    "version": (0, 1, 1),
     "blender": (2, 7, 1),
     "location": "View3D > RMB",
     "description": "Right Click Pie Menu",
@@ -833,38 +833,11 @@ class View3dRightClicMenu(Menu):
                 #9 - TOP - RIGHT
                 #1 - BOTTOM - LEFT
                 #3 - BOTTOM - RIGHT
-                
-            
-
-
-   
-
-
-
-#Ctrl + RMB        
-class View3dCtrlRightClicMenu(Menu):
-    bl_idname = "pie.ctrlrightclicmenu"
-    bl_label = "Ctrl Right Clic Menu"
-
-    def draw(self, context):
-        layout = self.layout
-        if bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'SCULPT':
-            pie = layout.menu_pie()
-            #4 - LEFT
-            pie.operator("wm.call_menu_pie", text="Symmetrize/Lock", icon='MOD_MIRROR').name="pie.sculptmirror"  
-            #6 - RIGHT
-            pie.operator("wm.call_menu_pie", text="Curves", icon='SHARPCURVE').name="pie.sculptcurves"
-            #2 - BOTTOM
-            #8 - TOP
-            #7 - TOP - LEFT 
-            #9 - TOP - RIGHT
-            #1 - BOTTOM - LEFT
-            #3 - BOTTOM - RIGHT    
+  
 
 addon_keymaps = []
 def register():
     bpy.utils.register_class(View3dRightClicMenu)
-    bpy.utils.register_class(View3dCtrlRightClicMenu)
     bpy.utils.register_class(WazouRightMenuPiePrefs)
     #Object
     bpy.utils.register_class(AddMenu)
@@ -919,14 +892,8 @@ def register():
         kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS')
         kmi.properties.name = "pie.rightclicmenu"  
         
-        #Ctrl + Right Clic
-        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS', ctrl=True)
-        kmi.properties.name = "pie.ctrlrightclicmenu" 
-        
 def unregister():
     bpy.utils.unregister_class(View3dRightClicMenu)
-    bpy.utils.register_class(View3dCtrlRightClicMenu)
     bpy.utils.unregister_class(WazouRightMenuPiePrefs)
     #Object
     bpy.utils.unregister_class(AddMenu)
