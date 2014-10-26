@@ -751,6 +751,9 @@ class View3dRightClicMenu(Menu):
             #9 - TOP - RIGHT
             box = pie.split().column()
             row = box.row(align=True)
+            row.operator("object.origin_set", text="O To Cursor", icon='CURSOR').type ='ORIGIN_CURSOR'
+            row.operator("object.origin_set", text="O To COM", icon='CLIPUV_HLT').type ='ORIGIN_CENTER_OF_MASS'
+            row = box.row(align=True)
             row.operator("object.origin_set", text="Origin To Geo", icon='ROTATE').type ='ORIGIN_GEOMETRY'
             row.operator("object.origin_set", text="Geo To Origin", icon='BBOX').type ='GEOMETRY_ORIGIN'
             row = box.row(align=True)
