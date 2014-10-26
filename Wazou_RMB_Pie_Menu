@@ -166,7 +166,18 @@ class ApplyMirrorEdit(bpy.types.Operator):
         bpy.ops.object.mode_set(mode = 'OBJECT')
         bpy.ops.object.modifier_apply(modifier="Mirror")
         bpy.ops.object.mode_set(mode = 'EDIT')
-        return {'FINISHED'}         
+        return {'FINISHED'} 
+    
+#Apply Subsurf Edit
+class ApplySubsurfEdit(bpy.types.Operator):  
+    bl_idname = "apply.subsurfedit"  
+    bl_label = "Apply Subsurf Edit"  
+  
+    def execute(self, context):
+        bpy.ops.object.mode_set(mode = 'OBJECT')
+        bpy.ops.object.modifier_apply(modifier="Subsurf")
+        bpy.ops.object.mode_set(mode = 'EDIT')
+        return {'FINISHED'}             
 
 #wazou Symetrize
 class WazouSymetrize(bpy.types.Operator):  
@@ -436,7 +447,46 @@ class SculptUseSymmetryZ(bpy.types.Operator):
         elif bpy.context.scene.tool_settings.sculpt.use_symmetry_z == (False) :
              bpy.context.scene.tool_settings.sculpt.use_symmetry_z = True
         return {'FINISHED'} 
-                                          
+
+#Pivot to selection
+class PivotToSelection(bpy.types.Operator):  
+    bl_idname = "object.pivot2selection"  
+    bl_label = "Pivot To Selection"  
+  
+    def execute(self, context):  
+        saved_location = bpy.context.scene.cursor_location.copy()
+        bpy.ops.view3d.snap_cursor_to_selected()
+        bpy.ops.object.mode_set(mode = 'OBJECT')
+        bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+        bpy.context.scene.cursor_location = saved_location 
+        return {'FINISHED'}  
+    
+#Pivot to Bottom
+class PivotBottom(bpy.types.Operator):  
+    bl_idname = "object.pivotobottom"  
+    bl_label = "Pivot To Bottom"  
+  
+    def execute(self, context):
+        
+        bpy.ops.object.mode_set(mode = 'OBJECT')
+        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+        bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
+        o=bpy.context.active_object
+        init=0
+        for x in o.data.vertices:
+             if init==0:
+                 a=x.co.z
+                 init=1
+             elif x.co.z<a:
+                 a=x.co.z
+                 
+        for x in o.data.vertices:
+             x.co.z-=a
+
+        o.location.z+=a 
+        bpy.ops.object.mode_set(mode = 'EDIT')
+        return {'FINISHED'} 
+                                                  
 ######################
 #        Pies        #               
 ######################  
@@ -584,22 +634,33 @@ class View3dRightClicMenu(Menu):
 
         pie = layout.menu_pie()
         
-        
+        ################################################
+        # No Objects                                   #
+        ################################################
         if bpy.context.area.type == 'VIEW_3D' and not bpy.context.object:
             
             #4 - LEFT
             pie.operator("wm.read_homefile", text="New", icon='NEW')
             #6 - RIGHT
-            pie.operator("file.save_incremental", text="Incremental Save", icon='SAVE_COPY')
+            box = pie.split().column()
+            row = box.split(align=True)
+            box.operator("wm.recover_last_session", text="Recover Last Session", icon='RECOVER_LAST')
+            box.operator("wm.recover_auto_save", text="Recover auto Save", icon='RECOVER_AUTO')
             #2 - BOTTOM
             box = pie.split().column()
+            row = box.split(align=True)
+            row.operator("mesh.primitive_cube_add", text="", icon='MESH_CUBE')
+            row.operator("mesh.primitive_plane_add", text="", icon='MESH_PLANE')
+            row.operator("mesh.primitive_uv_sphere_add", text="", icon='MESH_UVSPHERE')
+            row.operator("mesh.primitive_cylinder_add", text="", icon='MESH_CYLINDER')
             row = box.row(align=True)
-            box.operator("mesh.primitive_cube_add", text="Cube", icon='MESH_CUBE')
-            box.operator("mesh.primitive_plane_add", text="Plane", icon='MESH_PLANE')
-            box.operator("mesh.primitive_uv_sphere_add", text="UV-Sphere", icon='MESH_UVSPHERE')
-            box.operator("mesh.primitive_cylinder_add", text="Cylinder", icon='MESH_CYLINDER')
+            row = box.split(align=True)
+            row.operator("mesh.primitive_grid_add", text=" ", icon='MESH_GRID')
+            row.operator("mesh.primitive_circle_add", text=" ", icon='MESH_CIRCLE')
+            row.operator("mesh.primitive_cone_add", text=" ", icon='MESH_CONE')
+            row.operator("mesh.primitive_torus_add", text=" ", icon='MESH_TORUS')
             row = box.row(align=True)
-            row = box.split(percentage=0.33)
+            row = box.split(align=True)
             row.operator("object.camera_add", text="", icon='OUTLINER_OB_CAMERA')
             row.operator("object.lamp_add", text="", icon='LAMP_AREA').type = 'AREA'
             row.operator("object.lamp_add", text="", icon='LAMP_SUN').type = 'SUN'
@@ -613,23 +674,28 @@ class View3dRightClicMenu(Menu):
             pie.operator("wm.save_as_mainfile", text="Save As...", icon='SAVE_AS')
             #1 - BOTTOM - LEFT
             box = pie.split().column()
-            row = box.split(percentage=0.5)
+            row = box.split(align=True)
             row.operator("import_scene.obj", text="Imp OBJ", icon='IMPORT')
             row.operator("export_scene.obj", text="Exp OBJ", icon='EXPORT')
             row = box.row(align=True)
-            row = box.split(percentage=0.5)
+            row = box.split(align=True)
             row.operator("import_scene.fbx", text="Imp FBX", icon='IMPORT')
             row.operator("export_scene.fbx", text="Exp FBX", icon='EXPORT')
             #3 - BOTTOM - RIGHT
             box = pie.split().column()
-            row = box.split(percentage=0.455)
+            row = box.split(align=True)
             row.operator("wm.link", text="Link", icon='LINK_BLEND')
             row.operator("wm.append", text="Append", icon='APPEND_BLEND')
-            
         
+        ################################################
+        # Object Mode                                  #
+        ################################################    
         elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'OBJECT':
             #4 - LEFT
-            pie.operator("Object.join", text="Join", icon='FULLSCREEN_EXIT')
+            box = pie.split().column()
+            row = box.split(align=True)
+            row.operator("Object.join", text="Join", icon='FULLSCREEN_EXIT')
+            row.operator("separate.looseparts", text="Separate", icon='FULLSCREEN_ENTER')
             #6 - RIGHT
             is_subsurf = False
             for mode in bpy.context.object.modifiers :
@@ -638,17 +704,26 @@ class View3dRightClicMenu(Menu):
             if is_subsurf == True :
                 pie.operator("remove.subsurf", text="Remove Subsurf", icon='X')
             else :
-               pie.operator("object.subsurf2", text="Subdiv Level 2", icon='MESH_UVSPHERE')
+               pie.operator("object.subsurf2", text="Subdiv Level 2", icon='MOD_SUBSURF')
                 
             #2 - BOTTOM
             box = pie.split().column()
+            row = box.split(align=True)
+            row.label("")
             row = box.row(align=True)
-            box.operator("mesh.primitive_cube_add", text="Cube", icon='MESH_CUBE')
-            box.operator("mesh.primitive_plane_add", text="Plane", icon='MESH_PLANE')
-            box.operator("mesh.primitive_uv_sphere_add", text="UV-Sphere", icon='MESH_UVSPHERE')
-            box.operator("mesh.primitive_cylinder_add", text="Cylinder", icon='MESH_CYLINDER')
+            row = box.split(align=True)
+            row.operator("mesh.primitive_cube_add", text="", icon='MESH_CUBE')
+            row.operator("mesh.primitive_plane_add", text="", icon='MESH_PLANE')
+            row.operator("mesh.primitive_uv_sphere_add", text="", icon='MESH_UVSPHERE')
+            row.operator("mesh.primitive_cylinder_add", text="", icon='MESH_CYLINDER')
             row = box.row(align=True)
-            row = box.split(percentage=0.33)
+            row = box.split(align=True)
+            row.operator("mesh.primitive_grid_add", text=" ", icon='MESH_GRID')
+            row.operator("mesh.primitive_circle_add", text=" ", icon='MESH_CIRCLE')
+            row.operator("mesh.primitive_cone_add", text=" ", icon='MESH_CONE')
+            row.operator("mesh.primitive_torus_add", text=" ", icon='MESH_TORUS')
+            row = box.row(align=True)
+            row = box.split(align=True)
             row.operator("object.camera_add", text="", icon='OUTLINER_OB_CAMERA')
             row.operator("object.lamp_add", text="", icon='LAMP_AREA').type = 'AREA'
             row.operator("object.lamp_add", text="", icon='LAMP_SUN').type = 'SUN'
@@ -658,7 +733,7 @@ class View3dRightClicMenu(Menu):
             pie.operator("screen.redo_last", text="F6", icon='SCRIPTWIN')
             #7 - TOP - LEFT 
             box = pie.split().column()
-            row = box.split(percentage=0.5)
+            row = box.split(align=True)
             is_mirror = False
             for mode in bpy.context.object.modifiers :
                 if mode.type == 'MIRROR' :
@@ -670,52 +745,63 @@ class View3dRightClicMenu(Menu):
                   
             row.operator("object.automirror", icon = 'MOD_MIRROR')
             row = box.row(align=True)
-            row = box.split(percentage=0.5)
+            row = box.split(align=True)
             row.operator("object.modifier_apply", text="Apply Mirror", icon='FILE_TICK').modifier="Mirror"
-            row.operator("delete.modifiers", text="Del Modifiers", icon='GROUP')
+            row.operator("delete.modifiers", text="Del Modifiers", icon='X')
             row = box.row(align=True)
-            row = box.split(percentage=0.491)
+            row = box.split(align=True)
             row.operator("object.modifier_apply", text="Apply Subsurf", icon='FILE_TICK').modifier="Subsurf"
-            
             #9 - TOP - RIGHT
             box = pie.split().column()
             row = box.row(align=True)
-            box.operator("apply.transformall", text="Freeze Transforms", icon='FREEZE')
-            box.operator("clear.all", text="Clear All", icon='MANIPUL')
+            row.operator("object.origin_set", text="Origin To Geo", icon='ROTATE').type ='ORIGIN_GEOMETRY'
+            row.operator("object.origin_set", text="Geo To Origin", icon='BBOX').type ='GEOMETRY_ORIGIN'
+            row = box.row(align=True)
+            row.operator("view3d.snap_selected_to_cursor", text="Sel to Cursor", icon='CLIPUV_HLT').use_offset = False
+            row.operator("view3d.snap_cursor_to_selected", text="Cursor to Sel", icon='ROTACTIVE')  
+            row = box.row(align=True)
+            row.operator("object.pivot2selection", text="Origin To Sel", icon='SNAP_INCREMENT')
+            row.operator("object.pivotobottom", text="Origin To Bottom", icon='TRIA_DOWN') 
             #1 - BOTTOM - LEFT
-            pie.operator("separate.looseparts", text="Separate", icon='FULLSCREEN_ENTER')
+            box = pie.split().column()
+            row = box.row(align=True)
+            row.operator("apply.transformall", text="Freeze T", icon='FREEZE')
+            row.operator("clear.all", text="Clear All", icon='MANIPUL')
             #3 - BOTTOM - RIGHT
             pie.operator("object.delete", text="Delete", icon='CANCEL').use_global=False
-            
+        
+        ################################################
+        # Edit Mode                                    #
+        ################################################    
         elif bpy.context.object.mode == 'EDIT':    
 
             #4 - LEFT
             box = pie.split().column()
-            row = box.split(percentage=0.55)
+            row = box.split(align=True)
             row.operator("mesh.subdivide", text="Subdivide", icon='GRID').smoothness=0
             row.operator("mesh.vertices_smooth", text="Smooth", icon='UV_VERTEXSEL')
             row = box.row(align=True)
-            row = box.split(percentage=0.5)
+            row = box.split(align=True)
             row.operator("wm.context_toggle", text="Mirror X ", icon='MOD_MIRROR').data_path = "object.data.use_mirror_x"
             row.operator("wazou.symetrize", text="Symetrize", icon='UV_EDGESEL')
 
             #6 - RIGHT
-            box = pie.split().column()
-            row = box.split(percentage=0.4)
-            row.operator("mesh.flip_normals",text="Flip N", icon = 'FILE_REFRESH')
-            row.operator("mesh.normals_make_consistent",text="consistant", icon = 'MATCUBE')
-            row = box.row(align=True)
-            row = box.split(percentage=0.5)
-            row.operator("wm.context_toggle", text="Show Norms", icon='FACESEL').data_path = "object.data.show_normal_face"
-            row.operator("mesh.remove_doubles", text="rem D2l",icon='X')
+            is_subsurf1 = False
+            for mode in bpy.context.object.modifiers :
+                if mode.type == 'SUBSURF' :
+                    is_subsurf1 = True
+            if is_subsurf1 == True :
+                pie.operator("remove.subsurf", text="Remove Subsurf", icon='X')
+            else :
+               pie.operator("object.subsurf2", text="Add Subsurf", icon='MOD_SUBSURF')
             #2 - BOTTOM
             box = pie.split().column()
-            row = box.row(align=True)
+            row = box.row(align=True) 
             #Vertex
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (True, False, False) :
                 box.label("Merge at :")
                 row = box.row(align=True)
-                row = box.split(percentage=0.33)
+                row = box.split(align=True)
                 row.operator("mesh.merge", text="First", icon='AUTOMERGE_ON').type='FIRST'
                 row.operator("mesh.merge", text="Center", icon='AUTOMERGE_ON').type='CENTER'
                 row.operator("mesh.merge", text="Last", icon='AUTOMERGE_ON').type='LAST'
@@ -723,7 +809,7 @@ class View3dRightClicMenu(Menu):
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (False, True, False):
                 box.label("Merge at :")
                 row = box.row(align=True)
-                row = box.split(percentage=0.33)
+                row = box.split(align=True)
                 row.operator("mesh.merge", text="Cursor", icon='CURSOR').type='CURSOR'
                 row.operator("mesh.merge", text="Center", icon='AUTOMERGE_ON').type='CENTER'
                 row.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE'
@@ -731,34 +817,15 @@ class View3dRightClicMenu(Menu):
             if tuple (bpy.context.tool_settings.mesh_select_mode) == (False, False, True):
                 box.label("Merge at :")
                 row = box.row(align=True)
-                row = box.split(percentage=0.33)
+                row = box.split(align=True)
                 row.operator("mesh.merge", text="Cursor", icon='CURSOR').type='CURSOR'
                 row.operator("mesh.merge", text="Center", icon='AUTOMERGE_ON').type='CENTER'
                 row.operator("mesh.merge", text="Collapse", icon='AUTOMERGE_ON').type='COLLAPSE'
-             
             #8 - TOP
             pie.operator("screen.redo_last", text="F6", icon='SCRIPTWIN')
             #7 - TOP - LEFT 
             box = pie.split().column()
-            row = box.split(percentage=0.5)
-            row.operator("mesh.loopcut", text="Loopcut", icon='EDIT_VEC').smoothness=1
-            row.operator("mesh.inset",text="Inset", icon='EDIT_VEC').use_select_inset=False
-            row = box.row(align=True)
-            row = box.split(percentage=0.5)
-            row.operator("mesh.bevel",text="Bevel", icon='MOD_BEVEL')
-            row.operator("object.createhole",text="Hole", icon='CLIPUV_DEHLT')
-            #9 - TOP - RIGHT
-            box = pie.split().column()
-            row = box.split(percentage=0.6)
-            row.operator("mesh.offset_edges", text="Offset Edges", icon='UV_EDGESEL')
-            row.menu("loop.tools")
-            row = box.row(align=True)
-            row = box.split(percentage=0.5)
-            row.operator("mesh.poke", text="Poke Faces")
-            row.operator("mesh.fill_grid", text="Grid Fill")
-            #1 - BOTTOM - LEFT
-            box = pie.split().column()
-            row = box.split(percentage=0.5)
+            row = box.split(align=True)
             is_mirror1 = False
             for mode in bpy.context.object.modifiers :
                 if mode.type == 'MIRROR' :
@@ -771,27 +838,44 @@ class View3dRightClicMenu(Menu):
             
             row.operator("object.automirror", icon = 'MOD_MIRROR')
             row = box.row(align=True)
-            row = box.split(percentage=1)
+            row = box.split(align=True)
             row.operator("apply.mirroredit", text="Apply Mirror", icon='FILE_TICK')
-            
+            row.operator("apply.subsurfedit", text="Apply Sub", icon='FILE_TICK')
+            #9 - TOP - RIGHT
+            box = pie.split().column()
+            row = box.split(percentage=0.6)
+            row.operator("mesh.offset_edges", text="Offset Edges", icon='UV_EDGESEL')
+            row.menu("loop.tools")
+            row = box.row(align=True)
+            row = box.split(align=True)
+            row.operator("mesh.poke", text="Poke Faces")
+            row.operator("mesh.fill_grid", text="Grid Fill")
+            #1 - BOTTOM - LEFT
+            box = pie.split().column()
+            row = box.split(align=True)
+            row.operator("mesh.loopcut", text="Loopcut", icon='EDIT_VEC').smoothness=1
+            row.operator("mesh.inset",text="Inset  ", icon='EDIT_VEC').use_select_inset=False
+            row = box.row(align=True)
+            row = box.split(align=True)
+            row.operator("mesh.bevel",text="Bevel  ", icon='MOD_BEVEL')
+            row.operator("object.createhole",text="Hole", icon='CLIPUV_DEHLT')
             #3 - BOTTOM - RIGHT
             box = pie.split().column()
-            row = box.split(percentage=0.4)
-            is_subsurf1 = False
-            for mode in bpy.context.object.modifiers :
-                if mode.type == 'SUBSURF' :
-                    is_subsurf1 = True
-            if is_subsurf1 == True :
-                box.operator("remove.subsurf", text="Remove Subsurf", icon='X')
-            else :
-               box.operator("object.subsurf2", text="Add Subsurf", icon='MOD_SUBSURF')
-            
-            
+            row = box.split(align=True)
+            row.operator("mesh.flip_normals",text="Flip N", icon = 'FILE_REFRESH')
+            row.operator("mesh.normals_make_consistent",text="consistant", icon = 'MATCUBE')
+            row = box.row(align=True)
+            row = box.split(align=True)
+            row.operator("wm.context_toggle", text="Show Norms", icon='FACESEL').data_path = "object.data.show_normal_face"
+            row.operator("mesh.remove_doubles", text="rem D2l",icon='X')
             row = pie.split().column()
-            row = box.split(percentage=0.5)
+            row = box.split(align=True)
             row.operator("mesh.separate")
             row.menu("AddMenu", text="Add Obj", icon="OBJECT_DATA")
-            
+        
+        ################################################
+        # Sculpt                                       #
+        ################################################    
         elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'SCULPT':
             
             if context.sculpt_object.use_dynamic_topology_sculpting:
@@ -844,11 +928,14 @@ def register():
     bpy.utils.register_class(SubSurf2)
     bpy.utils.register_class(RemoveSubsurf)
     bpy.utils.register_class(AddMirrorObject)
+    bpy.utils.register_class(ApplySubsurfEdit)
     bpy.utils.register_class(VIEW3D_MT_edit_mesh_looptools)
     bpy.utils.register_class(ApplyTransformAll)
     bpy.utils.register_class(DeleteModifiers)
     bpy.utils.register_class(ClearAll)
     bpy.utils.register_class(SeparateLooseParts)
+    bpy.utils.register_class(PivotToSelection)
+    bpy.utils.register_class(PivotBottom)
     #Edit
     bpy.utils.register_class(AddMirrorEdit)
     bpy.utils.register_class(ApplyMirrorEdit)
@@ -900,11 +987,14 @@ def unregister():
     bpy.utils.unregister_class(SubSurf2)
     bpy.utils.unregister_class(RemoveSubsurf)
     bpy.utils.unregister_class(AddMirrorObject)
+    bpy.utils.unregister_class(ApplySubsurfEdit)
     bpy.utils.unregister_class(VIEW3D_MT_edit_mesh_looptools)
     bpy.utils.unregister_class(ApplyTransformAll)
     bpy.utils.unregister_class(DeleteModifiers)
     bpy.utils.unregister_class(ClearAll)
     bpy.utils.unregister_class(SeparateLooseParts)
+    bpy.utils.unregister_class(PivotToSelection)
+    bpy.utils.unregister_class(PivotBottom)
     #Edit
     bpy.utils.unregister_class(AddMirrorEdit)
     bpy.utils.unregister_class(ApplyMirrorEdit)
