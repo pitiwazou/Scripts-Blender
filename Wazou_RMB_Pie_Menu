@@ -19,7 +19,7 @@
 bl_info = {
     "name": "Wazou Right clic Pie Menu",
     "author": "Cédric Lepiller",
-    "version": (0, 1, 2),
+    "version": (0, 1, 3),
     "blender": (2, 7, 1),
     "location": "View3D > RMB",
     "description": "Right Click Pie Menu",
@@ -918,7 +918,209 @@ class View3dRightClicMenu(Menu):
                 #1 - BOTTOM - LEFT
                 #3 - BOTTOM - RIGHT
   
+        ################################################
+        # Particles                                    #
+        ################################################    
+        elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'PARTICLE_EDIT':
+            
+            #4 - LEFT
+            pie.operator("object.spm", text="Path", icon='PARTICLE_PATH').variable = 'PATH'
+            #6 - RIGHT
+            pie.operator("object.spm", text="Point", icon='PARTICLE_POINT').variable = 'POINT'
+            #2 - BOTTOM
+            pie.operator("object.spm", text="Tip", icon='PARTICLE_TIP').variable = 'TIP'
+            #8 - TOP
+            pie.operator("wm.call_menu_pie", text="Brushes", icon='BRUSH_DATA').name="pie.particlebrushes" 
+            #7 - TOP - LEFT 
+            pie.operator("wm.call_menu_pie", text="Options", icon='SCRIPTWIN').name="pie.particleoptions" 
+            #9 - TOP - RIGHT
+            if bpy.context.scene.tool_settings.particle_edit.show_particles == (True):
+                pie.operator("object.particlechildren", text="Chidren OFF", icon='HAIR')
+            else:
+                pie.operator("object.particlechildren", text="Chidren ON", icon='HAIR')
+            #1 - BOTTOM - LEFT
+            if bpy.context.scene.tool_settings.particle_edit.use_default_interpolate == (True):
+                pie.operator("object.particleinterpolate", text="Interpolate OFF", icon='HAIR')
+            else:
+                pie.operator("object.particleinterpolate", text="Interpolate ON", icon='HAIR') 
+            #3 - BOTTOM - RIGHT
+            if bpy.context.space_data.use_occlude_geometry == (True):
+                pie.operator("wm.context_toggle", text="Occlude Geo ON", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
+            else:
+                pie.operator("wm.context_toggle", text="Occlude Geo OFF", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
+            
+            
+            
+            
+#pie.operator("wm.radial_control", text="Strength", icon='RADIOBUT_ON').data_path_primary="tool_settings.particle_edit.brush.strength"
+#pie.operator("wm.radial_control", text="Radius", icon='RADIOBUT_OFF').data_path_primary="tool_settings.particle_edit.brush.size"
+#pie.operator("particle.select_linked", text="Select Linked", icon='LINKED')
 
+
+#Particle Path Steps
+class ParticlePathSteps(bpy.types.Operator):
+    bl_idname = "object.particlepathsteps"
+    bl_label = "Particle Path Steps"
+    variable = bpy.props.IntProperty()
+
+    def execute(self, context):
+        bpy.context.scene.tool_settings.particle_edit.draw_step = self.variable
+        return {'FINISHED'} 
+
+#Particle Childrens
+class ParticleChildrens(bpy.types.Operator):
+    bl_idname = "object.particlechildren"
+    bl_label = "Particle Childrens"
+    
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.particle_edit.show_particles == True:
+            bpy.context.scene.tool_settings.particle_edit.show_particles = False
+            bpy.context.area.type = 'VIEW_3D'
+        elif bpy.context.scene.tool_settings.particle_edit.show_particles == False:
+            bpy.context.scene.tool_settings.particle_edit.show_particles = True 
+            bpy.context.area.type = 'VIEW_3D' 
+        return {'FINISHED'}            
+
+#Particle Length
+class ParticleLength(bpy.types.Operator):
+    bl_idname = "object.particlelength"
+    bl_label = "Particle Length"
+    
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.particle_edit.use_preserve_length == True:
+            bpy.context.scene.tool_settings.particle_edit.use_preserve_length = False
+            bpy.context.area.type = 'VIEW_3D'
+        elif bpy.context.scene.tool_settings.particle_edit.use_preserve_length == False:
+            bpy.context.scene.tool_settings.particle_edit.use_preserve_length = True  
+            bpy.context.area.type = 'VIEW_3D' 
+        return {'FINISHED'}  
+
+#Particle X Mirror
+class ParticleXMirror(bpy.types.Operator):
+    bl_idname = "object.particlexmirror"
+    bl_label = "Particle X Mirror"
+    
+    def execute(self, context):
+        if bpy.context.object.data.use_mirror_x == True:
+            bpy.context.object.data.use_mirror_x = False
+            bpy.context.area.type = 'VIEW_3D'
+        elif bpy.context.object.data.use_mirror_x == False:
+            bpy.context.object.data.use_mirror_x = True  
+            bpy.context.area.type = 'VIEW_3D' 
+        return {'FINISHED'}  
+    
+#Particle Root
+class ParticleRoot(bpy.types.Operator):
+    bl_idname = "object.particleroot"
+    bl_label = "Particle Root"
+    
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.particle_edit.use_preserve_root == True:
+            bpy.context.scene.tool_settings.particle_edit.use_preserve_root = False
+            bpy.context.area.type = 'VIEW_3D'
+        elif bpy.context.scene.tool_settings.particle_edit.use_preserve_root == False:
+            bpy.context.scene.tool_settings.particle_edit.use_preserve_root = True  
+            bpy.context.area.type = 'VIEW_3D' 
+        return {'FINISHED'}     
+        
+#Pie Particle Brushes    
+class PieParticleBrushes(Menu):
+    bl_idname = "pie.particlebrushes"
+    bl_label = "Pie Particle Brushes"
+
+    def draw(self, context):
+        layout = self.layout
+
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("object.spb", text="Smooth", icon='BRUSH_DATA').variable = 'SMOOTH'
+        #6 - RIGHT
+        pie.operator("object.spb", text="Length", icon='BRUSH_DATA').variable = 'LENGTH'
+        #2 - BOTTOM
+        pie.operator("object.spb", text="Puff", icon='BRUSH_DATA').variable = 'PUFF'
+        #8 - TOP
+        pie.operator("object.spb", text="Comb", icon='BRUSH_DATA').variable = 'COMB'
+        #7 - TOP - LEFT 
+        pie.operator("object.spb", text="Add", icon='BRUSH_DATA').variable = 'ADD'
+        #9 - TOP - RIGHT
+        pie.operator("object.spb", text="Cut", icon='BRUSH_DATA').variable = 'CUT'
+        #1 - BOTTOM - LEFT
+        pie.operator("object.spb", text="None", icon='BRUSH_DATA').variable = 'NONE'
+        #3 - BOTTOM - RIGHT
+        pie.operator("object.spb", text="Weight", icon='BRUSH_DATA').variable = 'WEIGHT'
+
+#Pie Particle Options  
+class PieParticleOptions(Menu):
+    bl_idname = "pie.particleoptions"
+    bl_label = "Pie Particle Options"
+
+    def draw(self, context):
+        layout = self.layout
+
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("object.particlepathsteps", text="Path Steps = 6", icon='PARTICLE_POINT').variable = 6
+        #6 - RIGHT
+        pie.operator("object.particlepathsteps", text="Path Steps = 2", icon='PARTICLE_POINT').variable = 2
+        #2 - BOTTOM
+        pie.operator("object.particlepathsteps", text="Path Steps = 4", icon='PARTICLE_POINT').variable = 4
+        #8 - TOP
+        if bpy.context.scene.tool_settings.particle_edit.use_preserve_length == (True):
+            pie.operator("object.particlelength", text="Keep Lengths OFF", icon='RNDCURVE')
+        else :
+            pie.operator("object.particlelength", text="Keep Lengths ON", icon='RNDCURVE')
+        #7 - TOP - LEFT 
+        if bpy.context.object.data.use_mirror_x == (True):
+            pie.operator("object.particlexmirror", text="X Mirror OFF", icon='MOD_MIRROR')
+        else :
+            pie.operator("object.particlexmirror", text="X Mirror ON", icon='MOD_MIRROR')    
+        #9 - TOP - RIGHT
+        if bpy.context.scene.tool_settings.particle_edit.use_preserve_root == (True):
+            pie.operator("object.particleroot", text="Keep Root OFF", icon='LAYER_ACTIVE')
+        else :
+            pie.operator("object.particleroot", text="Keep Root ON", icon='LAYER_ACTIVE')    
+        #1 - BOTTOM - LEFT
+        pie.operator("object.particlepathsteps", text="Path Steps = 5", icon='PARTICLE_POINT').variable = 5 
+        #3 - BOTTOM - RIGHT
+        pie.operator("object.particlepathsteps", text="Path Steps = 3", icon='PARTICLE_POINT').variable = 3 
+        
+                  
+#Selection Particles Mode
+class SelectionParticlesMode(bpy.types.Operator):
+    bl_idname = "object.spm"
+    bl_label = "Selection Particles Mode"
+    variable = bpy.props.StringProperty()
+
+    def execute(self, context):
+        bpy.context.scene.tool_settings.particle_edit.select_mode = self.variable
+        return {'FINISHED'}             
+
+#Selection Particles Brushes
+class SelectionParticlesBrushes(bpy.types.Operator):
+    bl_idname = "object.spb"
+    bl_label = "Selection Particles Brushes"
+    variable = bpy.props.StringProperty()
+
+    def execute(self, context):
+        bpy.context.scene.tool_settings.particle_edit.tool = self.variable
+        bpy.context.area.type = 'VIEW_3D'
+        return {'FINISHED'}  
+
+#Particles Interpolate
+class ParticlesInterpolate(bpy.types.Operator):
+    bl_idname = "object.particleinterpolate"
+    bl_label = "Particles Interpolate"
+    variable = bpy.props.IntProperty()
+
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.particle_edit.use_default_interpolate == True:
+            bpy.context.scene.tool_settings.particle_edit.use_default_interpolate = False
+            bpy.context.area.type = 'VIEW_3D'
+        elif bpy.context.scene.tool_settings.particle_edit.use_default_interpolate == False:
+            bpy.context.scene.tool_settings.particle_edit.use_default_interpolate = True  
+            bpy.context.area.type = 'VIEW_3D' 
+        return {'FINISHED'} 
+               
 addon_keymaps = []
 def register():
     bpy.utils.register_class(View3dRightClicMenu)
@@ -961,6 +1163,17 @@ def register():
     bpy.utils.register_class(PieSculptDetailSizeVariableRelative)
     bpy.utils.register_class(PieSculptDetailSizeVariableConstant)
     bpy.utils.register_class(PieSculptConstantRelative)
+    #Particles
+    bpy.utils.register_class(PieParticleBrushes)
+    bpy.utils.register_class(PieParticleOptions)
+    bpy.utils.register_class(SelectionParticlesMode)
+    bpy.utils.register_class(SelectionParticlesBrushes)
+    bpy.utils.register_class(ParticleChildrens)
+    bpy.utils.register_class(ParticleLength)
+    bpy.utils.register_class(ParticleXMirror)
+    bpy.utils.register_class(ParticleRoot)
+    bpy.utils.register_class(ParticlePathSteps)
+    bpy.utils.register_class(ParticlesInterpolate)
     
     
     
@@ -1020,7 +1233,17 @@ def unregister():
     bpy.utils.unregister_class(PieSculptDetailSizeVariableRelative)
     bpy.utils.unregister_class(PieSculptDetailSizeVariableConstant)
     bpy.utils.unregister_class(PieSculptConstantRelative)
-    
+    #Particles
+    bpy.utils.unregister_class(PieParticleBrushes)
+    bpy.utils.unregister_class(PieParticleOptions)
+    bpy.utils.unregister_class(SelectionParticlesMode)
+    bpy.utils.unregister_class(SelectionParticlesBrushes)
+    bpy.utils.unregister_class(ParticleChildrens)
+    bpy.utils.unregister_class(ParticleLength)
+    bpy.utils.unregister_class(ParticleXMirror)
+    bpy.utils.unregister_class(ParticleRoot)
+    bpy.utils.unregister_class(ParticlePathSteps)
+    bpy.utils.unregister_class(ParticlesInterpolate)
     
     
     
