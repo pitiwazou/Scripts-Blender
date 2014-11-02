@@ -19,7 +19,7 @@
 bl_info = {
     "name": "Wazou Right clic Pie Menu",
     "author": "Cédric Lepiller",
-    "version": (0, 1, 3),
+    "version": (0, 1, 2),
     "blender": (2, 7, 1),
     "location": "View3D > RMB",
     "description": "Right Click Pie Menu",
@@ -486,7 +486,15 @@ class PivotBottom(bpy.types.Operator):
         o.location.z+=a 
         bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'} 
-                                                  
+
+#Space
+class RetopoSpace(bpy.types.Operator):  
+    bl_idname = "retopo.space"  
+    bl_label = "Retopo Space"  
+  
+    def execute(self, context):
+        bpy.ops.mesh.looptools_space(influence=100, input='selected', interpolation='cubic', lock_x=False, lock_y=False, lock_z=False)
+        return {'FINISHED'}                                                   
 ######################
 #        Pies        #               
 ######################  
@@ -768,7 +776,7 @@ class View3dRightClicMenu(Menu):
             row.operator("apply.transformall", text="Freeze T", icon='FREEZE')
             row.operator("clear.all", text="Clear All", icon='MANIPUL')
             #3 - BOTTOM - RIGHT
-            pie.operator("object.delete", text="Delete", icon='CANCEL').use_global=False
+            #pie.operator("object.delete", text="Delete", icon='CANCEL').use_global=False
         
         ################################################
         # Edit Mode                                    #
@@ -855,10 +863,12 @@ class View3dRightClicMenu(Menu):
             row = box.split(align=True)
             row.operator("mesh.loopcut", text="Loopcut", icon='EDIT_VEC').smoothness=1
             row.operator("mesh.inset",text="Inset  ", icon='EDIT_VEC').use_select_inset=False
+            row.operator("object.createhole",text="Hole", icon='CLIPUV_DEHLT')
             row = box.row(align=True)
             row = box.split(align=True)
-            row.operator("mesh.bevel",text="Bevel  ", icon='MOD_BEVEL')
-            row.operator("object.createhole",text="Hole", icon='CLIPUV_DEHLT')
+            row.operator("mesh.vertex_align", icon='ALIGN', text="Align")
+            row.operator("retopo.space", icon='ALIGN', text="Distribute")
+            row.operator("mesh.vertex_inline", icon='ALIGN', text="Ali & Dis")
             #3 - BOTTOM - RIGHT
             box = pie.split().column()
             row = box.split(align=True)
@@ -1143,6 +1153,7 @@ def register():
     bpy.utils.register_class(ApplyMirrorEdit)
     bpy.utils.register_class(WazouSymetrize)
     bpy.utils.register_class(CreateHole)
+    bpy.utils.register_class(RetopoSpace)
     #Sculpt
     bpy.utils.register_class(EnableDyntopo)
     bpy.utils.register_class(SculptSymmetrizePlusX)
@@ -1174,7 +1185,6 @@ def register():
     bpy.utils.register_class(ParticleRoot)
     bpy.utils.register_class(ParticlePathSteps)
     bpy.utils.register_class(ParticlesInterpolate)
-    
     
     
 # Keympa Config   
@@ -1213,6 +1223,7 @@ def unregister():
     bpy.utils.unregister_class(ApplyMirrorEdit)
     bpy.utils.unregister_class(WazouSymetrize)
     bpy.utils.unregister_class(CreateHole)
+    bpy.utils.unregister_class(RetopoSpace)
     #Sculpt
     bpy.utils.unregister_class(EnableDyntopo)
     bpy.utils.unregister_class(SculptSymmetrizePlusX)
