@@ -30,7 +30,7 @@
 bl_info = {
     "name": "Retopology Tools",
     "author": "Cédric Lepiller", "Gert De Roost for the Laprelax code" 
-    "version": (0, 1, 1),
+    "version": (0, 1, 2),
     "blender": (2, 7, 0),
     "location": "View 3D > Toolbar > Tools tab > Retopology (panel)",
     "description": "Tools for fast retopology",
