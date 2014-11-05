@@ -377,36 +377,7 @@ class ApplySubSurf(bpy.types.Operator):
             bpy.ops.object.modifier_apply(apply_as='DATA', modifier="Subsurf")
             bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'}   
-    
-
-#Shrinkwrap Update
-class ShrinkwrapUpte(bpy.types.Operator):  
-    bl_idname = "shrinkwrap.upte"  
-    bl_label = "Shrinkwrap Update"
-    
-    def execute(self, context):
-        
-        for vert in bpy.context.object.data.vertices:
-            if vert.select:
-                bpy.ops.mesh.select_all(action='TOGGLE')
-                bpy.ops.shrink.update()
-                bpy.ops.meshview_toggle.retopo()
-            elif not vert.select:  
-                bpy.ops.shrink.update() 
-                bpy.ops.meshview_toggle.retopo()  
-        return {'FINISHED'}    
-
-#Shrinkwrap Update On Sel
-class ShrinkwrapUpteOnSel(bpy.types.Operator):  
-    bl_idname = "shrinkwrap.updateonsel"  
-    bl_label = "Shrinkwrap Update On Sel"
-    
-    def execute(self, context):
-        
-        bpy.ops.shrink.update(use_only_sel=True)
-        bpy.ops.meshview_toggle.retopo()
-        return {'FINISHED'}  
-    
+ 
 #Sursurf On/Off
 class SursurfOnOff(bpy.types.Operator):
     bl_idname = "object.subsurfonoff"
@@ -568,10 +539,9 @@ class RetopologyTools(bpy.types.Panel):
                     
                     if bpy.context.object.mode == "EDIT":
                         layout.operator("gpencil.surfsk_add_surface", text="Add Bsurface", icon = 'MOD_DYNAMICPAINT')
-                        row = layout.row()
-                        row.operator("shrinkwrap.upte", text = "SU", icon = 'MOD_SHRINKWRAP')
-                        row.operator("shrinkwrap.updateonsel", text = "SU On Selected", icon = 'MOD_SHRINKWRAP')
                         layout.separator()
+                        layout.operator("shrink.update", text = "Shrinkwrap Update", icon = 'MOD_SHRINKWRAP')
+                        layout.operator("mesh.looptools_gstretch", text="GStretch", icon='GREASEPENCIL')
                         layout.operator("mesh.laprelax", icon = 'MOD_LATTICE')
                         layout.menu("loop.tools")
                         layout.operator("object.createhole", icon='CLIPUV_DEHLT', text="Create Hole")
@@ -755,15 +725,10 @@ def register():
     bpy.utils.register_class(SubSurf2)
     bpy.utils.register_class(ApplySubSurf)
     bpy.utils.register_class(RemoveSubSurf2)
-    bpy.utils.register_class(ShrinkwrapUpte)
-    bpy.utils.register_class(ShrinkwrapUpteOnSel)
-    
-    
     bpy.utils.register_class(SursurfOnOff) 
     bpy.utils.register_class(SursurfEditOnOff) 
     bpy.utils.register_class(SursurfCageOnOff) 
     bpy.utils.register_class(SursurfOptimalDisplay) 
-    
     bpy.utils.register_class(MirrorOnOff) 
     bpy.utils.register_class(MirrorEditOnOff) 
     bpy.utils.register_class(MirrorCageOnOff)
@@ -787,15 +752,10 @@ def unregister():
     bpy.utils.unregister_class(SubSurf2)
     bpy.utils.unregister_class(ApplySubSurf)
     bpy.utils.unregister_class(RemoveSubSurf2)
-    bpy.utils.unregister_class(ShrinkwrapUpte)
-    bpy.utils.unregister_class(ShrinkwrapUpteOnSel)
-    
-    
     bpy.utils.unregister_class(SursurfOnOff) 
     bpy.utils.unregister_class(SursurfEditOnOff) 
     bpy.utils.unregister_class(SursurfCageOnOff)
     bpy.utils.unregister_class(SursurfOptimalDisplay)
-    
     bpy.utils.unregister_class(MirrorOnOff) 
     bpy.utils.unregister_class(MirrorEditOnOff) 
     bpy.utils.unregister_class(MirrorCageOnOff)
