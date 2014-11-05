@@ -100,7 +100,6 @@ class ProportionalEditObj(bpy.types.Operator):
 
         return {'FINISHED'}
 
-
 class ProportionalSmoothObj(bpy.types.Operator):
     bl_idname = "proportional_obj.smooth"
     bl_label = "Proportional Smooth Object"
@@ -557,56 +556,6 @@ class ToggleGridAxis(bpy.types.Operator):
         bpy.context.space_data.show_floor = not bpy.context.space_data.show_floor
         return {'FINISHED'}
 
-#Solid All
-class SolidAll(bpy.types.Operator):
-    bl_idname = "object.solid_all"
-    bl_label = "Solid All"
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-    
-    def execute(self, context):
-        for obj in bpy.data.objects: 
-            if obj.draw_type == 'BOUNDS': 
-                obj.draw_type = 'SOLID'
-            elif obj.draw_type == 'SOLID':
-                obj.draw_type = 'SOLID' 
-            else:                       
-                obj.draw_type = 'BOUNDS'
-       
-        return {'FINISHED'}
-
-#Bounds Unselected
-class BoundsUnselected(bpy.types.Operator):
-    bl_idname = "object.draw_bu"
-    bl_label = "bounds"
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-    
-    def execute(self, context):
-        for obj in bpy.data.objects: 
-            if not obj.select:
-                
-                if obj.draw_type == 'SOLID':
-                    obj.draw_type = 'BOUNDS'
-                    obj.show_all_edges = False
-                    obj.show_wire = False
-                   
-                elif obj.draw_type == 'BOUNDS':
-                    obj.draw_type = 'BOUNDS'
-              
-                else:                       
-                    obj.draw_type = 'SOLID'
-        
-        for obj in bpy.data.objects:
-            if obj.select:
-                obj.draw_type = 'SOLID'
-
-        return {'FINISHED'}
-
 #Overlays
 class MeshDisplayOverlays(bpy.types.Menu):
     bl_idname = "meshdisplay.overlays"
@@ -683,7 +632,6 @@ class NormalsMenu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        layout.operator("wm.context_toggle", text="Show Normals Faces", icon='FACESEL').data_path = "object.data.show_normal_face"
         layout.operator("wm.context_toggle", text="Show Normals Vertex", icon='MESH_DATA').data_path = "object.data.show_normal_vertex"
         layout.operator("wm.context_toggle", text="Show Normals Loop", icon='MESH_DATA').data_path = "object.data.show_normal_vertex"
         layout.operator("normalsize.01", text="Normal Size 01")
@@ -901,6 +849,22 @@ class ClassVertexPaint(bpy.types.Operator):
         else:
             bpy.ops.paint.vertex_paint_toggle()
         return {'FINISHED'}
+    
+# Define Class Particle Edit
+class ClassParticleEdit(bpy.types.Operator):
+    bl_idname = "class.pieparticleedit"
+    bl_label = "Class Particle Edit"
+    
+    def execute(self, context):
+        layout = self.layout
+        
+        if bpy.context.object.mode == "EDIT":
+            bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.particle.particle_edit_toggle()
+        else:
+            bpy.ops.particle.particle_edit_toggle()
+
+        return {'FINISHED'}    
 
 # Define Class Object Mode
 class ClassObject(bpy.types.Operator):
@@ -960,7 +924,6 @@ class ClassFace(bpy.types.Operator):
         if bpy.ops.mesh.select_mode != "VERT, EDGE":
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE')
             return {'FINISHED'}
-
 
 ######################
 #   Selection Mode   #               
@@ -1237,7 +1200,6 @@ class LapRelax(bpy.types.Operator):
                     nor.length = abs(deltanor)
                     bm.verts[v.index].co = tot + nor
             
-            
         mesh.update()
         bm.free()
         bmprev.free()
@@ -1446,6 +1408,7 @@ class AlignYFront(bpy.types.Operator):
                 vert.co[axe] = max
         bpy.ops.object.mode_set(mode='EDIT')  
         return {'FINISHED'}
+    
 #Align Z Top
 class AlignZTop(bpy.types.Operator):  
     bl_idname = "alignz.top"  
@@ -1592,7 +1555,6 @@ class ClearMenu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        
         layout.operator("object.location_clear", text="Clear Location", icon='MAN_TRANS')
         layout.operator("object.rotation_clear", text="Clear Rotation", icon='MAN_ROT')
         layout.operator("object.scale_clear", text="Clear Scale", icon='MAN_SCALE')
@@ -1607,38 +1569,6 @@ class ClearAll(bpy.types.Operator):
         bpy.ops.object.location_clear()
         bpy.ops.object.rotation_clear()
         bpy.ops.object.scale_clear()
-        return {'FINISHED'}  
-
-############################
-#    Shrinkwrap Update     #               
-############################
-
-#Shrinkwrap Update
-class ShrinkwrapUpte(bpy.types.Operator):  
-    bl_idname = "shrinkwrap.upte"  
-    bl_label = "Shrinkwrap Update"
-    
-    def execute(self, context):
-        
-        for vert in bpy.context.object.data.vertices:
-            if vert.select:
-                bpy.ops.mesh.select_all(action='TOGGLE')
-                bpy.ops.shrink.update()
-                bpy.ops.meshview_toggle.retopo()
-            elif not vert.select:  
-                bpy.ops.shrink.update() 
-                bpy.ops.meshview_toggle.retopo()  
-        return {'FINISHED'}   
-
-#Shrinkwrap Update On Sel
-class ShrinkwrapUpteOnSel(bpy.types.Operator):  
-    bl_idname = "shrinkwrap.updateonsel"  
-    bl_label = "Shrinkwrap Update On Sel"
-    
-    def execute(self, context):
-        
-        bpy.ops.shrink.update(use_only_sel=True)
-        bpy.ops.meshview_toggle.retopo()
         return {'FINISHED'}  
 
 ########################
@@ -1662,7 +1592,6 @@ class ExternalData(bpy.types.Menu):
         layout.operator("file.make_paths_absolute", text="Make All Paths Absolute")
         layout.operator("file.report_missing_files", text="Report Missing Files")
         layout.operator("file.find_missing_files", text="Find Missing Files")
-        
         
 #Save Incremental
 class FileIncrementalSave(bpy.types.Operator):
@@ -1702,12 +1631,109 @@ class PerspOrthoView(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.view3d.view_persportho()
         return {'FINISHED'} 
-         
+#######################################################
+# Camera                                              #
+####################################################### 
+
+#Lock Camera Transforms
+class LockCameraTransforms(bpy.types.Operator):  
+    bl_idname = "object.lockcameratransforms"  
+    bl_label = "Lock Camera Transforms"  
+    
+    def execute(self, context):
+        if bpy.context.object.lock_rotation[0] == False:
+            bpy.context.object.lock_rotation[0] = True
+            bpy.context.object.lock_rotation[1] = True
+            bpy.context.object.lock_rotation[2] = True
+            bpy.context.object.lock_location[0] = True
+            bpy.context.object.lock_location[1] = True
+            bpy.context.object.lock_location[2] = True
+            bpy.context.object.lock_scale[0] = True
+            bpy.context.object.lock_scale[1] = True
+            bpy.context.object.lock_scale[2] = True
+            
+        elif bpy.context.object.lock_rotation[0] == True :
+             bpy.context.object.lock_rotation[0] = False
+             bpy.context.object.lock_rotation[1] = False
+             bpy.context.object.lock_rotation[2] = False
+             bpy.context.object.lock_location[0] = False
+             bpy.context.object.lock_location[1] = False
+             bpy.context.object.lock_location[2] = False
+             bpy.context.object.lock_scale[0] = False
+             bpy.context.object.lock_scale[1] = False
+             bpy.context.object.lock_scale[2] = False
+        return {'FINISHED'}
+
+#Active Camera
+bpy.types.Scene.cameratoto = bpy.props.StringProperty(default="")
+
+class ActiveCameraSelection(bpy.types.Operator):  
+    bl_idname = "object.activecameraselection"  
+    bl_label = "Active Camera Selection"  
+    
+    def execute(self, context):
+        bpy.data.objects[context.scene.cameratoto].select=True  
+        bpy.ops.view3d.object_as_camera()
+        return {'FINISHED'}
+
+#Select Camera
+class CameraSelection(bpy.types.Operator):  
+    bl_idname = "object.cameraselection"  
+    bl_label = "Camera Selection"  
+    
+    def execute(self, context):
+    
+        for cam in bpy.data.cameras:
+            bpy.ops.object.select_camera()
+            
+        return {'FINISHED'}
 ######################
 #     Pie Menus      #               
 ######################
+
+# Pie Edit/Object Others modes - Tab
+class PieObjectEditotherModes(Menu):
+    bl_idname = "pie.objecteditmodeothermodes"
+    bl_label = "Select Other Modes"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("class.pieweightpaint", text="Weight Paint", icon='WPAINT_HLT')
+        #6 - RIGHT
+        pie.operator("class.pietexturepaint", text="Texture Paint", icon='TPAINT_HLT')
+        #2 - BOTTOM
+        pie.operator("class.pieparticleedit", text="Particle Edit", icon='PARTICLEMODE')
+        #8 - TOP
+        pie.operator("class.pievertexpaint", text="Vertex Paint", icon='VPAINT_HLT')
+        #7 - TOP - LEFT 
+        #9 - TOP - RIGHT
+        #1 - BOTTOM - LEFT
+        #3 - BOTTOM - RIGHT
+
+# Pie Vertex/Edges/Faces Modes - Tab
+class PieVertexEdgesFacesModes(Menu):
+    bl_idname = "pie.vertexedgesfacesmodes"
+    bl_label = "Select Multi Components"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("verts.faces", text="Vertex/Faces", icon='LOOPSEL')
+        #6 - RIGHT
+        pie.operator("verts.edges", text="Vertex/Edges", icon='VERTEXSEL')
+        #2 - BOTTOM
+        pie.operator("verts.edgesfaces", text="Vertex/Edges/Faces", icon='OBJECT_DATAMODE')     
+        #8 - TOP
+        pie.operator("edges.faces", text="Edges/Faces", icon='FACESEL')
+        #7 - TOP - LEFT 
+        #9 - TOP - RIGHT
+        #1 - BOTTOM - LEFT
+        #3 - BOTTOM - RIGHT  
   
-# Pie Select Mode
+# Pie Select Mode - Tab
 class PieObjectEditMode(Menu):
     bl_idname = "pie.objecteditmode"
     bl_label = "Select Mode"
@@ -1717,7 +1743,6 @@ class PieObjectEditMode(Menu):
            
         ob = context
         if ob.object.type == 'MESH':
-
             pie = layout.menu_pie()
             #4 - LEFT
             pie.operator("class.vertex", text="Vertex", icon='VERTEXSEL')
@@ -1732,20 +1757,9 @@ class PieObjectEditMode(Menu):
             #9 - TOP - RIGHT
             pie.operator("sculpt.sculptmode_toggle", text="Sculpt", icon='SCULPTMODE_HLT')
             #1 - BOTTOM - LEFT
-            box = pie.split().column()
-            row = box.row(align=True)
-            box.operator("class.pietexturepaint", text="Texture Paint", icon='TPAINT_HLT')
-            box.operator("class.pievertexpaint", text="Vertex Paint", icon='VPAINT_HLT')
-            box.operator("class.pieweightpaint", text="Weight Paint", icon='WPAINT_HLT')
-            box.operator("wm.context_toggle", text="Auto Merge", icon='AUTOMERGE_ON').data_path = "scene.tool_settings.use_mesh_automerge"
+            pie.operator("wm.call_menu_pie", text="Other Modes", icon='TPAINT_HLT').name="pie.objecteditmodeothermodes"
             #3 - BOTTOM - RIGHT
-            box = pie.split().column()
-            row = box.row(align=True)
-            box.operator("verts.faces", text="Vertex/Faces")
-            box.operator("verts.edges", text="Vertex/Edges")
-            box.operator("edges.faces", text="Edges/Faces")
-            box.operator("verts.edgesfaces", text="Vertex/Edges/Faces")
-            
+            pie.operator("wm.call_menu_pie", text="V/E/F Modes", icon='UV_VERTEXSEL').name="pie.vertexedgesfacesmodes"
             
         elif ob.object.type == 'CURVE':
             pie = layout.menu_pie()
@@ -1781,16 +1795,85 @@ class PieObjectEditMode(Menu):
             pie = layout.menu_pie()
             pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')       
 
-#Pie Views
+#Pie View Animation Etc - Space
+class PieAnimationEtc(Menu):
+    bl_idname = "pie.animationetc"
+    bl_label = "Animation Etc"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("object.view_menu", text="Timeline", icon= 'TIME').variable="TIMELINE"
+        #6 - RIGHT
+        pie.operator("object.view_menu", text="Dope Sheet", icon= 'ACTION').variable="DOPESHEET_EDITOR"
+        #2 - BOTTOM
+        pie.operator("object.view_menu", text="NLA Editor", icon= 'NLA').variable="NLA_EDITOR"
+        #8 - TOP
+        pie.operator("object.view_menu", text="Graph Editor", icon= 'IPO').variable="GRAPH_EDITOR"
+        #7 - TOP - LEFT  
+        pie.operator("object.view_menu", text="Movie Clip Editor", icon= 'RENDER_ANIMATION').variable="CLIP_EDITOR"   
+        #9 - TOP - RIGHT
+        pie.operator("object.view_menu", text="Sequence Editor", icon= 'SEQUENCE').variable="SEQUENCE_EDITOR"
+        #1 - BOTTOM - LEFT
+        pie.operator("object.view_menu", text="Logic Editor", icon= 'LOGIC').variable="LOGIC_EDITOR"  
+        #3 - BOTTOM - RIGHT
+        
+#Pie View File Properties Etc - Space
+class PieFilePropertiesEtc(Menu):
+    bl_idname = "pie.filepropertiesetc"
+    bl_label = "Pie File Properties..."
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("object.view_menu", text="Properties", icon= 'BUTS').variable="PROPERTIES"
+        #6 - RIGHT
+        pie.operator("object.view_menu", text="Outliner", icon= 'OOPS').variable="OUTLINER" 
+        #2 - BOTTOM
+        pie.operator("object.view_menu", text="User Preferences", icon= 'PREFERENCES').variable="USER_PREFERENCES" 
+        #8 - TOP
+        pie.operator("object.view_menu", text="Text Editor", icon= 'FILE_TEXT').variable="TEXT_EDITOR" 
+        #7 - TOP - LEFT   
+        pie.operator("object.view_menu", text="File Browser", icon= 'FILESEL').variable="FILE_BROWSER"
+        #1 - BOTTOM - LEFT
+        pie.operator("object.view_menu", text="Python Console", icon= 'CONSOLE').variable="CONSOLE"
+        #9 - TOP - RIGHT
+        pie.operator("object.view_menu", text="Info", icon= 'INFO').variable="INFO"
+        #3 - BOTTOM - RIGHT
+
+#Pie View All Sel Glob Etc - Q
+class PieViewallSelGlobEtc(Menu):
+    bl_idname = "pie.vieallselglobetc"
+    bl_label = "Pie View All Sel Glob..."
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("view3d.view_all", text="View All").center = True
+        #6 - RIGHT
+        pie.operator("view3d.view_selected", text="View Selected")
+        #2 - BOTTOM
+        pie.operator("persp.orthoview", text="Persp/Ortho", icon='RESTRICT_VIEW_OFF')
+        #8 - TOP
+        pie.operator("view3d.localview", text="Local/Global")
+        #7 - TOP - LEFT   
+        pie.operator("screen.region_quadview", text="Toggle Quad View", icon='SPLITSCREEN')
+        #1 - BOTTOM - LEFT
+        pie.operator("screen.screen_full_area", text="Full Screen", icon='FULLSCREEN_ENTER')
+        #9 - TOP - RIGHT
+        #3 - BOTTOM - RIGHT
+        
+#Pie Views - Space
 class PieAreaViews(Menu):
     bl_idname = "pie.areaviews"
     bl_label = "Pie Views"
 
     def draw(self, context):
         layout = self.layout
-
         pie = layout.menu_pie()
-        
         #4 - LEFT
         pie.operator("object.view_menu", text="Node Editor", icon= 'NODETREE').variable="NODE_EDITOR"
         #6 - RIGHT
@@ -1801,47 +1884,51 @@ class PieAreaViews(Menu):
         #8 - TOP
         pie.operator("object.view_menu", text="VIEW 3D", icon= 'VIEW3D').variable="VIEW_3D"
         #7 - TOP - LEFT 
-        box = pie.split().column()
-        row = box.row(align=True)
-        box.operator("object.view_menu", text="Text Editor", icon= 'FILE_TEXT').variable="TEXT_EDITOR" 
-        box.operator("object.view_menu", text="Outliner", icon= 'OOPS').variable="OUTLINER" 
-        box.operator("object.view_menu", text="Properties", icon= 'BUTS').variable="PROPERTIES"
-        box.operator("object.view_menu", text="User Preferences", icon= 'PREFERENCES').variable="USER_PREFERENCES" 
+        pie.operator("wm.call_menu_pie", text="File, Properties etc", icon= 'FILE_SCRIPT').name="pie.filepropertiesetc"
         #9 - TOP - RIGHT
-        box = pie.split().column()
-        row = box.row(align=True)
-        box.operator("object.view_menu", text="Graph Editor", icon= 'IPO').variable="GRAPH_EDITOR"
-        box.operator("object.view_menu", text="Dope Sheet", icon= 'ACTION').variable="DOPESHEET_EDITOR"
-        box.operator("object.view_menu", text="Timeline", icon= 'TIME').variable="TIMELINE"
-        box.menu("oher.viewsmenu", text="Other Views", icon= 'FULLSCREEN')
+        pie.operator("wm.call_menu_pie", text="Animation etc", icon= 'ACTION_TWEAK').name="pie.animationetc"
         #1 - BOTTOM - LEFT
         pie.operator("split.vertical", text="Split Vertical", icon= 'TRIA_RIGHT')
         #3 - BOTTOM - RIGHT
         pie.operator("split.horizontal", text="Split Horizontal", icon= 'TRIA_DOWN')
 
-#Menu Other views
-class OherViewsMenu(Menu):
-    bl_idname = "oher.viewsmenu"
-    bl_label = "Oher Views Menu"
+#Pie Camera - C
+class PieCamera(Menu):
+    bl_idname = "pie.camera"
+    bl_label = "Pie Camera"
 
     def draw(self, context):
         layout = self.layout
-        layout.operator("object.view_menu", text="NLA Editor", icon= 'NLA').variable="NLA_EDITOR"
-        layout.operator("object.view_menu", text="Sequence Editor", icon= 'SEQUENCE').variable="SEQUENCE_EDITOR"
-        layout.operator("object.view_menu", text="Movie Clip Editor", icon= 'RENDER_ANIMATION').variable="CLIP_EDITOR"
-        layout.operator("object.view_menu", text="Python Console", icon= 'CONSOLE').variable="CONSOLE"
-        layout.operator("object.view_menu", text="File Browser", icon= 'FILESEL').variable="FILE_BROWSER"
-        layout.operator("object.view_menu", text="Info", icon= 'INFO').variable="INFO"
-        layout.operator("object.view_menu", text="Logic Editor", icon= 'LOGIC').variable="LOGIC_EDITOR" 
+        pie = layout.menu_pie()
+        ob = bpy.context.object
+        obj = context.object
         
-#Pie views numpad
+        #4 - LEFT
+        if context.space_data.lock_camera == False:
+            pie.operator("wm.context_toggle", text="Lock Cam to View", icon='UNLOCKED').data_path = "space_data.lock_camera"
+        elif context.space_data.lock_camera == True:
+            pie.operator("wm.context_toggle", text="Lock Cam to View", icon='LOCKED').data_path = "space_data.lock_camera"
+        #6 - RIGHT
+        pie.operator("view3d.viewnumpad", text="View Camera", icon='VISIBLE_IPO_ON').type='CAMERA'
+        #2 - BOTTOM   
+        pie.operator("view3d.camera_to_view", text="Cam to view", icon = 'MAN_TRANS')
+        #8 - TOP
+        if ob.lock_rotation[0] == False:
+            pie.operator("object.lockcameratransforms", text="Lock Transforms", icon = 'UNLOCKED')
+        elif  ob.lock_rotation[0] == True:
+            pie.operator("object.lockcameratransforms", text="Lock Transforms", icon = 'LOCKED')
+        #7 - TOP - LEFT
+        #9 - TOP - RIGHT
+        #1 - BOTTOM - LEFT
+        #3 - BOTTOM - RIGHT
+        
+#Pie views numpad - Q
 class PieViewNumpad(Menu):
     bl_idname = "pie.viewnumpad"
     bl_label = "Pie Views Ortho"
 
     def draw(self, context):
         layout = self.layout
-        
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("view3d.viewnumpad", text="Left", icon='TRIA_LEFT').type='LEFT'
@@ -1856,28 +1943,18 @@ class PieViewNumpad(Menu):
         #9 - TOP - RIGHT
         pie.operator("view3d.viewnumpad", text="Back").type='BACK'
         #1 - BOTTOM - LEFT
-        box = pie.split().column()
-        row = box.row(align=True)
-        box.operator("view3d.view_all", text="View All").center = True
-        box.operator("view3d.view_selected", text="View Selected")
-        box.operator("persp.orthoview", text="Persp/Ortho", icon='RESTRICT_VIEW_OFF')
-        box.operator("screen.screen_full_area", text="Full Screen", icon='FULLSCREEN_ENTER')
-        #3 - BOTTOM - RIGHT
-        box = pie.split().column()
-        row = box.row(align=True)
-        box.operator("view3d.localview", text="Local/Global")
-        box.operator("view3d.viewnumpad", text="Camera", icon='CAMERA_DATA').type='CAMERA'
-        box.operator("wm.context_toggle", text="Lock Cam to view", icon='OUTLINER_DATA_CAMERA').data_path = "space_data.lock_camera"
-        box.operator("screen.region_quadview", text="Toggle Quad View", icon='SPLITSCREEN')
+        pie.operator("wm.call_menu_pie", text="Camera", icon='CAMERA_DATA').name="pie.camera"
         
-#Pie Sculp Pie Menus
+        #3 - BOTTOM - RIGHT
+        pie.operator("wm.call_menu_pie", text="View All/Sel/Glob...", icon='BBOX').name="pie.vieallselglobetc"
+        
+#Pie Sculp Pie Menus - W
 class PieSculptPie(Menu):
     bl_idname = "pie.sculpt"
     bl_label = "Pie Sculpt"
 
     def draw(self, context):
         layout = self.layout
-        
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("paint.brush_select", text="Crease", icon='BRUSH_CREASE').sculpt_tool='CREASE'
@@ -1894,16 +1971,15 @@ class PieSculptPie(Menu):
         #1 - BOTTOM - LEFT
         pie.operator("paint.brush_select", text='Mask', icon='BRUSH_MASK').sculpt_tool='MASK'
         #3 - BOTTOM - RIGHT
-        pie.operator("paint.brush_select", text='Fill/Deepen', icon='BRUSH_FILL').sculpt_tool='FILL'
+        pie.operator("wm.call_menu_pie", text="Others Brushes", icon='LINE_DATA').name="pie.sculpttwo"
 
-#Pie Sculp Pie Menus 2        
+#Pie Sculp Pie Menus 2 - W       
 class PieSculpttwo(Menu):
     bl_idname = "pie.sculpttwo"
     bl_label = "Pie Sculpt 2"
 
     def draw(self, context):
         layout = self.layout
-        
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("paint.brush_select", text='Claystrips', icon='BRUSH_CREASE').sculpt_tool= 'CLAY_STRIPS'
@@ -1929,15 +2005,15 @@ class PieSculpttwo(Menu):
         box.operator("paint.brush_select", text='Layer', icon='BRUSH_LAYER').sculpt_tool= 'LAYER'
         box.operator("paint.brush_select", text='Nudge', icon='BRUSH_NUDGE').sculpt_tool= 'NUDGE'
         box.operator("paint.brush_select", text='Thumb', icon='BRUSH_THUMB').sculpt_tool= 'THUMB'
+        box.operator("paint.brush_select", text='Fill/Deepen', icon='BRUSH_FILL').sculpt_tool='FILL'
 
-#Pie Origin/Pivot
+#Pie Origin/Pivot - Shift + S
 class PieOriginPivot(Menu):
     bl_idname = "pie.originpivot"
     bl_label = "Pie Origin/Cursor"
 
     def draw(self, context):
         layout = self.layout
-        
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("object.pivotobottom", text="Origin to Bottom", icon='TRIA_DOWN')
@@ -1954,34 +2030,61 @@ class PieOriginPivot(Menu):
         #1 - BOTTOM - LEFT
         pie.operator("object.origin_set", text="Geometry To Origin", icon='BBOX').type ='GEOMETRY_ORIGIN'
         #3 - BOTTOM - RIGHT
-        pie.menu("origin.pivotmenu", text="Others", icon='CURSOR')
-        
-#Origin/Pivot menu1
+        pie.operator("wm.call_menu_pie", text="Others", icon='CURSOR').name="origin.pivotmenu"
+
+#Pie Pivot Point - Shit + S        
+class PiePivotPoint(Menu):
+    bl_idname = "pie.pivotpoint"
+    bl_label = "Pie Pivot Point"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("pivotpoint.variable", text="Active Element", icon='ROTACTIVE').variable = 'ACTIVE_ELEMENT'
+        #6 - RIGHT
+        pie.operator("pivotpoint.variable", text="Median Point", icon='ROTATECENTER').variable = 'MEDIAN_POINT'
+        #2 - BOTTOM
+        pie.operator("pivotpoint.variable", text="Individual Origins", icon='ROTATECOLLECTION').variable = 'INDIVIDUAL_ORIGINS'
+        #8 - TOP
+        pie.operator("pivotpoint.variable", text="Cursor", icon='CURSOR').variable = 'CURSOR'
+        #7 - TOP - LEFT 
+        pie.operator("pivotpoint.variable", text="Bounding Box Center", icon='ROTATE').variable = 'BOUNDING_BOX_CENTER'
+        #9 - TOP - RIGHT
+        pie.operator("use.pivotalign", text="Use Pivot Align", icon='ALIGN')
+        #1 - BOTTOM - LEFT
+        #3 - BOTTOM - RIGHT
+                
+#Origin/Pivot menu1  - Shift + S
 class OriginPivotMenu(Menu):
     bl_idname = "origin.pivotmenu"
     bl_label = "Origin Pivot Menu"
 
     def draw(self, context):
         layout = self.layout        
-         
-        layout.operator("object.origin_set", text="Origin to Center of Mass").type = 'ORIGIN_CENTER_OF_MASS'
-        layout.operator("view3d.snap_selected_to_grid", text="Selection to Grid")
-        layout.operator("view3d.snap_selected_to_cursor", text="Selection to Cursor (Offset)").use_offset = True
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("view3d.snap_selected_to_cursor", text="Selection to Cursor (Offset)", icon='CURSOR').use_offset = True
+        #6 - RIGHT
+        pie.operator("view3d.snap_selected_to_grid", text="Selection to Grid", icon='GRID')
+        #2 - BOTTOM
+        pie.operator("object.origin_set", text="Origin to Center of Mass", icon='BBOX').type = 'ORIGIN_CENTER_OF_MASS'
+        #8 - TOP
+        pie.operator("view3d.snap_cursor_to_center", text="Cursor to Center", icon='CLIPUV_DEHLT')
+        #7 - TOP - LEFT 
+        pie.operator("view3d.snap_cursor_to_grid", text="Cursor to Grid", icon='GRID')
+        #9 - TOP - RIGHT
+        pie.operator("view3d.snap_cursor_to_active", text="Cursor to Active", icon='BBOX')
+        #1 - BOTTOM - LEFT
+        #3 - BOTTOM - RIGHT
 
-        layout.separator()
-        
-        layout.operator("view3d.snap_cursor_to_center", text="Cursor to Center")
-        layout.operator("view3d.snap_cursor_to_grid", text="Cursor to Grid")
-        layout.operator("view3d.snap_cursor_to_active", text="Cursor to Active")
-
-#Pie Manipulators
+#Pie Manipulators - Ctrl + Space
 class PieManipulator(Menu):
     bl_idname = "pie.manipulator"
     bl_label = "Pie Manipulator"
 
     def draw(self, context):
         layout = self.layout
-        
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("manip.translate", text="Translate", icon='MAN_TRANS')
@@ -2000,14 +2103,13 @@ class PieManipulator(Menu):
         #3 - BOTTOM - RIGHT
         pie.operator("translate.rotatescale", text="Translate/Rotate/Scale")
 
-#Pie Snapping
+#Pie Snapping - Shift + Tab
 class PieSnaping(Menu):
     bl_idname = "pie.snapping"
     bl_label = "Pie Snapping"
 
     def draw(self, context):
         layout = self.layout
-        
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("snap.vertex", text="Vertex", icon='SNAP_VERTEX')
@@ -2024,23 +2126,30 @@ class PieSnaping(Menu):
         #1 - BOTTOM - LEFT
         pie.operator("snap.alignrotation", text="Align rotation", icon='SNAP_NORMAL')
         #3 - BOTTOM - RIGHT
-        pie.menu("snap.targetmenu", text="Snap Target", icon='SNAP_SURFACE')    
+        pie.operator("wm.call_menu_pie", text="Snap Target", icon='SNAP_SURFACE').name="snap.targetmenu"    
            
-#Menu Snap Target
+#Menu Snap Target - Shift + Tab
 class SnapTargetMenu(Menu):
     bl_idname = "snap.targetmenu"
     bl_label = "Snap Target Menu"
 
     def draw(self, context):
         layout = self.layout       
-        
-         
-        layout.operator("object.snaptargetvariable", text="Active").variable='ACTIVE'
-        layout.operator("object.snaptargetvariable", text="Median").variable='MEDIAN'
-        layout.operator("object.snaptargetvariable", text="Center").variable='CENTER' 
-        layout.operator("object.snaptargetvariable", text="Closest").variable='CLOSEST'
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("object.snaptargetvariable", text="Active").variable='ACTIVE'
+        #6 - RIGHT
+        pie.operator("object.snaptargetvariable", text="Median").variable='MEDIAN'
+        #2 - BOTTOM
+        pie.operator("object.snaptargetvariable", text="Center").variable='CENTER' 
+        #8 - TOP
+        pie.operator("object.snaptargetvariable", text="Closest").variable='CLOSEST'
+        #7 - TOP - LEFT 
+        #9 - TOP - RIGHT
+        #1 - BOTTOM - LEFT
+        #3 - BOTTOM - RIGHT
 
-#Pie Orientation
+#Pie Orientation - Alt + Space
 class PieOrientation(Menu):
     bl_idname = "pie.orientation"
     bl_label = "Pie Orientation"
@@ -2063,15 +2172,13 @@ class PieOrientation(Menu):
         #1 - BOTTOM - LEFT
         #3 - BOTTOM - RIGHT
         
-        
-#Pie Shading
+#Pie Shading - Z
 class PieShadingView(Menu):
     bl_idname = "pie.shadingview"
     bl_label = "Pie Shading"
 
     def draw(self, context):
         layout = self.layout
-        
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("object.shadingvariable", text="Material", icon='MATERIAL').variable = 'MATERIAL'
@@ -2090,74 +2197,62 @@ class PieShadingView(Menu):
         #3 - BOTTOM - RIGHT
         pie.operator("shading.flat", text="Shade Flat", icon='MESH_ICOSPHERE')
 
-#Pie Object Shading
+#Pie Object Shading 2 - Shift + Z
+class PieObjectShading2(Menu):
+    bl_idname = "pie.objectshading2"
+    bl_label = "Pie Shading Object Others"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("wm.context_toggle", text="Only Render", icon='SOLID').data_path = "space_data.show_only_render"
+        #6 - RIGHT
+        pie.operator("scene.togglegridaxis", text="Show/Hide Grid", icon="MESH_GRID")
+        #2 - BOTTOM
+        pie.menu("meshdisplay.overlays", text="Mesh display")
+        #8 - TOP
+        pie.menu("normals.menu", text="Normals", icon='FACESEL')
+        #7 - TOP - LEFT 
+        pie.menu("auto.smooth_menu", text="Auto Smooth", icon='MESH_DATA')
+        #9 - TOP - RIGHT
+        pie.operator("wm.context_toggle", text="Matcaps", icon='MATCAP_02').data_path = "space_data.use_matcap"
+        #1 - BOTTOM - LEFT
+        
+        #3 - BOTTOM - RIGHT
+
+#Pie Object Shading- Shift + Z
 class PieObjectShading(Menu):
     bl_idname = "pie.objectshading"
     bl_label = "Pie Shading Object"
 
     def draw(self, context):
         layout = self.layout
-        
         pie = layout.menu_pie()
         #4 - LEFT
-        pie.operator("wm.context_toggle", text="Only Render", icon='SOLID').data_path = "space_data.show_only_render"
+        pie.operator("wm.context_toggle", text="Backface Culling", icon="ORTHO").data_path = "space_data.show_backface_culling"
         #6 - RIGHT
         pie.operator("wire.selectedall", text="Wire", icon='WIRE')
         #2 - BOTTOM
-        pie.operator("wm.context_toggle", text="Hidden Wire", icon='GHOST_ENABLED').data_path = "space_data.show_occlude_wire"
+        pie.operator("wm.context_toggle", text="Auto Merge", icon='AUTOMERGE_ON').data_path = "scene.tool_settings.use_mesh_automerge"
         #8 - TOP
         pie.operator("wm.context_toggle", text="Xray", icon='META_CUBE').data_path = "object.show_x_ray"
         #7 - TOP - LEFT
-        pie.operator("object.draw_bu", text="Bounds Unselected", icon='GROUP_VERTEX')
+        pie.operator("wm.context_toggle", text="Show Normals Faces", icon='FACESEL').data_path = "object.data.show_normal_face"
         #9 - TOP - RIGHT
-        pie.operator("object.solid_all", text="Solid All", icon='MESH_CUBE')
+        pie.operator("wm.context_toggle", text="Hidden Wire", icon='GHOST_ENABLED').data_path = "space_data.show_occlude_wire"
         #1 - BOTTOM - LEFT
-        box = pie.split().column()
-        row = box.row(align=True)
-        box.operator("wm.context_toggle", text="Double sided", icon='SNAP_FACE').data_path = "object.data.show_double_sided"
-        box.operator("wm.context_toggle", text="Backface Culling", icon="ORTHO").data_path = "space_data.show_backface_culling"
-        box.operator("scene.togglegridaxis", text="Show/Hide Grid", icon="MESH_GRID")
-        box.operator("wm.context_toggle", text="Matcaps", icon='MATCAP_02').data_path = "space_data.use_matcap"
-        
+        pie.operator("wm.context_toggle", text="Double sided", icon='SNAP_FACE').data_path = "object.data.show_double_sided"
         #3 - BOTTOM - RIGHT
-        box = pie.split().column()
-        row = box.row(align=True)
-        box.menu("normals.menu", text="Normals", icon='FACESEL')
-        box.menu("meshdisplay.overlays", text="Mesh display")
-        box.menu("auto.smooth_menu", text="Auto Smooth", icon='MESH_DATA')
-        
-#Pie Pivot Point           
-class PiePivotPoint(Menu):
-    bl_idname = "pie.pivotpoint"
-    bl_label = "Pie Pivot Point"
+        pie.operator("wm.call_menu_pie", text="Others", icon='GROUP').name="pie.objectshading2" 
 
-    def draw(self, context):
-        layout = self.layout
-        
-        pie = layout.menu_pie()
-        #4 - LEFT
-        pie.operator("pivotpoint.variable", text="Active Element", icon='ROTACTIVE').variable = 'ACTIVE_ELEMENT'
-        #6 - RIGHT
-        pie.operator("pivotpoint.variable", text="Median Point", icon='ROTATECENTER').variable = 'MEDIAN_POINT'
-        #2 - BOTTOM
-        pie.operator("pivotpoint.variable", text="Individual Origins", icon='ROTATECOLLECTION').variable = 'INDIVIDUAL_ORIGINS'
-        #8 - TOP
-        pie.operator("pivotpoint.variable", text="Cursor", icon='CURSOR').variable = 'CURSOR'
-        #7 - TOP - LEFT 
-        pie.operator("pivotpoint.variable", text="Bounding Box Center", icon='ROTATE').variable = 'BOUNDING_BOX_CENTER'
-        #9 - TOP - RIGHT
-        pie.operator("use.pivotalign", text="Use Pivot Align", icon='ALIGN')
-        #1 - BOTTOM - LEFT
-        #3 - BOTTOM - RIGHT
-
-#Pie ProportionalEditObj
+#Pie ProportionalEditObj - O
 class PieProportionalObj(Menu):
     bl_idname = "pie.proportional_obj"
     bl_label = "Pie Proportional Edit Obj"
 
     def draw(self, context):
         layout = self.layout
-        
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("proportional_obj.sphere", text="Sphere", icon='SPHERECURVE')
@@ -2176,14 +2271,13 @@ class PieProportionalObj(Menu):
         #3 - BOTTOM - RIGHT
         pie.operator("proportional_obj.random", text="Random", icon='RNDCURVE')
 
-#Pie ProportionalEditEdt
+#Pie ProportionalEditEdt - O
 class PieProportionalEdt(Menu):
     bl_idname = "pie.proportional_edt"
     bl_label = "Pie Proportional Edit"
 
     def draw(self, context):
         layout = self.layout
-        
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("proportional_edt.connected", text="Connected", icon='PROP_CON')
@@ -2207,14 +2301,13 @@ class PieProportionalEdt(Menu):
         box.operator("proportional_edt.random", text="Random", icon='RNDCURVE')
              
         
-#Pie Retopo               
+#Pie Retopo - Shift + RMB              
 class PieRetopo(Menu):
     bl_idname = "pie.retopo"
     bl_label = "Pie Retopo"
 
     def draw(self, context):
         layout = self.layout
-        
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("mesh.looptools_gstretch", text="GStretch", icon='GREASEPENCIL')
@@ -2230,25 +2323,20 @@ class PieRetopo(Menu):
         box.operator("setup.retopomesh", icon = 'UV_FACESEL')
         box.operator("object.automirror", icon = 'MOD_MIRROR')
         #9 - TOP - RIGHT
-        box = pie.split().column()
-        row = box.row(align=True)
-        box.operator("shrinkwrap.upte", text = "Shrinkwrap Update", icon = 'MOD_SHRINKWRAP')
-        box.operator("shrinkwrap.updateonsel", text = "SU On Selected", icon = 'MOD_SHRINKWRAP')
+        pie.operator("shrink.update", text = "Shrinkwrap Update", icon = 'MOD_SHRINKWRAP')
         #1 - BOTTOM - LEFT
         pie.operator("retopo.space", icon='ALIGN', text="Space")
         #3 - BOTTOM - RIGHT
         pie.operator("polysculpt.retopo", text = "Sculpt Mesh", icon = 'SCULPTMODE_HLT')
 
-# Pie Align
+# Pie Align - Alt + X
 class PieAlign(Menu):
     bl_idname = "pie.align"
     bl_label = "Pie Align"
 
     def draw(self, context):
         layout = self.layout
-
         pie = layout.menu_pie()
-        
         #4 - LEFT
         pie.operator("align.x", text="Align X", icon='TRIA_LEFT')
         #6 - RIGHT
@@ -2284,16 +2372,14 @@ class PieAlign(Menu):
         box.operator("retopo.space", icon='ALIGN', text="Distribute")
         box.operator("mesh.vertex_inline", icon='ALIGN', text="Align & Distribute")
 
-# Pie Delete
+# Pie Delete - X
 class PieDelete(Menu):
     bl_idname = "pie.delete"
     bl_label = "Pie Delete"
 
     def draw(self, context):
         layout = self.layout
-
         pie = layout.menu_pie()
-        
         #4 - LEFT
         pie.operator("mesh.delete", text="Delete Vertices", icon='VERTEXSEL').type='VERT'
         #6 - RIGHT
@@ -2318,16 +2404,14 @@ class PieDelete(Menu):
         box.operator("mesh.delete", text="Only Edge & Faces", icon='SPACE2').type='EDGE_FACE'
         box.operator("mesh.delete", text="Only Faces", icon='UV_FACESEL').type='ONLY_FACE'
 
-# Pie Apply Transforms
+# Pie Apply Transforms - Ctrl + A
 class PieApplyTransforms(Menu):
     bl_idname = "pie.applytranforms"
     bl_label = "Pie Apply Transforms"
 
     def draw(self, context):
         layout = self.layout
-
         pie = layout.menu_pie()
-        
         #4 - LEFT
         pie.operator("apply.transformlocation", text="Location", icon='MAN_TRANS')
         #6 - RIGHT
@@ -2348,16 +2432,14 @@ class PieApplyTransforms(Menu):
         #3 - BOTTOM - RIGHT  
         pie.menu("clear.menu", text="Clear Transforms")  
 
-# Pie Selection Object Mode
+# Pie Selection Object Mode - A
 class PieSelectionsOM(Menu):
     bl_idname = "pie.selectionsom"
     bl_label = "Pie Selections Object Mode"
 
     def draw(self, context):
         layout = self.layout
-
         pie = layout.menu_pie()
-        
         #4 - LEFT
         pie.operator("view3d.select_circle", text="Circle Select", icon='BORDER_LASSO')
         #6 - RIGHT
@@ -2386,9 +2468,7 @@ class PieSelectionsEM(Menu):
 
     def draw(self, context):
         layout = self.layout
-
         pie = layout.menu_pie()
-        
         #4 - LEFT
         pie.operator("view3d.select_circle", text="Circle Select", icon='BORDER_LASSO')
         #6 - RIGHT
@@ -2417,7 +2497,6 @@ class PieTextEditor(Menu):
 
     def draw(self, context):
         layout = self.layout
-
         pie = layout.menu_pie()
         if bpy.context.area.type == 'TEXT_EDITOR':
             #4 - LEFT
@@ -2438,16 +2517,12 @@ class PieTextEditor(Menu):
             
 # Pie Animation            
 class PieAnimation(Menu):
-    # label is displayed at the center of the pie menu.
     bl_idname = "pie.animation"
     bl_label = "Pie Animation"
     
-
     def draw(self, context):
         layout = self.layout
-
         pie = layout.menu_pie()
-        
         #4 - LEFT
         pie.operator("screen.animation_play", text="Reverse", icon='PLAY_REVERSE').reverse = True
         #6 - RIGHT
@@ -2469,7 +2544,6 @@ class PieAnimation(Menu):
         #3 - BOTTOM - RIGHT 
         pie.operator("screen.keyframe_jump", text="Next FR", icon='NEXT_KEYFRAME').next = True
 
-
 #Pie Save/Open
 class PieSaveOpen(Menu):
     bl_idname = "pie.saveopen"
@@ -2477,9 +2551,7 @@ class PieSaveOpen(Menu):
 
     def draw(self, context):
         layout = self.layout
-
         pie = layout.menu_pie()
-        
         #4 - LEFT
         pie.operator("wm.read_homefile", text="New", icon='NEW')
         #6 - RIGHT
@@ -2511,8 +2583,6 @@ class PieSaveOpen(Menu):
         box.operator("wm.append", text="Append", icon='APPEND_BLEND')
         box.menu("external.data", text="External Data", icon='EXTERNAL_DATA')
 
-
-
 #Search Menu
 def SearchMenu(self, context):
     layout = self.layout
@@ -2529,6 +2599,8 @@ addon_keymaps = []
 def register():
     # Pie Menu Select Mode
     bpy.utils.register_class(PieObjectEditMode)
+    bpy.utils.register_class(PieObjectEditotherModes)
+    bpy.utils.register_class(PieVertexEdgesFacesModes)
     bpy.utils.register_class(ClassObject)
     bpy.utils.register_class(ClassVertex)
     bpy.utils.register_class(ClassEdge)
@@ -2537,16 +2609,19 @@ def register():
     bpy.utils.register_class(ClassVertexPaint)
     bpy.utils.register_class(ClassWeightPaint)
     bpy.utils.register_class(SelectAllBySelection)
+    bpy.utils.register_class(ClassParticleEdit)
     # View Menu
     bpy.utils.register_class(PieAreaViews)
     bpy.utils.register_class(JoinArea)
     bpy.utils.register_class(SplitHorizontal)
     bpy.utils.register_class(SplitVertical)
     bpy.utils.register_class(ViewMenu)
-    bpy.utils.register_class(OherViewsMenu)
+    bpy.utils.register_class(PieAnimationEtc)
+    bpy.utils.register_class(PieFilePropertiesEtc)
     # View numpad
     bpy.utils.register_class(PieViewNumpad)
     bpy.utils.register_class(PerspOrthoView)
+    bpy.utils.register_class(PieViewallSelGlobEtc)
     # Sculpt Pie Menu
     bpy.utils.register_class(PieSculptPie)
     bpy.utils.register_class(PieSculpttwo)
@@ -2590,8 +2665,6 @@ def register():
     bpy.utils.register_class(PieRetopo)
     bpy.utils.register_class(RetopoSpace)
     bpy.utils.register_class(LapRelax)
-    bpy.utils.register_class(ShrinkwrapUpte)
-    bpy.utils.register_class(ShrinkwrapUpteOnSel)
     # Shading
     bpy.utils.register_class(ShadingVariable)
     bpy.utils.register_class(PieShadingView)
@@ -2599,8 +2672,7 @@ def register():
     bpy.utils.register_class(ShadingFlat)
     # Object Shading
     bpy.utils.register_class(PieObjectShading)
-    bpy.utils.register_class(SolidAll)
-    bpy.utils.register_class(BoundsUnselected)
+    bpy.utils.register_class(PieObjectShading2)
     bpy.utils.register_class(AutoSmoothMenu)
     bpy.utils.register_class(AutoSmooth89)
     bpy.utils.register_class(AutoSmooth30)
@@ -2679,6 +2751,11 @@ def register():
     bpy.utils.register_class(PieSaveOpen)
     bpy.utils.register_class(FileIncrementalSave)
     bpy.utils.register_class(ExternalData)
+    #Camera
+    bpy.utils.register_class(LockCameraTransforms)
+    bpy.utils.register_class(ActiveCameraSelection)
+    bpy.utils.register_class(CameraSelection)
+    bpy.utils.register_class(PieCamera)
     
     
 # Keympa Config   
@@ -2807,6 +2884,8 @@ def register():
 def unregister():
     # Pie Menu Select Mode
     bpy.utils.unregister_class(PieObjectEditMode)
+    bpy.utils.unregister_class(PieObjectEditotherModes)
+    bpy.utils.unregister_class(PieVertexEdgesFacesModes)
     bpy.utils.unregister_class(ClassObject)
     bpy.utils.unregister_class(ClassVertex)
     bpy.utils.unregister_class(ClassEdge)
@@ -2815,16 +2894,19 @@ def unregister():
     bpy.utils.unregister_class(ClassVertexPaint)
     bpy.utils.unregister_class(ClassWeightPaint)
     bpy.utils.unregister_class(SelectAllBySelection)
+    bpy.utils.unregister_class(ClassParticleEdit)
     # View Menu
     bpy.utils.unregister_class(PieAreaViews)
     bpy.utils.unregister_class(JoinArea)
     bpy.utils.unregister_class(SplitHorizontal)
     bpy.utils.unregister_class(SplitVertical)
     bpy.utils.unregister_class(ViewMenu)
-    bpy.utils.unregister_class(OherViewsMenu)
+    bpy.utils.unregister_class(PieAnimationEtc)
+    bpy.utils.unregister_class(PieFilePropertiesEtc)
     # View numpad
     bpy.utils.unregister_class(PieViewNumpad)
     bpy.utils.unregister_class(PerspOrthoView)
+    bpy.utils.unregister_class(PieViewallSelGlobEtc)
     # Sculpt Pie Menu
     bpy.utils.unregister_class(PieSculptPie)
     bpy.utils.unregister_class(PieSculpttwo)
@@ -2868,8 +2950,6 @@ def unregister():
     bpy.utils.unregister_class(PieRetopo)
     bpy.utils.unregister_class(RetopoSpace)
     bpy.utils.unregister_class(LapRelax)
-    bpy.utils.unregister_class(ShrinkwrapUpte)
-    bpy.utils.unregister_class(ShrinkwrapUpteOnSel)
     # Shading
     bpy.utils.unregister_class(ShadingVariable)
     bpy.utils.unregister_class(PieShadingView) 
@@ -2877,8 +2957,7 @@ def unregister():
     bpy.utils.unregister_class(ShadingFlat)
     # Object Shading
     bpy.utils.unregister_class(PieObjectShading)
-    bpy.utils.unregister_class(SolidAll)
-    bpy.utils.unregister_class(BoundsUnselected)
+    bpy.utils.unregister_class(PieObjectShading2)
     bpy.utils.unregister_class(AutoSmoothMenu)
     bpy.utils.unregister_class(AutoSmooth89)
     bpy.utils.unregister_class(AutoSmooth30)
@@ -2957,6 +3036,11 @@ def unregister():
     bpy.utils.unregister_class(PieSaveOpen)
     bpy.utils.unregister_class(FileIncrementalSave)
     bpy.utils.unregister_class(ExternalData)
+    #Camera
+    bpy.utils.unregister_class(LockCameraTransforms)
+    bpy.utils.unregister_class(ActiveCameraSelection)
+    bpy.utils.unregister_class(CameraSelection)
+    bpy.utils.unregister_class(PieCamera)
     
     
     wm = bpy.context.window_manager
@@ -2973,7 +3057,6 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-
 
 
 
