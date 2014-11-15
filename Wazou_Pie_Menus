@@ -88,6 +88,7 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
 class ProportionalEditObj(bpy.types.Operator):
     bl_idname = "proportional_obj.active"
     bl_label = "Proportional Edit Object"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -103,6 +104,7 @@ class ProportionalEditObj(bpy.types.Operator):
 class ProportionalSmoothObj(bpy.types.Operator):
     bl_idname = "proportional_obj.smooth"
     bl_label = "Proportional Smooth Object"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -117,6 +119,7 @@ class ProportionalSmoothObj(bpy.types.Operator):
 class ProportionalSphereObj(bpy.types.Operator):
     bl_idname = "proportional_obj.sphere"
     bl_label = "Proportional Sphere Object"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -131,6 +134,7 @@ class ProportionalSphereObj(bpy.types.Operator):
 class ProportionalRootObj(bpy.types.Operator):
     bl_idname = "proportional_obj.root"
     bl_label = "Proportional Root Object"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -145,6 +149,7 @@ class ProportionalRootObj(bpy.types.Operator):
 class ProportionalSharpObj(bpy.types.Operator):
     bl_idname = "proportional_obj.sharp"
     bl_label = "Proportional Sharp Object"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -159,6 +164,7 @@ class ProportionalSharpObj(bpy.types.Operator):
 class ProportionalLinearObj(bpy.types.Operator):
     bl_idname = "proportional_obj.linear"
     bl_label = "Proportional Linear Object"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -173,6 +179,7 @@ class ProportionalLinearObj(bpy.types.Operator):
 class ProportionalConstantObj(bpy.types.Operator):
     bl_idname = "proportional_obj.constant"
     bl_label = "Proportional Constant Object"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -187,6 +194,7 @@ class ProportionalConstantObj(bpy.types.Operator):
 class ProportionalRandomObj(bpy.types.Operator):
     bl_idname = "proportional_obj.random"
     bl_label = "Proportional Random Object"
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         layout = self.layout
@@ -204,6 +212,7 @@ class ProportionalRandomObj(bpy.types.Operator):
 class ProportionalEditEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.active"
     bl_label = "Proportional Edit EditMode"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -217,6 +226,7 @@ class ProportionalEditEdt(bpy.types.Operator):
 class ProportionalConnectedEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.connected"
     bl_label = "Proportional Connected EditMode"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -228,6 +238,7 @@ class ProportionalConnectedEdt(bpy.types.Operator):
 class ProportionalProjectedEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.projected"
     bl_label = "Proportional projected EditMode"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -239,6 +250,7 @@ class ProportionalProjectedEdt(bpy.types.Operator):
 class ProportionalSmoothEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.smooth"
     bl_label = "Proportional Smooth EditMode"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -253,6 +265,7 @@ class ProportionalSmoothEdt(bpy.types.Operator):
 class ProportionalSphereEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.sphere"
     bl_label = "Proportional Sphere EditMode"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -267,6 +280,7 @@ class ProportionalSphereEdt(bpy.types.Operator):
 class ProportionalRootEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.root"
     bl_label = "Proportional Root EditMode"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -281,6 +295,7 @@ class ProportionalRootEdt(bpy.types.Operator):
 class ProportionalSharpEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.sharp"
     bl_label = "Proportional Sharp EditMode"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -295,6 +310,7 @@ class ProportionalSharpEdt(bpy.types.Operator):
 class ProportionalLinearEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.linear"
     bl_label = "Proportional Linear EditMode"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -309,6 +325,7 @@ class ProportionalLinearEdt(bpy.types.Operator):
 class ProportionalConstantEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.constant"
     bl_label = "Proportional Constant EditMode"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -323,6 +340,7 @@ class ProportionalConstantEdt(bpy.types.Operator):
 class ProportionalRandomEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.random"
     bl_label = "Proportional Random EditMode"
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         layout = self.layout
@@ -340,6 +358,7 @@ class ProportionalRandomEdt(bpy.types.Operator):
 class SnapActive(bpy.types.Operator):
     bl_idname = "snap.active"
     bl_label = "Snap Active"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -356,6 +375,7 @@ class SnapActive(bpy.types.Operator):
 class SnapVolume(bpy.types.Operator):
     bl_idname = "snap.volume"
     bl_label = "Snap Volume"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -370,6 +390,7 @@ class SnapVolume(bpy.types.Operator):
 class SnapFace(bpy.types.Operator):
     bl_idname = "snap.face"
     bl_label = "Snap Face"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -384,6 +405,7 @@ class SnapFace(bpy.types.Operator):
 class SnapEdge(bpy.types.Operator):
     bl_idname = "snap.edge"
     bl_label = "Snap Edge"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -398,6 +420,7 @@ class SnapEdge(bpy.types.Operator):
 class SnapVertex(bpy.types.Operator):
     bl_idname = "snap.vertex"
     bl_label = "Snap Vertex"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -412,6 +435,7 @@ class SnapVertex(bpy.types.Operator):
 class SnapIncrement(bpy.types.Operator):
     bl_idname = "snap.increment"
     bl_label = "Snap Increment"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -426,6 +450,7 @@ class SnapIncrement(bpy.types.Operator):
 class SnapAlignRotation(bpy.types.Operator):
     bl_idname = "snap.alignrotation"
     bl_label = "Snap Align rotation"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -440,6 +465,7 @@ class SnapAlignRotation(bpy.types.Operator):
 class SnapTargetVariable(bpy.types.Operator):
     bl_idname = "object.snaptargetvariable"
     bl_label = "Snap Target Variable"
+    bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
 
     @classmethod
@@ -457,6 +483,7 @@ class SnapTargetVariable(bpy.types.Operator):
 class OrientationVariable(bpy.types.Operator):
     bl_idname = "object.orientationvariable"
     bl_label = "Orientation Variable"
+    bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
 
     @classmethod
@@ -474,6 +501,7 @@ class OrientationVariable(bpy.types.Operator):
 class ShadingVariable(bpy.types.Operator):
     bl_idname = "object.shadingvariable"
     bl_label = "Shading Variable"
+    bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
 
     @classmethod
@@ -487,6 +515,7 @@ class ShadingVariable(bpy.types.Operator):
 class ShadingSmooth(bpy.types.Operator):
     bl_idname = "shading.smooth"
     bl_label = "Shading Smooth"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         if bpy.context.object.mode == "OBJECT":
@@ -501,6 +530,7 @@ class ShadingSmooth(bpy.types.Operator):
 class ShadingFlat(bpy.types.Operator):
     bl_idname = "shading.flat"
     bl_label = "Shading Flat"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         if bpy.context.object.mode == "OBJECT":
@@ -520,6 +550,7 @@ class ShadingFlat(bpy.types.Operator):
 class WireSelectedAll(bpy.types.Operator):
     bl_idname = "wire.selectedall"
     bl_label = "Wire Selected All"
+    bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
     def poll(cls, context):
@@ -549,6 +580,7 @@ class WireSelectedAll(bpy.types.Operator):
 class ToggleGridAxis(bpy.types.Operator):
     bl_idname = "scene.togglegridaxis"
     bl_label = "Toggle Grid and Axis in 3D view"
+    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         bpy.context.space_data.show_axis_y = not bpy.context.space_data.show_axis_y
@@ -560,6 +592,7 @@ class ToggleGridAxis(bpy.types.Operator):
 class MeshDisplayOverlays(bpy.types.Menu):
     bl_idname = "meshdisplay.overlays"
     bl_label = "Mesh Display Overlays"
+    bl_options = {'REGISTER', 'UNDO'}
 
     def draw(self, context):
         layout = self.layout
@@ -578,6 +611,7 @@ class MeshDisplayOverlays(bpy.types.Menu):
 class AutoSmoothMenu(bpy.types.Menu):
     bl_idname = "auto.smooth_menu"
     bl_label = "Auto Smooth"
+    bl_options = {'REGISTER', 'UNDO'}
 
     def draw(self, context):
         layout = self.layout
@@ -590,6 +624,7 @@ class AutoSmoothMenu(bpy.types.Menu):
 class AutoSmooth89(bpy.types.Operator):
     bl_idname = "auto.smooth_89"
     bl_label = "Auto Smooth"
+    bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
     def poll(cls, context):
@@ -603,6 +638,7 @@ class AutoSmooth89(bpy.types.Operator):
 class AutoSmooth30(bpy.types.Operator):
     bl_idname = "auto.smooth_30"
     bl_label = "Auto Smooth"
+    bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
     def poll(cls, context):
@@ -616,6 +652,7 @@ class AutoSmooth30(bpy.types.Operator):
 class AutoSmooth45(bpy.types.Operator):
     bl_idname = "auto.smooth_45"
     bl_label = "Auto Smooth"
+    bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
     def poll(cls, context):
@@ -629,6 +666,7 @@ class AutoSmooth45(bpy.types.Operator):
 class NormalsMenu(bpy.types.Menu):
     bl_idname = "normals.menu"
     bl_label = "Normals Menu"
+    bl_options = {'REGISTER', 'UNDO'}
 
     def draw(self, context):
         layout = self.layout
@@ -641,6 +679,7 @@ class NormalsMenu(bpy.types.Menu):
 class NormalSize01(bpy.types.Operator):
     bl_idname = "normalsize.01"
     bl_label = "Normal Size 01"
+    bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
     def poll(cls, context):
@@ -654,6 +693,7 @@ class NormalSize01(bpy.types.Operator):
 class NormalSize02(bpy.types.Operator):
     bl_idname = "normalsize.02"
     bl_label = "Normal Size 02"
+    bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
     def poll(cls, context):
@@ -669,6 +709,7 @@ class NormalSize02(bpy.types.Operator):
 class PivotPointVariable(bpy.types.Operator):
     bl_idname = "pivotpoint.variable"
     bl_label = "PivotPointVariable"
+    bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
 
     @classmethod
@@ -683,6 +724,7 @@ class PivotPointVariable(bpy.types.Operator):
 class UsePivotAlign(bpy.types.Operator):
     bl_idname = "use.pivotalign"
     bl_label = "Use Pivot Align"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         
@@ -698,6 +740,7 @@ class UsePivotAlign(bpy.types.Operator):
 class ManipTranslate(bpy.types.Operator):
     bl_idname = "manip.translate"
     bl_label = "Manip Translate"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -711,6 +754,7 @@ class ManipTranslate(bpy.types.Operator):
 class ManipRotate(bpy.types.Operator):
     bl_idname = "manip.rotate"
     bl_label = "Manip Rotate"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -724,6 +768,7 @@ class ManipRotate(bpy.types.Operator):
 class ManipScale(bpy.types.Operator):
     bl_idname = "manip.scale"
     bl_label = "Manip Scale"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -737,6 +782,7 @@ class ManipScale(bpy.types.Operator):
 class TranslateRotate(bpy.types.Operator):
     bl_idname = "translate.rotate"
     bl_label = "Translate Rotate"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -750,6 +796,7 @@ class TranslateRotate(bpy.types.Operator):
 class TranslateScale(bpy.types.Operator):
     bl_idname = "translate.scale"
     bl_label = "Translate Scale"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -763,6 +810,7 @@ class TranslateScale(bpy.types.Operator):
 class RotateScale(bpy.types.Operator):
     bl_idname = "rotate.scale"
     bl_label = "Rotate Scale"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -776,6 +824,7 @@ class RotateScale(bpy.types.Operator):
 class TranslateRotateScale(bpy.types.Operator):
     bl_idname = "translate.rotatescale"
     bl_label = "Translate Rotate Scale"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -789,6 +838,7 @@ class TranslateRotateScale(bpy.types.Operator):
 class WManupulators(bpy.types.Operator):
     bl_idname = "w.manupulators"
     bl_label = "W Manupulators"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -809,6 +859,7 @@ class WManupulators(bpy.types.Operator):
 class ClassTexturePaint(bpy.types.Operator):
     bl_idname = "class.pietexturepaint"
     bl_label = "Class Texture Paint"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -824,6 +875,7 @@ class ClassTexturePaint(bpy.types.Operator):
 class ClassWeightPaint(bpy.types.Operator):
     bl_idname = "class.pieweightpaint"
     bl_label = "Class Weight Paint"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -839,6 +891,7 @@ class ClassWeightPaint(bpy.types.Operator):
 class ClassVertexPaint(bpy.types.Operator):
     bl_idname = "class.pievertexpaint"
     bl_label = "Class Vertex Paint"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -854,6 +907,7 @@ class ClassVertexPaint(bpy.types.Operator):
 class ClassParticleEdit(bpy.types.Operator):
     bl_idname = "class.pieparticleedit"
     bl_label = "Class Particle Edit"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -870,6 +924,7 @@ class ClassParticleEdit(bpy.types.Operator):
 class ClassObject(bpy.types.Operator):
     bl_idname = "class.object"
     bl_label = "Class Object"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -884,6 +939,7 @@ class ClassObject(bpy.types.Operator):
 class ClassVertex(bpy.types.Operator):
     bl_idname = "class.vertex"
     bl_label = "Class Vertex"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -899,6 +955,7 @@ class ClassVertex(bpy.types.Operator):
 class ClassEdge(bpy.types.Operator):
     bl_idname = "class.edge"
     bl_label = "Class Edge"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -914,6 +971,7 @@ class ClassEdge(bpy.types.Operator):
 class ClassFace(bpy.types.Operator):
     bl_idname = "class.face"
     bl_label = "Class Face"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -933,6 +991,7 @@ class ClassFace(bpy.types.Operator):
 class VertsEdges(bpy.types.Operator):
     bl_idname = "verts.edges"
     bl_label = "Verts Edges"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -947,6 +1006,7 @@ class VertsEdges(bpy.types.Operator):
 class EdgesFaces(bpy.types.Operator):
     bl_idname = "edges.faces"
     bl_label = "EdgesFaces"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -960,6 +1020,7 @@ class EdgesFaces(bpy.types.Operator):
 class VertsFaces(bpy.types.Operator):
     bl_idname = "verts.faces"
     bl_label = "Verts Faces"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout  
@@ -973,6 +1034,7 @@ class VertsFaces(bpy.types.Operator):
 class VertsEdgesFaces(bpy.types.Operator):
     bl_idname = "verts.edgesfaces"
     bl_label = "Verts Edges Faces"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout  
@@ -987,6 +1049,7 @@ class VertsEdgesFaces(bpy.types.Operator):
 class SelectAllBySelection(bpy.types.Operator):
     bl_idname = "object.selectallbyselection"
     bl_label = "Verts Edges Faces"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout  
@@ -1003,6 +1066,7 @@ class SelectAllBySelection(bpy.types.Operator):
 class SplitHorizontal(bpy.types.Operator):
     bl_idname = "split.horizontal"
     bl_label = "split horizontal"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -1014,6 +1078,7 @@ class SplitHorizontal(bpy.types.Operator):
 class SplitVertical(bpy.types.Operator):
     bl_idname = "split.vertical"
     bl_label = "split vertical"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -1027,6 +1092,7 @@ class JoinArea(bpy.types.Operator):
     """Join 2 area, clic on the second area to join"""
     bl_idname = "area.joinarea"
     bl_label = "Join Area"
+    bl_options = {'REGISTER', 'UNDO'}
 
     min_x = IntProperty()
     min_y = IntProperty()
@@ -1052,6 +1118,7 @@ class ViewMenu(bpy.types.Operator):
     """Menu to change views"""
     bl_idname = "object.view_menu"
     bl_label = "View_Menu"
+    bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
 
     @classmethod
@@ -1069,6 +1136,7 @@ class ViewMenu(bpy.types.Operator):
 class SculptPolish(bpy.types.Operator):
     bl_idname = "sculpt.polish"
     bl_label = "Sculpt Polish"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -1079,6 +1147,7 @@ class SculptPolish(bpy.types.Operator):
 class SculptSculptDraw(bpy.types.Operator):
     bl_idname = "sculpt.sculptraw"
     bl_label = "Sculpt SculptDraw"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout
@@ -1092,7 +1161,8 @@ class SculptSculptDraw(bpy.types.Operator):
 #Pivot to selection
 class PivotToSelection(bpy.types.Operator):  
     bl_idname = "object.pivot2selection"  
-    bl_label = "Pivot To Selection"  
+    bl_label = "Pivot To Selection" 
+    bl_options = {'REGISTER', 'UNDO'} 
   
     def execute(self, context):  
         saved_location = bpy.context.scene.cursor_location.copy()
@@ -1106,6 +1176,7 @@ class PivotToSelection(bpy.types.Operator):
 class PivotBottom(bpy.types.Operator):  
     bl_idname = "object.pivotobottom"  
     bl_label = "Pivot To Bottom"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         
@@ -1222,6 +1293,7 @@ class RetopoSpace(bpy.types.Operator):
 class AlignX(bpy.types.Operator):  
     bl_idname = "align.x"  
     bl_label = "Align  X"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
 
@@ -1232,7 +1304,8 @@ class AlignX(bpy.types.Operator):
 #Align Y
 class AlignY(bpy.types.Operator):  
     bl_idname = "align.y"  
-    bl_label = "Align  Y"  
+    bl_label = "Align  Y" 
+    bl_options = {'REGISTER', 'UNDO'} 
   
     def execute(self, context):
 
@@ -1244,6 +1317,7 @@ class AlignY(bpy.types.Operator):
 class AlignZ(bpy.types.Operator):  
     bl_idname = "align.z"  
     bl_label = "Align  Z"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
 
@@ -1259,6 +1333,7 @@ class AlignZ(bpy.types.Operator):
 class AlignToX0(bpy.types.Operator):  
     bl_idname = "align.2x0"  
     bl_label = "Align To X-0"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
@@ -1273,6 +1348,7 @@ class AlignToX0(bpy.types.Operator):
 class AlignToY0(bpy.types.Operator):  
     bl_idname = "align.2y0"  
     bl_label = "Align To Y-0"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
@@ -1287,6 +1363,7 @@ class AlignToY0(bpy.types.Operator):
 class AlignToZ0(bpy.types.Operator):  
     bl_idname = "align.2z0"  
     bl_label = "Align To Z-0"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
@@ -1300,7 +1377,8 @@ class AlignToZ0(bpy.types.Operator):
 #Align X Left
 class AlignXLeft(bpy.types.Operator):  
     bl_idname = "alignx.left"  
-    bl_label = "Align X Left"  
+    bl_label = "Align X Left" 
+    bl_options = {'REGISTER', 'UNDO'} 
   
     def execute(self, context):
         
@@ -1356,7 +1434,8 @@ class AlignXRight(bpy.types.Operator):
 #Align Y Back
 class AlignYBack(bpy.types.Operator):  
     bl_idname = "aligny.back"  
-    bl_label = "Align Y back"  
+    bl_label = "Align Y back"
+    bl_options = {'REGISTER', 'UNDO'}  
   
     def execute(self, context):
         
@@ -1384,7 +1463,8 @@ class AlignYBack(bpy.types.Operator):
 #Align Y Front
 class AlignYFront(bpy.types.Operator):  
     bl_idname = "aligny.front"  
-    bl_label = "Align Y Front"  
+    bl_label = "Align Y Front" 
+    bl_options = {'REGISTER', 'UNDO'} 
   
     def execute(self, context):
         
@@ -1413,6 +1493,7 @@ class AlignYFront(bpy.types.Operator):
 class AlignZTop(bpy.types.Operator):  
     bl_idname = "alignz.top"  
     bl_label = "Align Z Top"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         
@@ -1441,6 +1522,7 @@ class AlignZTop(bpy.types.Operator):
 class AlignZBottom(bpy.types.Operator):  
     bl_idname = "alignz.bottom"  
     bl_label = "Align Z Bottom"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         
@@ -1473,6 +1555,7 @@ class AlignZBottom(bpy.types.Operator):
 class DeleteLimitedDissolve(bpy.types.Operator):  
     bl_idname = "delete.limiteddissolve"  
     bl_label = "Delete Limited Dissolve"  
+    bl_options = {'REGISTER', 'UNDO'}
     
   
     def execute(self, context):
@@ -1487,6 +1570,7 @@ class DeleteLimitedDissolve(bpy.types.Operator):
 class InsertAutoKeyframe(bpy.types.Operator):  
     bl_idname = "insert.autokeyframe"  
     bl_label = "Insert Auto Keyframe"  
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         
@@ -1506,6 +1590,7 @@ class InsertAutoKeyframe(bpy.types.Operator):
 class ApplyTransformLocation(bpy.types.Operator):  
     bl_idname = "apply.transformlocation"  
     bl_label = "Apply Transform Location"  
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
@@ -1515,6 +1600,7 @@ class ApplyTransformLocation(bpy.types.Operator):
 class ApplyTransformRotation(bpy.types.Operator):  
     bl_idname = "apply.transformrotation"  
     bl_label = "Apply Transform Rotation"  
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
@@ -1523,7 +1609,8 @@ class ApplyTransformRotation(bpy.types.Operator):
 #Apply Transforms
 class ApplyTransformScale(bpy.types.Operator):  
     bl_idname = "apply.transformscale"  
-    bl_label = "Apply Transform Scale"  
+    bl_label = "Apply Transform Scale" 
+    bl_options = {'REGISTER', 'UNDO'} 
     
     def execute(self, context):
         bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
@@ -1533,6 +1620,7 @@ class ApplyTransformScale(bpy.types.Operator):
 class ApplyTransformRotationScale(bpy.types.Operator):  
     bl_idname = "apply.transformrotationscale"  
     bl_label = "Apply Transform Rotation Scale"  
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
@@ -1542,6 +1630,7 @@ class ApplyTransformRotationScale(bpy.types.Operator):
 class ApplyTransformAll(bpy.types.Operator):  
     bl_idname = "apply.transformall"  
     bl_label = "Apply Transform All"  
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
@@ -1552,7 +1641,7 @@ class ApplyTransformAll(bpy.types.Operator):
 class ClearMenu(bpy.types.Menu):
     bl_idname = "clear.menu"
     bl_label = "Clear Menu"
-
+    
     def draw(self, context):
         layout = self.layout
         layout.operator("object.location_clear", text="Clear Location", icon='MAN_TRANS')
@@ -1564,6 +1653,7 @@ class ClearMenu(bpy.types.Menu):
 class ClearAll(bpy.types.Operator):  
     bl_idname = "clear.all"  
     bl_label = "Clear All"  
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         bpy.ops.object.location_clear()
@@ -1626,7 +1716,8 @@ class FileIncrementalSave(bpy.types.Operator):
 #Persp/Ortho
 class PerspOrthoView(bpy.types.Operator):  
     bl_idname = "persp.orthoview"  
-    bl_label = "Persp/Ortho"  
+    bl_label = "Persp/Ortho" 
+    bl_options = {'REGISTER', 'UNDO'} 
   
     def execute(self, context):
         bpy.ops.view3d.view_persportho()
@@ -1639,6 +1730,7 @@ class PerspOrthoView(bpy.types.Operator):
 class LockCameraTransforms(bpy.types.Operator):  
     bl_idname = "object.lockcameratransforms"  
     bl_label = "Lock Camera Transforms"  
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         if bpy.context.object.lock_rotation[0] == False:
@@ -1670,6 +1762,7 @@ bpy.types.Scene.cameratoto = bpy.props.StringProperty(default="")
 class ActiveCameraSelection(bpy.types.Operator):  
     bl_idname = "object.activecameraselection"  
     bl_label = "Active Camera Selection"  
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         bpy.data.objects[context.scene.cameratoto].select=True  
@@ -1680,6 +1773,7 @@ class ActiveCameraSelection(bpy.types.Operator):
 class CameraSelection(bpy.types.Operator):  
     bl_idname = "object.cameraselection"  
     bl_label = "Camera Selection"  
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
     
