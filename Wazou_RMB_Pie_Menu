@@ -19,7 +19,7 @@
 bl_info = {
     "name": "Wazou Right clic Pie Menu",
     "author": "Cédric Lepiller",
-    "version": (0, 1, 3),
+    "version": (0, 1, 4),
     "blender": (2, 7, 1),
     "location": "View3D > RMB",
     "description": "Right Click Pie Menu",
@@ -116,6 +116,7 @@ class AddMenu(bpy.types.Menu):
 class SubSurf2(bpy.types.Operator):  
     bl_idname = "object.subsurf2"  
     bl_label = "SubSurf 2"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         bpy.ops.object.subdivision_set(level=2)
@@ -131,6 +132,7 @@ class SubSurf2(bpy.types.Operator):
 class RemoveSubsurf(bpy.types.Operator):  
     bl_idname = "remove.subsurf"  
     bl_label = "Remove Subsurf"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         bpy.ops.object.modifier_remove(modifier="Subsurf")
@@ -139,7 +141,8 @@ class RemoveSubsurf(bpy.types.Operator):
 #Add Mirror Object
 class AddMirrorObject(bpy.types.Operator):  
     bl_idname = "add.mirrorobject"  
-    bl_label = "Add Mirror Object"  
+    bl_label = "Add Mirror Object" 
+    bl_options = {'REGISTER', 'UNDO'} 
   
     def execute(self, context):
         bpy.ops.object.modifier_add(type='MIRROR')
@@ -150,6 +153,7 @@ class AddMirrorObject(bpy.types.Operator):
 class AddMirrorEdit(bpy.types.Operator):  
     bl_idname = "add.mirroredit"  
     bl_label = "Add Mirror Edit"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         bpy.ops.object.modifier_add(type='MIRROR')
@@ -161,6 +165,7 @@ class AddMirrorEdit(bpy.types.Operator):
 class ApplyMirrorEdit(bpy.types.Operator):  
     bl_idname = "apply.mirroredit"  
     bl_label = "Apply Mirror Edit"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
@@ -172,6 +177,7 @@ class ApplyMirrorEdit(bpy.types.Operator):
 class ApplySubsurfEdit(bpy.types.Operator):  
     bl_idname = "apply.subsurfedit"  
     bl_label = "Apply Subsurf Edit"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
@@ -183,6 +189,7 @@ class ApplySubsurfEdit(bpy.types.Operator):
 class WazouSymetrize(bpy.types.Operator):  
     bl_idname = "wazou.symetrize"  
     bl_label = "Wazou Symetrize"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         bpy.ops.mesh.select_all(action='TOGGLE')
@@ -212,6 +219,7 @@ class VIEW3D_MT_edit_mesh_looptools(bpy.types.Menu):
 class ApplyTransformAll(bpy.types.Operator):  
     bl_idname = "apply.transformall"  
     bl_label = "Apply Transform All"  
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
@@ -221,6 +229,7 @@ class ApplyTransformAll(bpy.types.Operator):
 class DeleteModifiers(bpy.types.Operator):  
     bl_idname = "delete.modifiers"  
     bl_label = "Delete modifiers" 
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         selection = bpy.context.selected_objects
@@ -241,6 +250,7 @@ class DeleteModifiers(bpy.types.Operator):
 class ClearAll(bpy.types.Operator):  
     bl_idname = "clear.all"  
     bl_label = "Clear All" 
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         selection = bpy.context.selected_objects
@@ -253,6 +263,7 @@ class ClearAll(bpy.types.Operator):
 class SeparateLooseParts(bpy.types.Operator):  
     bl_idname = "separate.looseparts"  
     bl_label = "Separate Loose Parts" 
+    bl_options = {'REGISTER', 'UNDO'}
     
     @classmethod
     def poll(cls, context):
@@ -269,7 +280,8 @@ class SeparateLooseParts(bpy.types.Operator):
 class CreateHole(bpy.types.Operator):                  
     """This Operator create a hole on a selection"""                   
     bl_idname = "object.createhole"                     
-    bl_label = "Create Hole on a Selection"        
+    bl_label = "Create Hole on a Selection"   
+    bl_options = {'REGISTER', 'UNDO'}     
 
     @classmethod                                     
     def poll(cls, context):                         
@@ -289,6 +301,7 @@ class CreateHole(bpy.types.Operator):
 class SymetryLockX(bpy.types.Operator):
     bl_idname = "object.symetrylockx"
     bl_label = "Symetry Lock X"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         if bpy.context.scene.tool_settings.sculpt.use_symmetry_x == True:
@@ -301,6 +314,7 @@ class SymetryLockX(bpy.types.Operator):
 class SymetryLockY(bpy.types.Operator):
     bl_idname = "object.symetrylocky"
     bl_label = "Symetry Lock Y"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         if bpy.context.scene.tool_settings.sculpt.use_symmetry_y == True:
@@ -313,6 +327,7 @@ class SymetryLockY(bpy.types.Operator):
 class SymetryLockZ(bpy.types.Operator):
     bl_idname = "object.symetrylockz"
     bl_label = "Symetry Lock Z"
+    bl_options = {'REGISTER', 'UNDO'}
     
 
     def execute(self, context):
@@ -326,6 +341,7 @@ class SymetryLockZ(bpy.types.Operator):
 class DyntopoSmoothShading(bpy.types.Operator):
     bl_idname = "object.dtpsmoothshading"
     bl_label = "Dyntopo Smooth Shading"
+    bl_options = {'REGISTER', 'UNDO'}
     
 
     def execute(self, context):
@@ -339,6 +355,7 @@ class DyntopoSmoothShading(bpy.types.Operator):
 class DetailSizevariable(bpy.types.Operator):
     bl_idname = "object.detailsizevariable"
     bl_label = "Detail Size Variable"
+    bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.FloatProperty()
 
     def execute(self, context):
@@ -349,6 +366,7 @@ class DetailSizevariable(bpy.types.Operator):
 class DetailSizevariableRelative(bpy.types.Operator):
     bl_idname = "object.detailsizevariablerelative"
     bl_label = "Detail Size Variable  Relative"
+    bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.FloatProperty()
 
     def execute(self, context):
@@ -359,6 +377,7 @@ class DetailSizevariableRelative(bpy.types.Operator):
 class DTPDetailType(bpy.types.Operator):
     bl_idname = "object.detailtype"
     bl_label = "Detail Type"
+    bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
 
     def execute(self, context):
@@ -369,6 +388,7 @@ class DTPDetailType(bpy.types.Operator):
 class DTPDetailRefine(bpy.types.Operator):
     bl_idname = "object.detailrefine"
     bl_label = "Detail Refine"
+    bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
 
     def execute(self, context):
@@ -379,6 +399,7 @@ class DTPDetailRefine(bpy.types.Operator):
 class EnableDyntopo(bpy.types.Operator):  
     bl_idname = "enable.dyntopo"  
     bl_label = "Enable Dyntopo" 
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         bpy.ops.sculpt.dynamic_topology_toggle()
@@ -391,6 +412,7 @@ class EnableDyntopo(bpy.types.Operator):
 class SculptSymmetrizePlusX(bpy.types.Operator):  
     bl_idname = "sculpt.symmetrizeplusx"  
     bl_label = "Sculpt Symmetrize +X to -X" 
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         bpy.ops.sculpt.symmetrize()
@@ -402,6 +424,7 @@ class SculptSymmetrizePlusX(bpy.types.Operator):
 class SculptSymmetrizeMoinsX(bpy.types.Operator):  
     bl_idname = "sculpt.symmetrizemoinsx"  
     bl_label = "Sculpt Symmetrize - X to + X" 
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         bpy.ops.sculpt.symmetrize()
@@ -413,6 +436,7 @@ class SculptSymmetrizeMoinsX(bpy.types.Operator):
 class SculptUseSymmetryX(bpy.types.Operator):  
     bl_idname = "sculpt.sculptusesymmetryx"  
     bl_label = "Sculpt Use symetry X" 
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         if bpy.context.scene.tool_settings.sculpt.use_symmetry_x == (True):
@@ -426,6 +450,7 @@ class SculptUseSymmetryX(bpy.types.Operator):
 class SculptUseSymmetryY(bpy.types.Operator):  
     bl_idname = "sculpt.sculptusesymmetryy"  
     bl_label = "Sculpt Use symetry Y" 
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         if bpy.context.scene.tool_settings.sculpt.use_symmetry_y == (True):
@@ -439,6 +464,7 @@ class SculptUseSymmetryY(bpy.types.Operator):
 class SculptUseSymmetryZ(bpy.types.Operator):  
     bl_idname = "sculpt.sculptusesymmetryz"  
     bl_label = "Sculpt Use symetry Z" 
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         if bpy.context.scene.tool_settings.sculpt.use_symmetry_z == (True):
@@ -452,6 +478,7 @@ class SculptUseSymmetryZ(bpy.types.Operator):
 class PivotToSelection(bpy.types.Operator):  
     bl_idname = "object.pivot2selection"  
     bl_label = "Pivot To Selection"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):  
         saved_location = bpy.context.scene.cursor_location.copy()
@@ -465,6 +492,7 @@ class PivotToSelection(bpy.types.Operator):
 class PivotBottom(bpy.types.Operator):  
     bl_idname = "object.pivotobottom"  
     bl_label = "Pivot To Bottom"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         
@@ -491,10 +519,125 @@ class PivotBottom(bpy.types.Operator):
 class RetopoSpace(bpy.types.Operator):  
     bl_idname = "retopo.space"  
     bl_label = "Retopo Space"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         bpy.ops.mesh.looptools_space(influence=100, input='selected', interpolation='cubic', lock_x=False, lock_y=False, lock_z=False)
-        return {'FINISHED'}                                                   
+        return {'FINISHED'}   
+#--------------------------------------------------------------------------
+#Particles
+#--------------------------------------------------------------------------
+
+#Particle Path Steps
+class ParticlePathSteps(bpy.types.Operator):
+    bl_idname = "object.particlepathsteps"
+    bl_label = "Particle Path Steps"
+    bl_options = {'REGISTER', 'UNDO'}
+    variable = bpy.props.IntProperty()
+
+    def execute(self, context):
+        bpy.context.scene.tool_settings.particle_edit.draw_step = self.variable
+        return {'FINISHED'} 
+
+#Particle Childrens
+class ParticleChildrens(bpy.types.Operator):
+    bl_idname = "object.particlechildren"
+    bl_label = "Particle Childrens"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.particle_edit.show_particles == True:
+            bpy.context.scene.tool_settings.particle_edit.show_particles = False
+            bpy.context.area.type = 'VIEW_3D'
+        elif bpy.context.scene.tool_settings.particle_edit.show_particles == False:
+            bpy.context.scene.tool_settings.particle_edit.show_particles = True 
+            bpy.context.area.type = 'VIEW_3D' 
+        return {'FINISHED'}            
+
+#Particle Length
+class ParticleLength(bpy.types.Operator):
+    bl_idname = "object.particlelength"
+    bl_label = "Particle Length"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.particle_edit.use_preserve_length == True:
+            bpy.context.scene.tool_settings.particle_edit.use_preserve_length = False
+            bpy.context.area.type = 'VIEW_3D'
+        elif bpy.context.scene.tool_settings.particle_edit.use_preserve_length == False:
+            bpy.context.scene.tool_settings.particle_edit.use_preserve_length = True  
+            bpy.context.area.type = 'VIEW_3D' 
+        return {'FINISHED'}  
+
+#Particle X Mirror
+class ParticleXMirror(bpy.types.Operator):
+    bl_idname = "object.particlexmirror"
+    bl_label = "Particle X Mirror"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    def execute(self, context):
+        if bpy.context.object.data.use_mirror_x == True:
+            bpy.context.object.data.use_mirror_x = False
+            bpy.context.area.type = 'VIEW_3D'
+        elif bpy.context.object.data.use_mirror_x == False:
+            bpy.context.object.data.use_mirror_x = True  
+            bpy.context.area.type = 'VIEW_3D' 
+        return {'FINISHED'}  
+    
+#Particle Root
+class ParticleRoot(bpy.types.Operator):
+    bl_idname = "object.particleroot"
+    bl_label = "Particle Root"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.particle_edit.use_preserve_root == True:
+            bpy.context.scene.tool_settings.particle_edit.use_preserve_root = False
+            bpy.context.area.type = 'VIEW_3D'
+        elif bpy.context.scene.tool_settings.particle_edit.use_preserve_root == False:
+            bpy.context.scene.tool_settings.particle_edit.use_preserve_root = True  
+            bpy.context.area.type = 'VIEW_3D' 
+        return {'FINISHED'} 
+    
+#Selection Particles Mode
+class SelectionParticlesMode(bpy.types.Operator):
+    bl_idname = "object.spm"
+    bl_label = "Selection Particles Mode"
+    bl_options = {'REGISTER', 'UNDO'}
+    variable = bpy.props.StringProperty()
+
+    def execute(self, context):
+        bpy.context.scene.tool_settings.particle_edit.select_mode = self.variable
+        return {'FINISHED'}             
+
+#Selection Particles Brushes
+class SelectionParticlesBrushes(bpy.types.Operator):
+    bl_idname = "object.spb"
+    bl_label = "Selection Particles Brushes"
+    bl_options = {'REGISTER', 'UNDO'}
+    variable = bpy.props.StringProperty()
+
+    def execute(self, context):
+        bpy.context.scene.tool_settings.particle_edit.tool = self.variable
+        bpy.context.area.type = 'VIEW_3D'
+        return {'FINISHED'}  
+
+#Particles Interpolate
+class ParticlesInterpolate(bpy.types.Operator):
+    bl_idname = "object.particleinterpolate"
+    bl_label = "Particles Interpolate"
+    bl_options = {'REGISTER', 'UNDO'}
+    variable = bpy.props.IntProperty()
+
+    def execute(self, context):
+        if bpy.context.scene.tool_settings.particle_edit.use_default_interpolate == True:
+            bpy.context.scene.tool_settings.particle_edit.use_default_interpolate = False
+            bpy.context.area.type = 'VIEW_3D'
+        elif bpy.context.scene.tool_settings.particle_edit.use_default_interpolate == False:
+            bpy.context.scene.tool_settings.particle_edit.use_default_interpolate = True  
+            bpy.context.area.type = 'VIEW_3D' 
+        return {'FINISHED'} 
+                                                        
 ######################
 #        Pies        #               
 ######################  
@@ -629,6 +772,68 @@ class PieSculptCurves(Menu):
         pie.operator("brush.curve_preset", icon='NOCURVE', text="Max").shape = 'MAX'
         #1 - BOTTOM - LEFT
         #3 - BOTTOM - RIGHT
+        
+#Pie Particle Brushes    
+class PieParticleBrushes(Menu):
+    bl_idname = "pie.particlebrushes"
+    bl_label = "Pie Particle Brushes"
+
+    def draw(self, context):
+        layout = self.layout
+
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("object.spb", text="Smooth", icon='BRUSH_DATA').variable = 'SMOOTH'
+        #6 - RIGHT
+        pie.operator("object.spb", text="Length", icon='BRUSH_DATA').variable = 'LENGTH'
+        #2 - BOTTOM
+        pie.operator("object.spb", text="Puff", icon='BRUSH_DATA').variable = 'PUFF'
+        #8 - TOP
+        pie.operator("object.spb", text="Comb", icon='BRUSH_DATA').variable = 'COMB'
+        #7 - TOP - LEFT 
+        pie.operator("object.spb", text="Add", icon='BRUSH_DATA').variable = 'ADD'
+        #9 - TOP - RIGHT
+        pie.operator("object.spb", text="Cut", icon='BRUSH_DATA').variable = 'CUT'
+        #1 - BOTTOM - LEFT
+        pie.operator("object.spb", text="None", icon='BRUSH_DATA').variable = 'NONE'
+        #3 - BOTTOM - RIGHT
+        pie.operator("object.spb", text="Weight", icon='BRUSH_DATA').variable = 'WEIGHT'
+
+#Pie Particle Options  
+class PieParticleOptions(Menu):
+    bl_idname = "pie.particleoptions"
+    bl_label = "Pie Particle Options"
+
+    def draw(self, context):
+        layout = self.layout
+
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("object.particlepathsteps", text="Path Steps = 6", icon='PARTICLE_POINT').variable = 6
+        #6 - RIGHT
+        pie.operator("object.particlepathsteps", text="Path Steps = 2", icon='PARTICLE_POINT').variable = 2
+        #2 - BOTTOM
+        pie.operator("object.particlepathsteps", text="Path Steps = 4", icon='PARTICLE_POINT').variable = 4
+        #8 - TOP
+        if bpy.context.scene.tool_settings.particle_edit.use_preserve_length == (True):
+            pie.operator("object.particlelength", text="Keep Lengths OFF", icon='RNDCURVE')
+        else :
+            pie.operator("object.particlelength", text="Keep Lengths ON", icon='RNDCURVE')
+        #7 - TOP - LEFT 
+        if bpy.context.object.data.use_mirror_x == (True):
+            pie.operator("object.particlexmirror", text="X Mirror OFF", icon='MOD_MIRROR')
+        else :
+            pie.operator("object.particlexmirror", text="X Mirror ON", icon='MOD_MIRROR')    
+        #9 - TOP - RIGHT
+        if bpy.context.scene.tool_settings.particle_edit.use_preserve_root == (True):
+            pie.operator("object.particleroot", text="Keep Root OFF", icon='LAYER_ACTIVE')
+        else :
+            pie.operator("object.particleroot", text="Keep Root ON", icon='LAYER_ACTIVE')    
+        #1 - BOTTOM - LEFT
+        pie.operator("object.particlepathsteps", text="Path Steps = 5", icon='PARTICLE_POINT').variable = 5 
+        #3 - BOTTOM - RIGHT
+        pie.operator("object.particlepathsteps", text="Path Steps = 3", icon='PARTICLE_POINT').variable = 3 
+                
 ########################################################################
 
 ########################################################################
@@ -792,7 +997,9 @@ class View3dRightClicMenu(Menu):
             row = box.split(align=True)
             row.operator("wm.context_toggle", text="Mirror X ", icon='MOD_MIRROR').data_path = "object.data.use_mirror_x"
             row.operator("wazou.symetrize", text="Symetrize", icon='UV_EDGESEL')
-
+            row = box.row(align=True)
+            row = box.split(align=True)
+            row.operator("mesh.ext_cut_faces", text="Cut Faces", icon='MOD_DECIM')
             #6 - RIGHT
             is_subsurf1 = False
             for mode in bpy.context.object.modifiers :
@@ -958,179 +1165,11 @@ class View3dRightClicMenu(Menu):
                 pie.operator("wm.context_toggle", text="Occlude Geo ON", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
             else:
                 pie.operator("wm.context_toggle", text="Occlude Geo OFF", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
-            
-            
-            
-            
+          
 #pie.operator("wm.radial_control", text="Strength", icon='RADIOBUT_ON').data_path_primary="tool_settings.particle_edit.brush.strength"
 #pie.operator("wm.radial_control", text="Radius", icon='RADIOBUT_OFF').data_path_primary="tool_settings.particle_edit.brush.size"
 #pie.operator("particle.select_linked", text="Select Linked", icon='LINKED')
-
-
-#Particle Path Steps
-class ParticlePathSteps(bpy.types.Operator):
-    bl_idname = "object.particlepathsteps"
-    bl_label = "Particle Path Steps"
-    variable = bpy.props.IntProperty()
-
-    def execute(self, context):
-        bpy.context.scene.tool_settings.particle_edit.draw_step = self.variable
-        return {'FINISHED'} 
-
-#Particle Childrens
-class ParticleChildrens(bpy.types.Operator):
-    bl_idname = "object.particlechildren"
-    bl_label = "Particle Childrens"
-    
-    def execute(self, context):
-        if bpy.context.scene.tool_settings.particle_edit.show_particles == True:
-            bpy.context.scene.tool_settings.particle_edit.show_particles = False
-            bpy.context.area.type = 'VIEW_3D'
-        elif bpy.context.scene.tool_settings.particle_edit.show_particles == False:
-            bpy.context.scene.tool_settings.particle_edit.show_particles = True 
-            bpy.context.area.type = 'VIEW_3D' 
-        return {'FINISHED'}            
-
-#Particle Length
-class ParticleLength(bpy.types.Operator):
-    bl_idname = "object.particlelength"
-    bl_label = "Particle Length"
-    
-    def execute(self, context):
-        if bpy.context.scene.tool_settings.particle_edit.use_preserve_length == True:
-            bpy.context.scene.tool_settings.particle_edit.use_preserve_length = False
-            bpy.context.area.type = 'VIEW_3D'
-        elif bpy.context.scene.tool_settings.particle_edit.use_preserve_length == False:
-            bpy.context.scene.tool_settings.particle_edit.use_preserve_length = True  
-            bpy.context.area.type = 'VIEW_3D' 
-        return {'FINISHED'}  
-
-#Particle X Mirror
-class ParticleXMirror(bpy.types.Operator):
-    bl_idname = "object.particlexmirror"
-    bl_label = "Particle X Mirror"
-    
-    def execute(self, context):
-        if bpy.context.object.data.use_mirror_x == True:
-            bpy.context.object.data.use_mirror_x = False
-            bpy.context.area.type = 'VIEW_3D'
-        elif bpy.context.object.data.use_mirror_x == False:
-            bpy.context.object.data.use_mirror_x = True  
-            bpy.context.area.type = 'VIEW_3D' 
-        return {'FINISHED'}  
-    
-#Particle Root
-class ParticleRoot(bpy.types.Operator):
-    bl_idname = "object.particleroot"
-    bl_label = "Particle Root"
-    
-    def execute(self, context):
-        if bpy.context.scene.tool_settings.particle_edit.use_preserve_root == True:
-            bpy.context.scene.tool_settings.particle_edit.use_preserve_root = False
-            bpy.context.area.type = 'VIEW_3D'
-        elif bpy.context.scene.tool_settings.particle_edit.use_preserve_root == False:
-            bpy.context.scene.tool_settings.particle_edit.use_preserve_root = True  
-            bpy.context.area.type = 'VIEW_3D' 
-        return {'FINISHED'}     
-        
-#Pie Particle Brushes    
-class PieParticleBrushes(Menu):
-    bl_idname = "pie.particlebrushes"
-    bl_label = "Pie Particle Brushes"
-
-    def draw(self, context):
-        layout = self.layout
-
-        pie = layout.menu_pie()
-        #4 - LEFT
-        pie.operator("object.spb", text="Smooth", icon='BRUSH_DATA').variable = 'SMOOTH'
-        #6 - RIGHT
-        pie.operator("object.spb", text="Length", icon='BRUSH_DATA').variable = 'LENGTH'
-        #2 - BOTTOM
-        pie.operator("object.spb", text="Puff", icon='BRUSH_DATA').variable = 'PUFF'
-        #8 - TOP
-        pie.operator("object.spb", text="Comb", icon='BRUSH_DATA').variable = 'COMB'
-        #7 - TOP - LEFT 
-        pie.operator("object.spb", text="Add", icon='BRUSH_DATA').variable = 'ADD'
-        #9 - TOP - RIGHT
-        pie.operator("object.spb", text="Cut", icon='BRUSH_DATA').variable = 'CUT'
-        #1 - BOTTOM - LEFT
-        pie.operator("object.spb", text="None", icon='BRUSH_DATA').variable = 'NONE'
-        #3 - BOTTOM - RIGHT
-        pie.operator("object.spb", text="Weight", icon='BRUSH_DATA').variable = 'WEIGHT'
-
-#Pie Particle Options  
-class PieParticleOptions(Menu):
-    bl_idname = "pie.particleoptions"
-    bl_label = "Pie Particle Options"
-
-    def draw(self, context):
-        layout = self.layout
-
-        pie = layout.menu_pie()
-        #4 - LEFT
-        pie.operator("object.particlepathsteps", text="Path Steps = 6", icon='PARTICLE_POINT').variable = 6
-        #6 - RIGHT
-        pie.operator("object.particlepathsteps", text="Path Steps = 2", icon='PARTICLE_POINT').variable = 2
-        #2 - BOTTOM
-        pie.operator("object.particlepathsteps", text="Path Steps = 4", icon='PARTICLE_POINT').variable = 4
-        #8 - TOP
-        if bpy.context.scene.tool_settings.particle_edit.use_preserve_length == (True):
-            pie.operator("object.particlelength", text="Keep Lengths OFF", icon='RNDCURVE')
-        else :
-            pie.operator("object.particlelength", text="Keep Lengths ON", icon='RNDCURVE')
-        #7 - TOP - LEFT 
-        if bpy.context.object.data.use_mirror_x == (True):
-            pie.operator("object.particlexmirror", text="X Mirror OFF", icon='MOD_MIRROR')
-        else :
-            pie.operator("object.particlexmirror", text="X Mirror ON", icon='MOD_MIRROR')    
-        #9 - TOP - RIGHT
-        if bpy.context.scene.tool_settings.particle_edit.use_preserve_root == (True):
-            pie.operator("object.particleroot", text="Keep Root OFF", icon='LAYER_ACTIVE')
-        else :
-            pie.operator("object.particleroot", text="Keep Root ON", icon='LAYER_ACTIVE')    
-        #1 - BOTTOM - LEFT
-        pie.operator("object.particlepathsteps", text="Path Steps = 5", icon='PARTICLE_POINT').variable = 5 
-        #3 - BOTTOM - RIGHT
-        pie.operator("object.particlepathsteps", text="Path Steps = 3", icon='PARTICLE_POINT').variable = 3 
-        
-                  
-#Selection Particles Mode
-class SelectionParticlesMode(bpy.types.Operator):
-    bl_idname = "object.spm"
-    bl_label = "Selection Particles Mode"
-    variable = bpy.props.StringProperty()
-
-    def execute(self, context):
-        bpy.context.scene.tool_settings.particle_edit.select_mode = self.variable
-        return {'FINISHED'}             
-
-#Selection Particles Brushes
-class SelectionParticlesBrushes(bpy.types.Operator):
-    bl_idname = "object.spb"
-    bl_label = "Selection Particles Brushes"
-    variable = bpy.props.StringProperty()
-
-    def execute(self, context):
-        bpy.context.scene.tool_settings.particle_edit.tool = self.variable
-        bpy.context.area.type = 'VIEW_3D'
-        return {'FINISHED'}  
-
-#Particles Interpolate
-class ParticlesInterpolate(bpy.types.Operator):
-    bl_idname = "object.particleinterpolate"
-    bl_label = "Particles Interpolate"
-    variable = bpy.props.IntProperty()
-
-    def execute(self, context):
-        if bpy.context.scene.tool_settings.particle_edit.use_default_interpolate == True:
-            bpy.context.scene.tool_settings.particle_edit.use_default_interpolate = False
-            bpy.context.area.type = 'VIEW_3D'
-        elif bpy.context.scene.tool_settings.particle_edit.use_default_interpolate == False:
-            bpy.context.scene.tool_settings.particle_edit.use_default_interpolate = True  
-            bpy.context.area.type = 'VIEW_3D' 
-        return {'FINISHED'} 
-               
+          
 addon_keymaps = []
 def register():
     bpy.utils.register_class(View3dRightClicMenu)
