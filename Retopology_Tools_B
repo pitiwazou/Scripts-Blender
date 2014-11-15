@@ -30,7 +30,7 @@
 bl_info = {
     "name": "Retopology Tools",
     "author": "Cédric Lepiller", "Gert De Roost for the Laprelax code" 
-    "version": (0, 1, 2),
+    "version": (0, 1, 3),
     "blender": (2, 7, 0),
     "location": "View 3D > Toolbar > Tools tab > Retopology (panel)",
     "description": "Tools for fast retopology",
@@ -74,7 +74,8 @@ class WazouRetopoTools(bpy.types.AddonPreferences):
 #Setup Retopo Mesh
 class SetupRetopoMesh(bpy.types.Operator):  
     bl_idname = "setup.retopomesh"  
-    bl_label = "Setup Retopo Mesh"  
+    bl_label = "Setup Retopo Mesh" 
+    bl_options = {'REGISTER', 'UNDO'} 
   
     def execute(self, context):
         bpy.ops.setup.retopo()
@@ -86,6 +87,7 @@ class SetupRetopoMesh(bpy.types.Operator):
 class DoubleThreshold0001(bpy.types.Operator):
     bl_idname = "double.threshold0001"
     bl_label = "Double Threshold 0001"
+    bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
     def poll(cls, context):
@@ -98,6 +100,7 @@ class DoubleThreshold0001(bpy.types.Operator):
 class DoubleThreshold01(bpy.types.Operator):
     bl_idname = "double.threshold01"
     bl_label = "Double Threshold 01"
+    bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
     def poll(cls, context):
@@ -185,6 +188,7 @@ class LapRelax(bpy.types.Operator):
 class AlignToX(bpy.types.Operator):  
     bl_idname = "object.align2x"  
     bl_label = "Align To X"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
@@ -201,6 +205,7 @@ class WireSelectedAll(bpy.types.Operator):
     """Wire on selected Object, Wire All if no objects selected"""
     bl_idname = "wire.selectedall"
     bl_label = "Wire Selected All"
+    bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
     def poll(cls, context):
@@ -230,6 +235,7 @@ class WireSelectedAll(bpy.types.Operator):
 class ShadingSmooth(bpy.types.Operator):
     bl_idname = "shading.smooth"
     bl_label = "Shading Smooth"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         if bpy.context.object.mode == "OBJECT":
@@ -245,6 +251,7 @@ class ShadingSmooth(bpy.types.Operator):
 class ShadingFlat(bpy.types.Operator):
     bl_idname = "shading.flat"
     bl_label = "Shading Flat"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         if bpy.context.object.mode == "OBJECT":
@@ -260,7 +267,8 @@ class ShadingFlat(bpy.types.Operator):
 class CreateHole(bpy.types.Operator):                  
     """This Operator create a hole on a selection"""                   
     bl_idname = "object.createhole"                     
-    bl_label = "Create Hole"        
+    bl_label = "Create Hole"   
+    bl_options = {'REGISTER', 'UNDO'}     
 
     @classmethod                                     
     def poll(cls, context):                         
@@ -279,7 +287,8 @@ class CreateHole(bpy.types.Operator):
 #Delete modifiers
 class DeleteModifiers(bpy.types.Operator):  
     bl_idname = "delete.modifiers"  
-    bl_label = "Delete modifiers" 
+    bl_label = "Delete modifiers"
+    bl_options = {'REGISTER', 'UNDO'} 
     
     def execute(self, context):
         selection = bpy.context.selected_objects
@@ -300,6 +309,7 @@ class DeleteModifiers(bpy.types.Operator):
 class AddMirrorObject(bpy.types.Operator):  
     bl_idname = "add.mirrorobject"  
     bl_label = "Add Mirror Object"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         if bpy.context.object.mode == "OBJECT":
@@ -318,6 +328,7 @@ class AddMirrorObject(bpy.types.Operator):
 class ApplyMirror(bpy.types.Operator):  
     bl_idname = "apply.mirror"  
     bl_label = "Apply Mirror"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         if bpy.context.object.mode == "OBJECT":
@@ -335,6 +346,7 @@ class ApplyMirror(bpy.types.Operator):
 class SubSurf2(bpy.types.Operator):  
     bl_idname = "object.subsurf2"  
     bl_label = "SubSurf 2"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         if bpy.context.object.mode == "OBJECT":
@@ -352,6 +364,7 @@ class SubSurf2(bpy.types.Operator):
 class RemoveSubSurf2(bpy.types.Operator):  
     bl_idname = "object.removesubsurf2"  
     bl_label = "Remove SubSurf"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         if bpy.context.object.mode == "OBJECT":
@@ -367,6 +380,7 @@ class RemoveSubSurf2(bpy.types.Operator):
 class ApplySubSurf(bpy.types.Operator):  
     bl_idname = "object.applysubsurf"  
     bl_label = "Apply subsurf"  
+    bl_options = {'REGISTER', 'UNDO'}
   
     def execute(self, context):
         if bpy.context.object.mode == "OBJECT":
@@ -382,6 +396,7 @@ class ApplySubSurf(bpy.types.Operator):
 class SursurfOnOff(bpy.types.Operator):
     bl_idname = "object.subsurfonoff"
     bl_label = "Sursurf On/Off"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -398,6 +413,7 @@ class SursurfOnOff(bpy.types.Operator):
 class SursurfEditOnOff(bpy.types.Operator):
     bl_idname = "object.subsurfeditonoff"
     bl_label = "Sursurf Edit On/Off"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -414,6 +430,7 @@ class SursurfEditOnOff(bpy.types.Operator):
 class SursurfCageOnOff(bpy.types.Operator):
     bl_idname = "object.subsurfcageonoff"
     bl_label = "Sursurf Cage On/Off"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -431,6 +448,7 @@ class SursurfCageOnOff(bpy.types.Operator):
 class SursurfOptimalDisplay(bpy.types.Operator):
     bl_idname = "object.subsurfoptimaldisplay"
     bl_label = "Sursurf Optimal Display"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -448,6 +466,7 @@ class SursurfOptimalDisplay(bpy.types.Operator):
 class MirrorOnOff(bpy.types.Operator):
     bl_idname = "object.mirroronoff"
     bl_label = "Mirror On/Off"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -464,6 +483,7 @@ class MirrorOnOff(bpy.types.Operator):
 class MirrorEditOnOff(bpy.types.Operator):
     bl_idname = "object.mirroreditonoff"
     bl_label = "Mirror Edit On/Off"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -480,6 +500,7 @@ class MirrorEditOnOff(bpy.types.Operator):
 class MirrorCageOnOff(bpy.types.Operator):
     bl_idname = "object.mirrorcageonoff"
     bl_label = "Mirror Cage On/Off"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
@@ -496,6 +517,7 @@ class MirrorCageOnOff(bpy.types.Operator):
 class MirrorClipping(bpy.types.Operator):
     bl_idname = "object.mirrorclipping"
     bl_label = "Mirror Clipping"
+    bl_options = {'REGISTER', 'UNDO'}
     
     def execute(self, context):
         layout = self.layout 
