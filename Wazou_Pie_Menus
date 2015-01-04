@@ -19,8 +19,8 @@
 bl_info = {
     "name": "Wazou_Pie_Menus",
     "author": "Cédric Lepiller & DavideDozza & Lapineige & Leafar & 0rAngE",
-    "version": (0, 1, 8),
-    "blender": (2, 71, 4),
+    "version": (0, 1, 9),
+    "blender": (2, 72, 3),
     "description": "Custom Pie Menus",
     "category": "3D View",}
     
@@ -1198,93 +1198,6 @@ class PivotBottom(bpy.types.Operator):
         o.location.z+=a 
         bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'}   
-     
-###############
-#   Retopo    #               
-###############
-
-#LapRelax
-class LapRelax(bpy.types.Operator):
-    bl_idname = "mesh.laprelax"
-    bl_label = "LapRelax"
-    bl_description = "Smoothing mesh keeping volume"
-    bl_options = {'REGISTER', 'UNDO'}
-    
-    Repeat = bpy.props.IntProperty(
-        name = "Repeat", 
-        description = "Repeat how many times",
-        default = 1,
-        min = 1,
-        max = 100)
-
-
-    @classmethod
-    def poll(cls, context):
-        obj = context.active_object
-        return (obj and obj.type == 'MESH' and context.mode == 'EDIT_MESH')
-
-    def invoke(self, context, event):
-        
-        # smooth #Repeat times
-        for i in range(self.Repeat):
-            self.do_laprelax()
-        
-        return {'FINISHED'}
-
-
-    def do_laprelax(self):
-    
-        context = bpy.context
-        region = context.region  
-        area = context.area
-        selobj = bpy.context.active_object
-        mesh = selobj.data
-        bm = bmesh.from_edit_mesh(mesh)
-        bmprev = bm.copy()
-    
-        for v in bmprev.verts:
-            if v.select:
-                tot = Vector((0, 0, 0))
-                cnt = 0
-                for e in v.link_edges:
-                    for f in e.link_faces:
-                        if not(f.select):
-                            cnt = 1
-                    if len(e.link_faces) == 1:
-                        cnt = 1
-                        break
-                if cnt:
-                    # dont affect border edges: they cause shrinkage
-                    continue
-                    
-                # find Laplacian mean
-                for e in v.link_edges:
-                    tot += e.other_vert(v).co
-                tot /= len(v.link_edges)
-                
-                # cancel movement in direction of vertex normal
-                delta = (tot - v.co)
-                if delta.length != 0:
-                    ang = delta.angle(v.normal)
-                    deltanor = math.cos(ang) * delta.length
-                    nor = v.normal
-                    nor.length = abs(deltanor)
-                    bm.verts[v.index].co = tot + nor
-            
-        mesh.update()
-        bm.free()
-        bmprev.free()
-        bpy.ops.object.editmode_toggle()
-        bpy.ops.object.editmode_toggle()
-
-#Space
-class RetopoSpace(bpy.types.Operator):  
-    bl_idname = "retopo.space"  
-    bl_label = "Retopo Space"  
-  
-    def execute(self, context):
-        bpy.ops.mesh.looptools_space(influence=100, input='selected', interpolation='cubic', lock_x=False, lock_y=False, lock_z=False)
-        return {'FINISHED'} 
 
 #####################
 #   Simple Align    #               
@@ -2393,35 +2306,6 @@ class PieProportionalEdt(Menu):
         box.operator("proportional_edt.linear", text="Linear", icon='LINCURVE')
         box.operator("proportional_edt.sharp", text="Sharp", icon='SHARPCURVE')
         box.operator("proportional_edt.random", text="Random", icon='RNDCURVE')
-             
-        
-#Pie Retopo - Shift + RMB              
-class PieRetopo(Menu):
-    bl_idname = "pie.retopo"
-    bl_label = "Pie Retopo"
-
-    def draw(self, context):
-        layout = self.layout
-        pie = layout.menu_pie()
-        #4 - LEFT
-        pie.operator("mesh.looptools_gstretch", text="GStretch", icon='GREASEPENCIL')
-        #6 - RIGHT
-        pie.operator("align.2x0", icon='MOD_WIREFRAME')
-        #2 - BOTTOM
-        pie.operator("mesh.laprelax", icon = 'MOD_LATTICE')
-        #8 - TOP
-        pie.operator("gpencil.surfsk_add_surface", text="Add Bsurface", icon = 'MOD_DYNAMICPAINT')
-        #7 - TOP - LEFT 
-        box = pie.split().column()
-        row = box.row(align=True)
-        box.operator("setup.retopomesh", icon = 'UV_FACESEL')
-        box.operator("object.automirror", icon = 'MOD_MIRROR')
-        #9 - TOP - RIGHT
-        pie.operator("shrink.update", text = "Shrinkwrap Update", icon = 'MOD_SHRINKWRAP')
-        #1 - BOTTOM - LEFT
-        pie.operator("retopo.space", icon='ALIGN', text="Space")
-        #3 - BOTTOM - RIGHT
-        pie.operator("polysculpt.retopo", text = "Sculpt Mesh", icon = 'SCULPTMODE_HLT')
 
 # Pie Align - Alt + X
 class PieAlign(Menu):
@@ -2755,10 +2639,6 @@ def register():
     # Orientation
     bpy.utils.register_class(PieOrientation)
     bpy.utils.register_class(OrientationVariable)
-    # Retopo
-    bpy.utils.register_class(PieRetopo)
-    bpy.utils.register_class(RetopoSpace)
-    bpy.utils.register_class(LapRelax)
     # Shading
     bpy.utils.register_class(ShadingVariable)
     bpy.utils.register_class(PieShadingView)
@@ -2902,11 +2782,6 @@ def register():
         kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', alt=True)
         kmi.properties.name = "pie.orientation"
         
-        #Retopo
-        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', shift=True)
-        kmi.properties.name = "pie.retopo"
-        
         #Shading
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS')
@@ -3040,10 +2915,6 @@ def unregister():
     # Orientation
     bpy.utils.unregister_class(PieOrientation)
     bpy.utils.unregister_class(OrientationVariable)
-    #Retopo
-    bpy.utils.unregister_class(PieRetopo)
-    bpy.utils.unregister_class(RetopoSpace)
-    bpy.utils.unregister_class(LapRelax)
     # Shading
     bpy.utils.unregister_class(ShadingVariable)
     bpy.utils.unregister_class(PieShadingView) 
