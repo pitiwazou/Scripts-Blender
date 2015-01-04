@@ -637,7 +637,52 @@ class ParticlesInterpolate(bpy.types.Operator):
             bpy.context.scene.tool_settings.particle_edit.use_default_interpolate = True  
             bpy.context.area.type = 'VIEW_3D' 
         return {'FINISHED'} 
-                                                        
+
+#Make Object An Empty
+class MakeObjectAnEmpty(bpy.types.Operator):
+    bl_idname = "object.makeempty"
+    bl_label = "Make Object An Empty"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    def execute(self, context):
+        if bpy.context.object.hide_render == False:
+            bpy.context.object.hide_render = True
+            bpy.context.object.draw_type = 'WIRE'
+            bpy.context.object.cycles_visibility.camera = False
+            bpy.context.object.cycles_visibility.diffuse = False
+            bpy.context.object.cycles_visibility.glossy = False
+            bpy.context.object.cycles_visibility.scatter = False
+            bpy.context.object.cycles_visibility.transmission = False
+            bpy.context.object.cycles_visibility.shadow = False
+        elif bpy.context.object.hide_render == True: 
+            bpy.context.object.hide_render = False
+            bpy.context.object.draw_type = 'SOLID'
+            bpy.context.object.cycles_visibility.camera = True
+            bpy.context.object.cycles_visibility.diffuse = True
+            bpy.context.object.cycles_visibility.glossy = True
+            bpy.context.object.cycles_visibility.scatter = True
+            bpy.context.object.cycles_visibility.transmission = True
+            bpy.context.object.cycles_visibility.shadow = True   
+        return {'FINISHED'} 
+
+#Clear Empty
+class ClearEmpty(bpy.types.Operator):
+    bl_idname = "object.clearempty"
+    bl_label = "Clear Empty"
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+    
+    def execute(self, context):
+        C = bpy.context
+        for obj in C.object.children: 
+            obj.select = True
+            bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
+            bpy.ops.object.select_all(action='TOGGLE')
+        return {'FINISHED'}
+                                                     
 ######################
 #        Pies        #               
 ######################  
@@ -906,7 +951,7 @@ class View3dRightClicMenu(Menu):
         elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'OBJECT':
             #4 - LEFT
             box = pie.split().column()
-            row = box.split(align=True)
+            row = box.split(percentage=0.4)
             row.operator("Object.join", text="Join", icon='FULLSCREEN_EXIT')
             row.operator("separate.looseparts", text="Separate", icon='FULLSCREEN_ENTER')
             #6 - RIGHT
@@ -981,7 +1026,14 @@ class View3dRightClicMenu(Menu):
             row.operator("apply.transformall", text="Freeze T", icon='FREEZE')
             row.operator("clear.all", text="Clear All", icon='MANIPUL')
             #3 - BOTTOM - RIGHT
-            #pie.operator("object.delete", text="Delete", icon='CANCEL').use_global=False
+            box = pie.split().column()
+            row = box.row(align=True)
+            if bpy.context.object.hide_render == False:
+                row.operator("object.makeempty", text="Make Empty", icon='OUTLINER_OB_EMPTY')
+                row.operator("object.clearempty", text="Clear Empty", icon='MESH_DATA')
+            else :
+                row.operator("object.makeempty", text="Make Normal", icon='MESH_CUBE')
+                row.operator("object.clearempty", text="Clear Empty", icon='MESH_DATA')
         
         ################################################
         # Edit Mode                                    #
@@ -1187,6 +1239,8 @@ def register():
     bpy.utils.register_class(SeparateLooseParts)
     bpy.utils.register_class(PivotToSelection)
     bpy.utils.register_class(PivotBottom)
+    bpy.utils.register_class(MakeObjectAnEmpty)
+    bpy.utils.register_class(ClearEmpty)
     #Edit
     bpy.utils.register_class(AddMirrorEdit)
     bpy.utils.register_class(ApplyMirrorEdit)
@@ -1257,6 +1311,8 @@ def unregister():
     bpy.utils.unregister_class(SeparateLooseParts)
     bpy.utils.unregister_class(PivotToSelection)
     bpy.utils.unregister_class(PivotBottom)
+    bpy.utils.unregister_class(MakeObjectAnEmpty)
+    bpy.utils.unregister_class(ClearEmpty)
     #Edit
     bpy.utils.unregister_class(AddMirrorEdit)
     bpy.utils.unregister_class(ApplyMirrorEdit)
