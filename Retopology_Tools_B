@@ -1,27 +1,28 @@
-# ##### BEGIN GPL LICENSE BLOCK #####
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software Foundation,
-#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-#
-# ##### END GPL LICENSE BLOCK #####
+# ##### BEGIN GPL LICENSE BLOCK ###############################################      
+#                                                                             #
+#  This program is free software; you can redistribute it and/or              #
+#  modify it under the terms of the GNU General Public License                #
+#  as published by the Free Software Foundation; either version 2             #
+#  of the License, or (at your option) any later version.                     #
+#                                                                             #
+#  This program is distributed in the hope that it will be useful,            #
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of             #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              #
+#  GNU General Public License for more details.                               #
+#                                                                             #
+#  You should have received a copy of the GNU General Public License          #
+#  along with this program; if not, write to the Free Software Foundation,    #
+#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.         #
+#                                                                             #
+# ##### END GPL LICENSE BLOCK #################################################
 
 ###############################################################################################################################################################################
 #
-# This B version of the retopology tool needs Iceking's Addon, Bsurfaces, Looptools and Auto mirror to work
+# This B version of the retopology tool needs Iceking's Addon, Bsurfaces, Looptools and Auto mirror and surface Constraint tools to work
 # - Iceking's Addon > http://www.blenderartists.org/forum/showthread.php?343641-Iceking-s-Tools
 # - Auto Mirror By Lapineige > http://le-terrier-de-lapineige.over-blog.com/2014/07/automirror-mon-add-on-pour-symetriser-vos-objets-rapidement.html
 # - Bsurface 1.5 > http://www.blenderartists.org/forum/showthread.php?225190-Bsurfaces-v1-5&highlight=bsurface
+# - Surface Constraint tools > http://www.blenderartists.org/forum/showthread.php?350794-Addon-Surface-Constraint-Tools
 #
 ###############################################################################################################################################################################
 
@@ -30,20 +31,26 @@
 bl_info = {
     "name": "Retopology Tools",
     "author": "Cédric Lepiller", "Gert De Roost for the Laprelax code" 
-    "version": (0, 1, 3),
-    "blender": (2, 7, 0),
+    "version": (0, 1, 4),
+    "blender": (2, 7, 2),
     "location": "View 3D > Toolbar > Tools tab > Retopology (panel)",
     "description": "Tools for fast retopology",
     "category": "3D View"}
 
-############### Operators
 
-import bpy
+
+
+import bpy, os
+from bpy.types import Menu, Header  
 import bmesh
 from mathutils import *
 import math
 from bpy.props import IntProperty, FloatProperty, BoolProperty
 
+
+############### Prefs ########################
+
+#Class Prefs
 class WazouRetopoTools(bpy.types.AddonPreferences):
     """Creates the tools in a Panel, in the scene context of the properties editor"""
     bl_idname = __name__
@@ -59,17 +66,21 @@ class WazouRetopoTools(bpy.types.AddonPreferences):
         if context.scene.Enable_Tab_01:
             row = layout.row()
             layout.label(text="This Addon Need to activate 'Loop Tools' and 'Bsurfaces' in the Addon Tab to work properly.")
-            layout.label(text="You need to install Iceking's Tool And Auto Mirror")
+            layout.label(text="You need to install Iceking's Tool, Surface Constraint tools And Auto Mirror")
             
             layout.operator("wm.url_open", text="IceKing's tools").url = "http://www.blenderartists.org/forum/showthread.php?343641-Iceking-s-Tools"
             layout.operator("wm.url_open", text="Auto Mirror").url = "http://le-terrier-de-lapineige.over-blog.com/2014/07/automirror-mon-add-on-pour-symetriser-vos-objets-rapidement.html"
-        
+            layout.operator("wm.url_open", text="Surface Constraint tools").url = "http://www.blenderartists.org/forum/showthread.php?350794-Addon-Surface-Constraint-Tools"
+            
+            
         layout.prop(context.scene, "Enable_Tab_02", text="URL's", icon="URL")   
         if context.scene.Enable_Tab_02:
             row = layout.row()
             row.operator("wm.url_open", text="Pitiwazou.com").url = "http://www.pitiwazou.com/"
             row.operator("wm.url_open", text="Wazou's Ghitub").url = "https://github.com/pitiwazou/Scripts-Blender"
             row.operator("wm.url_open", text="BlenderLounge Forum ").url = "http://blenderlounge.fr/forum/"
+
+############### Operators ########################
 
 #Setup Retopo Mesh
 class SetupRetopoMesh(bpy.types.Operator):  
@@ -122,7 +133,6 @@ class LapRelax(bpy.types.Operator):
 		default = 1,
 		min = 1,
 		max = 100)
-
 
 	@classmethod
 	def poll(cls, context):
@@ -321,7 +331,8 @@ class AddMirrorObject(bpy.types.Operator):
             bpy.ops.object.modifier_add(type='MIRROR')
             bpy.context.object.modifiers["Mirror"].use_clip = True
             bpy.context.object.modifiers["Mirror"].show_on_cage = True
-        
+            bpy.context.object.modifiers["Mirror"].show_in_editmode = True
+
         return {'FINISHED'}  
     
 #Apply Mirror
@@ -401,12 +412,7 @@ class SursurfOnOff(bpy.types.Operator):
     def execute(self, context):
         layout = self.layout 
         
-        if bpy.context.object.modifiers["Subsurf"].show_viewport == (True) :
-            bpy.context.object.modifiers["Subsurf"].show_viewport = False
-            
-        elif bpy.context.object.modifiers["Subsurf"].show_viewport == (False) :
-             bpy.context.object.modifiers["Subsurf"].show_viewport = True
-        
+        bpy.context.object.modifiers["Subsurf"].show_viewport = not bpy.context.object.modifiers["Subsurf"].show_viewport
         return {'FINISHED'} 
     
 #Sursurf Edit On/Off
@@ -418,12 +424,7 @@ class SursurfEditOnOff(bpy.types.Operator):
     def execute(self, context):
         layout = self.layout 
         
-        if bpy.context.object.modifiers["Subsurf"].show_in_editmode == (True) :
-            bpy.context.object.modifiers["Subsurf"].show_in_editmode = False
-            
-        elif bpy.context.object.modifiers["Subsurf"].show_in_editmode == (False) :
-             bpy.context.object.modifiers["Subsurf"].show_in_editmode = True
-        
+        bpy.context.object.modifiers["Subsurf"].show_in_editmode = not bpy.context.object.modifiers["Subsurf"].show_in_editmode
         return {'FINISHED'}  
 
 #Sursurf Cage On/Off
@@ -435,12 +436,7 @@ class SursurfCageOnOff(bpy.types.Operator):
     def execute(self, context):
         layout = self.layout 
         
-        if bpy.context.object.modifiers["Subsurf"].show_on_cage == (True) :
-            bpy.context.object.modifiers["Subsurf"].show_on_cage = False
-            
-        elif bpy.context.object.modifiers["Subsurf"].show_on_cage == (False) :
-             bpy.context.object.modifiers["Subsurf"].show_on_cage = True
-        
+        bpy.context.object.modifiers["Subsurf"].show_on_cage = not bpy.context.object.modifiers["Subsurf"].show_on_cage
         return {'FINISHED'}  
 
 
@@ -453,13 +449,9 @@ class SursurfOptimalDisplay(bpy.types.Operator):
     def execute(self, context):
         layout = self.layout 
         
-        if bpy.context.object.modifiers["Subsurf"].show_only_control_edges == (True) :
-            bpy.context.object.modifiers["Subsurf"].show_only_control_edges = False
-            
-        elif bpy.context.object.modifiers["Subsurf"].show_only_control_edges == (False) :
-             bpy.context.object.modifiers["Subsurf"].show_only_control_edges = True
-        
+        bpy.context.object.modifiers["Subsurf"].show_only_control_edges = not bpy.context.object.modifiers["Subsurf"].show_only_control_edges
         return {'FINISHED'}  
+    
 #######Mirror###########
 
 #Mirror On/Off
@@ -471,12 +463,7 @@ class MirrorOnOff(bpy.types.Operator):
     def execute(self, context):
         layout = self.layout 
         
-        if bpy.context.object.modifiers["Mirror"].show_viewport == (True) :
-            bpy.context.object.modifiers["Mirror"].show_viewport = False
-            
-        elif bpy.context.object.modifiers["Mirror"].show_viewport == (False) :
-             bpy.context.object.modifiers["Mirror"].show_viewport = True
-        
+        bpy.context.object.modifiers["Mirror"].show_viewport = not bpy.context.object.modifiers["Mirror"].show_viewport
         return {'FINISHED'} 
     
 #Mirror Edit On/Off
@@ -488,12 +475,7 @@ class MirrorEditOnOff(bpy.types.Operator):
     def execute(self, context):
         layout = self.layout 
         
-        if bpy.context.object.modifiers["Mirror"].show_in_editmode == (True) :
-            bpy.context.object.modifiers["Mirror"].show_in_editmode = False
-            
-        elif bpy.context.object.modifiers["Mirror"].show_in_editmode == (False) :
-             bpy.context.object.modifiers["Mirror"].show_in_editmode = True
-        
+        bpy.context.object.modifiers["Mirror"].show_in_editmode = not bpy.context.object.modifiers["Mirror"].show_in_editmode
         return {'FINISHED'}  
 
 #Mirror Cage On/Off
@@ -505,12 +487,7 @@ class MirrorCageOnOff(bpy.types.Operator):
     def execute(self, context):
         layout = self.layout 
         
-        if bpy.context.object.modifiers["Mirror"].show_on_cage == (True) :
-            bpy.context.object.modifiers["Mirror"].show_on_cage = False
-            
-        elif bpy.context.object.modifiers["Mirror"].show_on_cage == (False) :
-             bpy.context.object.modifiers["Mirror"].show_on_cage = True
-        
+        bpy.context.object.modifiers["Mirror"].show_on_cage = not bpy.context.object.modifiers["Mirror"].show_on_cage
         return {'FINISHED'}  
 
 #Mirror Clipping
@@ -522,15 +499,10 @@ class MirrorClipping(bpy.types.Operator):
     def execute(self, context):
         layout = self.layout 
         
-        if bpy.context.object.modifiers["Mirror"].use_clip == (True) :
-            bpy.context.object.modifiers["Mirror"].use_clip = False
-            
-        elif bpy.context.object.modifiers["Mirror"].use_clip == (False) :
-             bpy.context.object.modifiers["Mirror"].use_clip = True
-        
+        bpy.context.object.modifiers["Mirror"].use_clip = not bpy.context.object.modifiers["Mirror"].use_clip
         return {'FINISHED'} 
                            
-#################### Panel       
+#################### Panel ####################    
 bpy.types.Scene.retopo_Tools = bpy.props.BoolProperty(default=True)
 bpy.types.Scene.retopo_Modifiers = bpy.props.BoolProperty(default=True)
 bpy.types.Scene.retopo_Shading = bpy.props.BoolProperty(default=True)
@@ -560,9 +532,13 @@ class RetopologyTools(bpy.types.Panel):
                     layout.operator("polysculpt.retopo", text = "Sculpt Mesh", icon = 'SCULPTMODE_HLT')
                     
                     if bpy.context.object.mode == "EDIT":
-                        layout.operator("gpencil.surfsk_add_surface", text="Add Bsurface", icon = 'MOD_DYNAMICPAINT')
-                        layout.separator()
+                        row = layout.row(align=True)
+                        row.operator("freeze_verts.retopo", text = 'Freeze')
+                        row.operator("thaw_freeze_verts.retopo", text = 'Thaw')
+                        row.operator("show_freeze_verts.retopo", text = 'Show')
                         layout.operator("shrink.update", text = "Shrinkwrap Update", icon = 'MOD_SHRINKWRAP')
+                        layout.separator()
+                        layout.operator("gpencil.surfsk_add_surface", text="Add Bsurface", icon = 'MOD_DYNAMICPAINT')
                         layout.operator("mesh.looptools_gstretch", text="GStretch", icon='GREASEPENCIL')
                         layout.operator("mesh.laprelax", icon = 'MOD_LATTICE')
                         layout.menu("VIEW3D_MT_edit_mesh_looptools")
@@ -724,10 +700,165 @@ class RetopologyTools(bpy.types.Panel):
                 layout.label(icon="ERROR", text="No Reference Selected")    
         else:
             layout.label(icon="ERROR", text="No Reference Selected")
+
+######################
+#     Pie Menus      #               
+######################
+
+#################### Operators ####################
+
+#Space
+class RetopoSpace(bpy.types.Operator):  
+    bl_idname = "retopo.space"  
+    bl_label = "Retopo Space"  
+  
+    def execute(self, context):
+        bpy.ops.mesh.looptools_space(influence=100, input='selected', interpolation='cubic', lock_x=False, lock_y=False, lock_z=False)
+        return {'FINISHED'} 
             
+#SCT_Select_Only
+class SCTSelectOnly(bpy.types.Operator):  
+    bl_idname = "object.sctselectonly"  
+    bl_label = "Select Only"  
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    def execute(self, context):
+        addon = bpy.context.user_preferences.addons["surface-constraint-tools-master"]
+        props = addon.preferences.smooth_vertices
         
+        props.only_selected_are_affected = not props.only_selected_are_affected
         
+        return {'FINISHED'}  
+
+#SCT_Lock_Boundary
+class SCTLockBoundary(bpy.types.Operator):  
+    bl_idname = "object.sctlockboundary"  
+    bl_label = "Lock Boundary Smooth"  
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    def execute(self, context):
+        addon = bpy.context.user_preferences.addons["surface-constraint-tools-master"]
+        props = addon.preferences.smooth_vertices
         
+        props.boundary_is_locked = not props.boundary_is_locked
+        
+        return {'FINISHED'} 
+
+#SCT_Isolate_Selection
+class SCTIsolateSelection(bpy.types.Operator):  
+    bl_idname = "object.sctisolateselection"  
+    bl_label = "SCT_Isolate_Selection"  
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    def execute(self, context):
+        addon = bpy.context.user_preferences.addons["surface-constraint-tools-master"]
+        props = addon.preferences.mesh_brush
+        
+        props.selection_is_isolated = not props.selection_is_isolated
+        
+        return {'FINISHED'}  
+
+#SCT_Lock_Boundary_Brush
+class SCTLockBoundaryBrush(bpy.types.Operator):  
+    bl_idname = "object.sctlockboundarybrush"  
+    bl_label = "Lock Boundary Brush"  
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    def execute(self, context):
+        addon = bpy.context.user_preferences.addons["surface-constraint-tools-master"]
+        props = addon.preferences.mesh_brush
+        
+        props.boundary_is_locked = not props.boundary_is_locked
+        
+        return {'FINISHED'} 
+
+#SCT_Select_Only_Shrinkwrap
+class SCTSelectOnlyShrinkwrap(bpy.types.Operator):  
+    bl_idname = "object.sctselectonlyshrinkwrap"  
+    bl_label = "Select Only Shrinkwrap"  
+    bl_options = {'REGISTER', 'UNDO'}
+    
+    def execute(self, context):
+        addon = bpy.context.user_preferences.addons["surface-constraint-tools-master"]
+        props = addon.preferences.shrinkwrap
+        
+        props.only_selected_are_affected = not props.only_selected_are_affected
+        
+        return {'FINISHED'} 
+
+#################### Pie Menus ####################
+           
+#Pie Retopo - Shift + RMB              
+class PieRetopo(Menu):
+    bl_idname = "pie.retopo"
+    bl_label = "Pie Retopo"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("mesh.sct_mesh_brush", text="Mesh Brush", icon='BRUSH_DATA')
+        #6 - RIGHT
+        pie.operator("align.2x0", icon='MOD_WIREFRAME')
+        #2 - BOTTOM
+        pie.operator("mesh.sct_smooth_vertices", icon = 'MOD_LATTICE')
+        #8 - TOP
+        pie.operator("gpencil.surfsk_add_surface", text="Add Bsurface", icon = 'MOD_DYNAMICPAINT')
+        #7 - TOP - LEFT 
+        box = pie.split().column()
+        row = box.split(align=True)
+        row.operator("setup.retopomesh", icon = 'UV_FACESEL')
+        row = box.split(align=True)
+        row.operator("freeze_verts.retopo", text = 'Freeze')
+        row.operator("thaw_freeze_verts.retopo", text = 'Thaw')
+        row.operator("show_freeze_verts.retopo", text = 'Show')
+        #9 - TOP - RIGHT
+        box = pie.split().column()
+        box.operator("shrink.update", text = "Ice Shrink Update", icon = 'MOD_SHRINKWRAP')   
+        box.operator("mesh.sct_shrinkwrap", text = "SCT Shrink Update", icon = 'MOD_SHRINKWRAP') 
+        #1 - BOTTOM - LEFT
+        box = pie.split().column()
+        row = box.split(align=True)
+        addon = bpy.context.user_preferences.addons["surface-constraint-tools-master"]
+        props = addon.preferences.mesh_brush
+        #Isolate Selection
+        if props.selection_is_isolated == False:
+            row.operator("object.sctisolateselection",text="Brush IS", icon = 'CHECKBOX_DEHLT')
+        else :
+            row.operator("object.sctisolateselection",text="Brush IS", icon = 'CHECKBOX_HLT') 
+        #Lock Boundary 
+        if props.boundary_is_locked == False:
+            row.operator("object.sctlockboundarybrush",text="Brush LB", icon = 'CHECKBOX_DEHLT')
+        else :
+            row.operator("object.sctlockboundarybrush",text="Brush LB", icon = 'CHECKBOX_HLT') 
+        
+        row = box.row(align=True)
+        addon = bpy.context.user_preferences.addons["surface-constraint-tools-master"]
+        props = addon.preferences.smooth_vertices
+        #Select Only
+        if props.only_selected_are_affected == False:
+            row.operator("object.sctselectonly",text="Smooth SO", icon = 'CHECKBOX_DEHLT')
+        else :
+            row.operator("object.sctselectonly",text="Smooth SO", icon = 'CHECKBOX_HLT') 
+        #Lock Boundary    
+        if props.boundary_is_locked == False:
+            row.operator("object.sctlockboundary",text="Smooth LB", icon = 'CHECKBOX_DEHLT')
+        else :
+            row.operator("object.sctlockboundary",text="Smooth LB", icon = 'CHECKBOX_HLT')   
+        row = box.split(align=True)    
+        addon = bpy.context.user_preferences.addons["surface-constraint-tools-master"]
+        props = addon.preferences.shrinkwrap   
+        #Only Selected Shrinkwrap   
+        if props.only_selected_are_affected == False:
+            row.operator("object.sctselectonlyshrinkwrap",text="Shrinkwrap SO", icon = 'CHECKBOX_DEHLT')
+        else :
+            row.operator("object.sctselectonlyshrinkwrap",text="Shrinkwrap SO", icon = 'CHECKBOX_HLT') 
+        #3 - BOTTOM - RIGHT
+        pie.operator("retopo.space", icon='ALIGN', text="Space")        
+
+#################### Register/Unregister/Keymap ####################
+        
+addon_keymaps = []        
   
 def register(): 
     bpy.utils.register_class(WazouRetopoTools)
@@ -755,6 +886,28 @@ def register():
     bpy.utils.register_class(MirrorEditOnOff) 
     bpy.utils.register_class(MirrorCageOnOff)
     bpy.utils.register_class(MirrorClipping)
+    #Pie Menus
+    bpy.utils.register_class(PieRetopo)
+    bpy.utils.register_class(RetopoSpace)
+    bpy.utils.register_class(SCTLockBoundary)
+    bpy.utils.register_class(SCTIsolateSelection)
+    bpy.utils.register_class(SCTSelectOnly)
+    bpy.utils.register_class(SCTLockBoundaryBrush)
+    bpy.utils.register_class(SCTSelectOnlyShrinkwrap)
+    
+
+# Keympa Config   
+    
+    wm = bpy.context.window_manager
+    
+    if wm.keyconfigs.addon:
+        
+        #Retopo
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', shift=True)
+        kmi.properties.name = "pie.retopo"    
+
+        addon_keymaps.append(km)
     
 def unregister(): 
     bpy.utils.register_class(WazouRetopoTools)
@@ -782,7 +935,26 @@ def unregister():
     bpy.utils.unregister_class(MirrorEditOnOff) 
     bpy.utils.unregister_class(MirrorCageOnOff)
     bpy.utils.unregister_class(MirrorClipping)
+    # Pie Menus
+    bpy.utils.unregister_class(PieRetopo)
+    bpy.utils.unregister_class(RetopoSpace)
+    bpy.utils.unregister_class(SCTLockBoundary)
+    bpy.utils.unregister_class(SCTIsolateSelection)
+    bpy.utils.unregister_class(SCTSelectOnly)
+    bpy.utils.unregister_class(SCTLockBoundaryBrush)
+    bpy.utils.unregister_class(SCTSelectOnlyShrinkwrap)
     
+    wm = bpy.context.window_manager
+
+    if wm.keyconfigs.addon:
+        for km in addon_keymaps:
+            for kmi in km.keymap_items:
+                km.keymap_items.remove(kmi)
+
+            wm.keyconfigs.addon.keymaps.remove(km)
+
+    # clear the list
+    del addon_keymaps[:]
     
 if __name__ == "__main__": 
     register() 
