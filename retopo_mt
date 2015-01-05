@@ -1,4 +1,4 @@
-# ##### BEGIN GPL LICENSE BLOCK #####
+﻿# ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -20,11 +20,13 @@ bl_info = {
     "name": "Retopo MT",
     "category": "Mesh",
     "author": "Will Souloumiac aka Pixivore, Cédric Lepiller aka Pitiwazou, Blenderlounge",
-    "version": (1,0,1),
+    "version": (1,0,2),
     "blender": (2, 73, 0),
     "location": "Editmode > ctrl+shift+X",
     "description": "Multiple tools for retopology.",
 }
+
+
 
 
 import bpy
@@ -2329,6 +2331,17 @@ class RetopoMT(bpy.types.Operator):
         if event.type in {'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE'}:
             return {'PASS_THROUGH'}
         #---------------------------------------------------------------------------------------------------
+	### edit: Maya/Silo ALT Navigation
+        #---------------------------------------------------------------------------------------------------
+        if ((event.type == 'RIGHTMOUSE') and (event.alt)):
+            return {'PASS_THROUGH'}
+        #---------------------------------------------------------------------------------------------------
+        #---------------------------------------------------------------------------------------------------
+        if ((event.type == 'LEFTMOUSE') and (event.alt)):
+            return {'PASS_THROUGH'}
+        #---------------------------------------------------------------------------------------------------
+	### edit: Maya/Silo ALT Navigation
+        #---------------------------------------------------------------------------------------------------
         elif (event.type == 'MOUSEMOVE'):
             if((g_Cursor.bBrushSize == False) and (g_Cursor.bCutSize == False)):
                 g_hit, g_normal, g_faceIndex = Picking(context, self)
@@ -2460,30 +2473,30 @@ class RetopoMT(bpy.types.Operator):
                                     for i, vert in enumerate(g_Selection):
                                         g_rObject.Vertices.list[vert].BS_Select(False)
                                 g_Selection.clear()
-                        else:
-                            if(g_SPACE == 'PRESS'):
-                                if(len(g_Selection) > 0):
-                                    # Set mode
-                                    g_bBSurface = True
-                                    # Create new curve
-                                    g_BSCurve.append(cCurve())
-                                    la, cpos = camera(bpy.context.space_data.region_3d)
-                                    g_BSVs.append(cpos)
-                                    g_BSCurrent += 1
-                                else:
-                                    g_bCTRetopo = True
-                                    g_CTNLines += 1
-                                    g_CTLines.append([self.FirstPoint, self.EndPoint, self.FP2d, self. EP2d])
-                                    # Save scene variables
-                                    g_SVScene = context.scene
-                                    g_SVregion = context.region
-                                    g_SVrv3d = context.region_data
                             else:
-                                # Deselect points 
-                                if(len(g_Selection) > 0):
-                                    for i, vert in enumerate(g_Selection):
-                                        g_rObject.Vertices.list[vert].BS_Select(False)
-                                g_Selection.clear()
+                                if(g_SPACE == 'PRESS'):
+                                    if(len(g_Selection) > 0):
+                                        # Set mode
+                                        g_bBSurface = True
+                                        # Create new curve
+                                        g_BSCurve.append(cCurve())
+                                        la, cpos = camera(bpy.context.space_data.region_3d)
+                                        g_BSVs.append(cpos)
+                                        g_BSCurrent += 1
+                                    else:
+                                        g_bCTRetopo = True
+                                        g_CTNLines += 1
+                                        g_CTLines.append([self.FirstPoint, self.EndPoint, self.FP2d, self. EP2d])
+                                        # Save scene variables
+                                        g_SVScene = context.scene
+                                        g_SVregion = context.region
+                                        g_SVrv3d = context.region_data
+                                else:
+                                    # Deselect points 
+                                    if(len(g_Selection) > 0):
+                                        for i, vert in enumerate(g_Selection):
+                                            g_rObject.Vertices.list[vert].BS_Select(False)
+                                    g_Selection.clear()
                                         
                 g_bLeftBM = True
             else:
@@ -3050,4 +3063,3 @@ def unregister():
 #########################################################################################################
 if __name__ == "__main__":
     register()
-
