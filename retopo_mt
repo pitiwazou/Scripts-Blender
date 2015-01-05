@@ -20,13 +20,11 @@ bl_info = {
     "name": "Retopo MT",
     "category": "Mesh",
     "author": "Will Souloumiac aka Pixivore, Cédric Lepiller aka Pitiwazou, Blenderlounge",
-    "version": (1,0),
-    "blender": (2, 72, 0),
+    "version": (1,0,1),
+    "blender": (2, 73, 0),
     "location": "Editmode > ctrl+shift+X",
     "description": "Multiple tools for retopology.",
 }
-
-
 
 
 import bpy
@@ -2450,17 +2448,18 @@ class RetopoMT(bpy.types.Operator):
                                     g_rObject.Vertices.list[vert].BS_Select(False)
                             g_Selection.clear()
                     else:
-                        g_bDrawing = True
-                        if((g_rObject.SelectedFace >= 0) and (g_SPACE == 'RELEASE')):
-                            g_PosSizeIcon = g_PosCutIcon = g_PosCutCTIcon = None
+                        if((event.value == 'PRESS') and (event.ctrl == False)):
+                            g_bDrawing = True
+                            if((g_rObject.SelectedFace >= 0) and (g_SPACE == 'RELEASE')):
+                                g_PosSizeIcon = g_PosCutIcon = g_PosCutCTIcon = None
 
-                            g_rObject.FaceStart = g_rObject.SelectedFace
-                            g_bFaceCreating = True
-                            # Deselect points 
-                            if(len(g_Selection) > 0):
-                                for i, vert in enumerate(g_Selection):
-                                    g_rObject.Vertices.list[vert].BS_Select(False)
-                            g_Selection.clear()
+                                g_rObject.FaceStart = g_rObject.SelectedFace
+                                g_bFaceCreating = True
+                                # Deselect points 
+                                if(len(g_Selection) > 0):
+                                    for i, vert in enumerate(g_Selection):
+                                        g_rObject.Vertices.list[vert].BS_Select(False)
+                                g_Selection.clear()
                         else:
                             if(g_SPACE == 'PRESS'):
                                 if(len(g_Selection) > 0):
