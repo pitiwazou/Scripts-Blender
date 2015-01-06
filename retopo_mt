@@ -2087,7 +2087,7 @@ def draw_callback_px(self, context):
     view_height = context.region.height
 
     blf.size(font_id, 20, 35)
-    blf.position(font_id, 15, view_height - 50, 0)
+    blf.position(font_id, self.TextPosition + 20, view_height - 50, 0)
     bgl.glColor4f(1.0, 1.0, 1.0, 1.0)
     if(g_bAutoMerge):
         blf.draw(font_id, "AutoMerge ON")
@@ -2096,7 +2096,7 @@ def draw_callback_px(self, context):
 
 
     blf.size(font_id, 20, 35)
-    blf.position(font_id, 15, view_height - 70, 0)
+    blf.position(font_id, self.TextPosition + 20, view_height - 70, 0)
     if(g_PosCutIcon):
         strInfos = "Cut : " + str(int(g_Cursor.BSize))
         blf.draw(font_id, strInfos)
@@ -2725,6 +2725,7 @@ class RetopoMT(bpy.types.Operator):
             global g_Selection
             g_Selection = []
             getSelection()
+            
             #---------------------------------------------------------------------------------------------------
             # Get Global variables
             BSize = bpy.context.object.BrushCut
@@ -2732,10 +2733,26 @@ class RetopoMT(bpy.types.Operator):
             CTNCut = bpy.context.object.CTNCut
             
             AutoMerge = bpy.context.object.AutoMerge
+            
+            uRO = bpy.context.user_preferences.system.use_region_overlap
+            vd = bpy.context.area
+            self.TextPosition = 0
+            if(uRO):
+                self.TextPosition = vd.regions[1].width
+            
+            #---------------------------------------------------------------------------------------------------
+            # Search objects in Edit mode
+            obE = None
+            for o in bpy.context.selected_objects:
+                if(o.mode == 'EDIT'):
+                    obE = o
+                else:
+                    o.select = False        
+                
             #---------------------------------------------------------------------------------------------------
             bpy.ops.object.mode_set(mode='OBJECT')
             
-            o = bpy.context.active_object
+            o = obE
             self.obName     = o.show_name
             self.obAxis     = o.show_axis
             self.obWire     = o.show_wire
