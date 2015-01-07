@@ -1,32 +1,30 @@
-﻿# ##### BEGIN GPL LICENSE BLOCK #####
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software Foundation,
-#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-#
-# ##### END GPL LICENSE BLOCK #####
+﻿# ###################### BEGIN GPL LICENSE BLOCK ###########################
+#                                                                          #
+#  This program is free software; you can redistribute it and/or           #
+#  modify it under the terms of the GNU General Public License             #
+#  as published by the Free Software Foundation; either version 2          #
+#  of the License, or (at your option) any later version.                  #
+#                                                                          #
+#  This program is distributed in the hope that it will be useful,         #
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of          #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           #
+#  GNU General Public License for more details.                            #
+#                                                                          #    
+#  You should have received a copy of the GNU General Public License       #
+#  along with this program; if not, write to the Free Software Foundation, #
+#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.      #
+#                                                                          # 
+# ###################### END GPL LICENSE BLOCK #############################
 
 bl_info = {
     "name": "Retopo MT",
     "category": "Mesh",
-    "author": "Will Souloumiac aka Pixivore, Cédric Lepiller aka Pitiwazou, Blenderlounge",
-    "version": (1,0,2),
+    "author": "Will Souloumiac aka Pixivore, Cédric Lepiller aka Pitiwazou, Blenderlounge, OrAngE",
+    "version": (1,0,3),
     "blender": (2, 73, 0),
     "location": "Editmode > ctrl+shift+X",
     "description": "Multiple tools for retopology.",
 }
-
-
 
 
 import bpy
@@ -1111,6 +1109,8 @@ class cObject:
         
         global g_bAutoMerge
         
+        global g_rv3d
+
         
         if((g_Cursor == None) or (g_Curve == None) or (g_bCurveCurrent == False)):
             return
@@ -1237,6 +1237,8 @@ class cObject:
                 fc = cFace((self.pI0, self.pI1, self.pI0End, self.pI1End), middle)
                 vs = camera_pos - self.Vertices.Get(fc.VertexIdx[0])
                 ps = vs.dot(fc.Normal)
+                if(not g_rv3d.is_perspective):
+                    ps = -ps
                 if(ps > 0):
                     fc.Inverse()
                     fc.CalculateNormal()
@@ -1252,6 +1254,8 @@ class cObject:
                         fc = cFace((nFaceIdx + idx * 2, nFaceIdx + idx * 2 + 1, nFaceIdx + (idx + 1) * 2 + 1, nFaceIdx + (idx + 1) * 2), Center)
                         vs = camera_pos - self.Vertices.Get(fc.VertexIdx[0])
                         ps = vs.dot(fc.Normal)
+                        if(not g_rv3d.is_perspective):
+                            ps = -ps
                         if(ps > 0):
                             fc.Inverse()
                             fc.CalculateNormal()
@@ -1263,6 +1267,8 @@ class cObject:
                                     fc = cFace((nFaceIdx + (idx - 1)  * 2, nFaceIdx + (idx - 1) * 2 + 1, self.pI1End, self.pI0End), Center)
                                     vs = camera_pos - self.Vertices.Get(fc.VertexIdx[0])
                                     ps = vs.dot(fc.Normal)
+                                    if(not g_rv3d.is_perspective):
+                                        ps = -ps
                                     if(ps > 0):
                                         fc.Inverse()
                                         fc.CalculateNormal()
@@ -1271,6 +1277,8 @@ class cObject:
                                     fc = cFace((nFaceIdx + (idx - 1)  * 2, nFaceIdx + (idx - 1) * 2 + 1, nFaceIdx + ((idx - 1) + 1) * 2 + 1, nFaceIdx + ((idx - 1) + 1) * 2), Center)
                                     vs = camera_pos - self.Vertices.Get(fc.VertexIdx[0])
                                     ps = vs.dot(fc.Normal)
+                                    if(not g_rv3d.is_perspective):
+                                        ps = -ps
                                     if(ps > 0):
                                         fc.Inverse()
                                         fc.CalculateNormal()
@@ -1279,6 +1287,8 @@ class cObject:
                                 fc = cFace((nFaceIdx + (idx - 1)  * 2, nFaceIdx + (idx - 1) * 2 + 1, nFaceIdx + ((idx - 1) + 1) * 2 + 1, nFaceIdx + ((idx - 1) + 1) * 2), Center)
                                 vs = camera_pos - self.Vertices.Get(fc.VertexIdx[0])
                                 ps = vs.dot(fc.Normal)
+                                if(not g_rv3d.is_perspective):
+                                    ps = -ps
                                 if(ps > 0):
                                     fc.Inverse()
                                     fc.CalculateNormal()
@@ -1287,6 +1297,8 @@ class cObject:
                             fc = cFace((self.pI1, self.pI0, nFaceIdx + ((idx - 1) + 1) * 2 + 1, nFaceIdx + ((idx - 1) + 1) * 2), Center)
                             vs = camera_pos - self.Vertices.Get(fc.VertexIdx[0])
                             ps = vs.dot(fc.Normal)
+                            if(not g_rv3d.is_perspective):
+                                ps = -ps
                             if(ps > 0):
                                 fc.Inverse()
                                 fc.CalculateNormal()
@@ -1395,6 +1407,9 @@ class cObject:
                 if(ps == 0.0):
                     vs = g_BSVs[nc] - self.Vertices.Get(fc.VertexIdx[0])
                     ps = vs.dot(fc.Normal)
+                    if(not g_rv3d.is_perspective):
+                        ps = -ps
+
                 if(ps > 0):
                     fc.Inverse()
                     fc.CalculateNormal()
@@ -1692,10 +1707,11 @@ class cObject:
     def MergePointsInHit(self, hit):
         global g_Cursor
 
-        for i, vert in enumerate(self.Vertices.list):
-            l = (hit - vert.Get()).length
-            if(l < g_Cursor.BRadius/20.0):
-                vert.SetCoord(hit)
+        if(hit != None):
+            for i, vert in enumerate(self.Vertices.list):
+                l = (hit - vert.Get()).length
+                if(l < g_Cursor.BRadius/20.0):
+                    vert.SetCoord(hit)
     #---------------------------------------------------------------------------------------------------
 
 
@@ -1716,7 +1732,11 @@ class cObject:
         global g_bLeftBM
         global g_bRightBM
         global g_CTRL
-        
+        # Edit:
+        global g_SHIFT
+        g_rObject
+        # Edit:
+
         global g_Selection
         
         if(g_bFaceCreating):
@@ -1740,6 +1760,9 @@ class cObject:
                             self.PointIdx.append(i)
                             vert.Select(True)
                             self.SelectedFace = -1
+                # Merge points around g_hit
+                #g_rObject.MergePointsInHit(g_hit)
+
             else:
                 for i, v in enumerate(self.PointIdx):
                     self.Vertices.list[v].Select(False)
@@ -1794,6 +1817,11 @@ class cObject:
                                         min = l
                                         self.MergeIdx = i
                                 g_bMerge = True
+                # Edit: Xtra Merge with CTRL + SHIFT
+                if ((g_SHIFT == 'PRESS')and (g_CTRL == 'PRESS')):
+                    # Merge points around g_hit
+                    g_rObject.MergePointsInHit(g_hit)
+                # Edit: Xtra Merge with CTRL + SHIFT
     #---------------------------------------------------------------------------------------------------
 
 
@@ -1873,6 +1901,8 @@ class cObject:
             face = self.Faces.list[iface]
             vision = camera_pos - self.Vertices.Get(face.VertexIdx[0])
             face.ps = vision.dot(face.Normal)
+            if(not g_rv3d.is_perspective):
+                face.ps = -face.ps
             if(face.ps < 0):
                 if(face.select == True):
                     bgl.glColor4f(g_face_sel_color[0], g_face_sel_color[1], g_face_sel_color[2], g_face_sel_color[3])
@@ -2000,6 +2030,9 @@ def Picking(context, self, ray_max = 10000.0, _ray_origin = None, _CTRetopo = Fa
     # get the ray from the viewport and mouse
     view_vector = bpy_extras.view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
     ray_origin = bpy_extras.view3d_utils.region_2d_to_origin_3d(region, rv3d, coord)
+    if not rv3d.is_perspective:
+        if(abs(view_vector.y) < 1):
+            view_vector = -view_vector
     if(_ray_origin != None):
         ray_origin = _ray_origin + view_vector * 0.05
     ray_target = ray_origin + (view_vector * ray_max)
@@ -2331,7 +2364,7 @@ class RetopoMT(bpy.types.Operator):
         if event.type in {'MIDDLEMOUSE', 'WHEELUPMOUSE', 'WHEELDOWNMOUSE'}:
             return {'PASS_THROUGH'}
         #---------------------------------------------------------------------------------------------------
-	### edit: Maya/Silo ALT Navigation
+	### Edit: Maya/Silo ALT Navigation
         #---------------------------------------------------------------------------------------------------
         if ((event.type == 'RIGHTMOUSE') and (event.alt)):
             return {'PASS_THROUGH'}
@@ -2340,7 +2373,7 @@ class RetopoMT(bpy.types.Operator):
         if ((event.type == 'LEFTMOUSE') and (event.alt)):
             return {'PASS_THROUGH'}
         #---------------------------------------------------------------------------------------------------
-	### edit: Maya/Silo ALT Navigation
+	### Edit: Maya/Silo ALT Navigation
         #---------------------------------------------------------------------------------------------------
         elif (event.type == 'MOUSEMOVE'):
             if((g_Cursor.bBrushSize == False) and (g_Cursor.bCutSize == False)):
@@ -2461,7 +2494,9 @@ class RetopoMT(bpy.types.Operator):
                                     g_rObject.Vertices.list[vert].BS_Select(False)
                             g_Selection.clear()
                     else:
+                        # Edit: Disable Draw on Tweak (CTRL)
                         if((event.value == 'PRESS') and (event.ctrl == False)):
+                        # Edit: Disable Draw on Tweak (CTRL)
                             g_bDrawing = True
                             if((g_rObject.SelectedFace >= 0) and (g_SPACE == 'RELEASE')):
                                 g_PosSizeIcon = g_PosCutIcon = g_PosCutCTIcon = None
@@ -2763,6 +2798,9 @@ class RetopoMT(bpy.types.Operator):
             self.obX_Ray    = o.show_x_ray
             self.obDrawType = o.draw_type
             self.OBName     = o.name
+            self.use_smooth = False
+            if(len(o.data.polygons) > 0):
+                self.use_smooth = o.data.polygons[0].use_smooth
             
             self.Modifiers = []
             prp = []
@@ -3010,6 +3048,9 @@ class RetopoMT(bpy.types.Operator):
                 mDst = ob.modifiers.new(m[0], m[1])
                 for i in range(len(self.prpLst[m[0]])):
                     setattr(mDst, self.prpLst[m[0]][i][0], self.prpLst[m[0]][i][1])
+
+            for p in mesh.polygons:
+                p.use_smooth = self.use_smooth                    
 
         #---------------------------------------------------------------------------------------------------
         self.bRunning = False     
