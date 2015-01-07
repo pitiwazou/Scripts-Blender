@@ -31,7 +31,7 @@
 bl_info = {
     "name": "Retopology Tools",
     "author": "Cédric Lepiller", "Gert De Roost for the Laprelax code" 
-    "version": (0, 1, 4),
+    "version": (0, 1, 5),
     "blender": (2, 7, 2),
     "location": "View 3D > Toolbar > Tools tab > Retopology (panel)",
     "description": "Tools for fast retopology",
@@ -813,9 +813,9 @@ class PieRetopo(Menu):
         row.operator("thaw_freeze_verts.retopo", text = 'Thaw')
         row.operator("show_freeze_verts.retopo", text = 'Show')
         #9 - TOP - RIGHT
-        box = pie.split().column()
-        box.operator("shrink.update", text = "Ice Shrink Update", icon = 'MOD_SHRINKWRAP')   
-        box.operator("mesh.sct_shrinkwrap", text = "SCT Shrink Update", icon = 'MOD_SHRINKWRAP') 
+        pie.operator("mesh.retopomt", icon='VPAINT_HLT')
+
+        
         #1 - BOTTOM - LEFT
         box = pie.split().column()
         row = box.split(align=True)
@@ -854,7 +854,10 @@ class PieRetopo(Menu):
         else :
             row.operator("object.sctselectonlyshrinkwrap",text="Shrinkwrap SO", icon = 'CHECKBOX_HLT') 
         #3 - BOTTOM - RIGHT
-        pie.operator("retopo.space", icon='ALIGN', text="Space")        
+        box = pie.split().column()
+        box.operator("shrink.update", text = "Ice Shrink Update", icon = 'MOD_SHRINKWRAP')   
+        box.operator("mesh.sct_shrinkwrap", text = "SCT Shrink Update", icon = 'MOD_SHRINKWRAP') 
+        box.operator("retopo.space", icon='ALIGN', text="Space")        
 
 #################### Register/Unregister/Keymap ####################
         
