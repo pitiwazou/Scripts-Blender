@@ -66,12 +66,12 @@ class WazouRetopoTools(bpy.types.AddonPreferences):
         if context.scene.Enable_Tab_01:
             row = layout.row()
             layout.label(text="This Addon Need to activate 'Loop Tools' and 'Bsurfaces' in the Addon Tab to work properly.")
-            layout.label(text="You need to install Iceking's Tool, Surface Constraint tools And Auto Mirror")
+            layout.label(text="You need to install Iceking's Tool, Surface Constraint tools, Retopo MT And Auto Mirror")
             
             layout.operator("wm.url_open", text="IceKing's tools").url = "http://www.blenderartists.org/forum/showthread.php?343641-Iceking-s-Tools"
             layout.operator("wm.url_open", text="Auto Mirror").url = "http://le-terrier-de-lapineige.over-blog.com/2014/07/automirror-mon-add-on-pour-symetriser-vos-objets-rapidement.html"
             layout.operator("wm.url_open", text="Surface Constraint tools").url = "http://www.blenderartists.org/forum/showthread.php?350794-Addon-Surface-Constraint-Tools"
-            
+            layout.operator("wm.url_open", text="Retopo MT").url = "http://www.blenderartists.org/forum/showthread.php?355154-Addon-Retopo-MT"
             
         layout.prop(context.scene, "Enable_Tab_02", text="URL's", icon="URL")   
         if context.scene.Enable_Tab_02:
