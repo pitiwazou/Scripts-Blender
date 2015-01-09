@@ -31,7 +31,7 @@
 bl_info = {
     "name": "Retopology Tools",
     "author": "Cédric Lepiller", "Gert De Roost for the Laprelax code" 
-    "version": (0, 1, 5),
+    "version": (0, 1, 4),
     "blender": (2, 7, 2),
     "location": "View 3D > Toolbar > Tools tab > Retopology (panel)",
     "description": "Tools for fast retopology",
@@ -814,8 +814,6 @@ class PieRetopo(Menu):
         row.operator("show_freeze_verts.retopo", text = 'Show')
         #9 - TOP - RIGHT
         pie.operator("mesh.retopomt", icon='VPAINT_HLT')
-
-        
         #1 - BOTTOM - LEFT
         box = pie.split().column()
         row = box.split(align=True)
@@ -864,39 +862,8 @@ class PieRetopo(Menu):
 addon_keymaps = []        
   
 def register(): 
-    bpy.utils.register_class(WazouRetopoTools)
-    bpy.utils.register_class(RetopologyTools)
-    bpy.utils.register_class(AlignToX)
-    bpy.utils.register_class(LapRelax)
-    bpy.utils.register_class(DoubleThreshold01)
-    bpy.utils.register_class(DoubleThreshold0001)
-    bpy.utils.register_class(SetupRetopoMesh)
-    bpy.utils.register_class(WireSelectedAll)
-    bpy.utils.register_class(ShadingSmooth)
-    bpy.utils.register_class(ShadingFlat)
-    bpy.utils.register_class(CreateHole)
-    bpy.utils.register_class(DeleteModifiers)
-    bpy.utils.register_class(AddMirrorObject)
-    bpy.utils.register_class(ApplyMirror)
-    bpy.utils.register_class(SubSurf2)
-    bpy.utils.register_class(ApplySubSurf)
-    bpy.utils.register_class(RemoveSubSurf2)
-    bpy.utils.register_class(SursurfOnOff) 
-    bpy.utils.register_class(SursurfEditOnOff) 
-    bpy.utils.register_class(SursurfCageOnOff) 
-    bpy.utils.register_class(SursurfOptimalDisplay) 
-    bpy.utils.register_class(MirrorOnOff) 
-    bpy.utils.register_class(MirrorEditOnOff) 
-    bpy.utils.register_class(MirrorCageOnOff)
-    bpy.utils.register_class(MirrorClipping)
-    #Pie Menus
-    bpy.utils.register_class(PieRetopo)
-    bpy.utils.register_class(RetopoSpace)
-    bpy.utils.register_class(SCTLockBoundary)
-    bpy.utils.register_class(SCTIsolateSelection)
-    bpy.utils.register_class(SCTSelectOnly)
-    bpy.utils.register_class(SCTLockBoundaryBrush)
-    bpy.utils.register_class(SCTSelectOnlyShrinkwrap)
+    bpy.utils.register_module(__name__)
+    
     
 
 # Keympa Config   
@@ -913,39 +880,8 @@ def register():
         addon_keymaps.append(km)
     
 def unregister(): 
-    bpy.utils.register_class(WazouRetopoTools)
-    bpy.utils.unregister_class(RetopologyTools) 
-    bpy.utils.unregister_class(AlignToX)
-    bpy.utils.unregister_class(LapRelax)
-    bpy.utils.unregister_class(DoubleThreshold01)
-    bpy.utils.unregister_class(DoubleThreshold0001)
-    bpy.utils.unregister_class(SetupRetopoMesh)
-    bpy.utils.unregister_class(WireSelectedAll)
-    bpy.utils.unregister_class(ShadingSmooth)
-    bpy.utils.unregister_class(ShadingFlat)
-    bpy.utils.unregister_class(CreateHole)
-    bpy.utils.unregister_class(DeleteModifiers)
-    bpy.utils.unregister_class(AddMirrorObject)
-    bpy.utils.unregister_class(ApplyMirror)
-    bpy.utils.unregister_class(SubSurf2)
-    bpy.utils.unregister_class(ApplySubSurf)
-    bpy.utils.unregister_class(RemoveSubSurf2)
-    bpy.utils.unregister_class(SursurfOnOff) 
-    bpy.utils.unregister_class(SursurfEditOnOff) 
-    bpy.utils.unregister_class(SursurfCageOnOff)
-    bpy.utils.unregister_class(SursurfOptimalDisplay)
-    bpy.utils.unregister_class(MirrorOnOff) 
-    bpy.utils.unregister_class(MirrorEditOnOff) 
-    bpy.utils.unregister_class(MirrorCageOnOff)
-    bpy.utils.unregister_class(MirrorClipping)
-    # Pie Menus
-    bpy.utils.unregister_class(PieRetopo)
-    bpy.utils.unregister_class(RetopoSpace)
-    bpy.utils.unregister_class(SCTLockBoundary)
-    bpy.utils.unregister_class(SCTIsolateSelection)
-    bpy.utils.unregister_class(SCTSelectOnly)
-    bpy.utils.unregister_class(SCTLockBoundaryBrush)
-    bpy.utils.unregister_class(SCTSelectOnlyShrinkwrap)
+    bpy.utils.unregister_module(__name__)
+    
     
     wm = bpy.context.window_manager
 
