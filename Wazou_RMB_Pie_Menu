@@ -19,7 +19,7 @@
 bl_info = {
     "name": "Wazou Right clic Pie Menu",
     "author": "Cédric Lepiller",
-    "version": (0, 1, 4),
+    "version": (0, 1, 5),
     "blender": (2, 7, 1),
     "location": "View3D > RMB",
     "description": "Right Click Pie Menu",
@@ -1158,19 +1158,27 @@ class View3dRightClicMenu(Menu):
                 else:
                     pie.operator("object.dtpsmoothshading", text="Smooth Shading", icon='SOLID')
                 #8 - TOP
-                pie.operator("sculpt.sample_detail_size", text="Sample Detail Size", icon='EYEDROPPER')
+                if bpy.context.tool_settings.sculpt.detail_type_method == 'CONSTANT':
+                    
+                    sculpt = context.tool_settings.sculpt
+                    
+                    col = pie.column(align=True)        
+                    col.operator("sculpt.sample_detail_size", text="Pick Detail Size", icon='EYEDROPPER')
+                    col.prop(sculpt, "constant_detail")
+                    
+                elif bpy.context.tool_settings.sculpt.detail_type_method == 'RELATIVE':
+                    
+                    toolsettings = context.tool_settings
+                    sculpt_relative = toolsettings.sculpt
+                    
+                    col = pie.column(align=True)     
+                    col.prop(sculpt_relative, "detail_size")
                 #7 - TOP - LEFT 
                 pie.operator("wm.call_menu_pie", text="Contant/Relative", icon='MOD_MIRROR').name="pie.sculptconstantrelative"
                 #9 - TOP - RIGHT
-                if bpy.context.tool_settings.sculpt.detail_type_method == 'CONSTANT':
-                    pie.operator("wm.call_menu_pie", text="Detail Size Values", icon='NLA_PUSHDOWN').name="pie.sculptdetailsizevariableconstant"
-                elif bpy.context.tool_settings.sculpt.detail_type_method == 'RELATIVE':
-                    pie.operator("wm.call_menu_pie", text="Detail Size Values", icon='NLA_PUSHDOWN').name="pie.sculptdetailsizevariablerelative"
+                pie.operator("wm.call_menu_pie", text="Curves", icon='SHARPCURVE').name="pie.sculptcurves"
                 #1 - BOTTOM - LEFT
-                box = pie.split().column()
-                row = box.split(align=True)
-                box.operator("wm.call_menu_pie", text="Curves", icon='SHARPCURVE').name="pie.sculptcurves"
-                box.operator("wm.call_menu_pie", text="Symmetrize/Lock", icon='MOD_MIRROR').name="pie.sculptmirror" 
+                pie.operator("wm.call_menu_pie", text="Symmetrize/Lock", icon='MOD_MIRROR').name="pie.sculptmirror" 
                 #3 - BOTTOM - RIGHT
                 pie.operator("sculpt.optimize", text="Optimize")
                 
@@ -1182,9 +1190,29 @@ class View3dRightClicMenu(Menu):
                 #2 - BOTTOM
                 pie.operator("wm.call_menu_pie", text="Symmetrize/Lock", icon='MOD_MIRROR').name="pie.sculptmirror" 
                 #8 - TOP
-                #7 - TOP - LEFT 
+                ups = context.tool_settings.unified_paint_settings
+                brush = context.tool_settings.sculpt.brush
+                
+                col = pie.column(align=True)      
+                col.prop(ups, "size", text="Radius", slider=False)
+                col.prop(brush, "strength",  slider=True)
+                #7 - TOP - LEFT
+                
+             
                 #9 - TOP - RIGHT
+                brush = context.tool_settings.sculpt.brush
+                capabilities = brush.sculpt_capabilities
+                if capabilities.has_auto_smooth:
+                    col = pie.column()
+                    row = col.row(align=True)
+                    
+                    row.prop(brush, "auto_smooth_factor", slider=True)
+                    row.prop(brush, "use_inverse_smooth_pressure", toggle=True, text="")
+                    col.prop(brush, "use_frontface", text="Front Faces Only")
+                
                 #1 - BOTTOM - LEFT
+                
+                
                 #3 - BOTTOM - RIGHT
   
         ################################################
@@ -1224,60 +1252,7 @@ class View3dRightClicMenu(Menu):
           
 addon_keymaps = []
 def register():
-    bpy.utils.register_class(View3dRightClicMenu)
-    bpy.utils.register_class(WazouRightMenuPiePrefs)
-    #Object
-    bpy.utils.register_class(AddMenu)
-    bpy.utils.register_class(SubSurf2)
-    bpy.utils.register_class(RemoveSubsurf)
-    bpy.utils.register_class(AddMirrorObject)
-    bpy.utils.register_class(ApplySubsurfEdit)
-    bpy.utils.register_class(VIEW3D_MT_edit_mesh_looptools)
-    bpy.utils.register_class(ApplyTransformAll)
-    bpy.utils.register_class(DeleteModifiers)
-    bpy.utils.register_class(ClearAll)
-    bpy.utils.register_class(SeparateLooseParts)
-    bpy.utils.register_class(PivotToSelection)
-    bpy.utils.register_class(PivotBottom)
-    bpy.utils.register_class(MakeObjectAnEmpty)
-    bpy.utils.register_class(ClearEmpty)
-    #Edit
-    bpy.utils.register_class(AddMirrorEdit)
-    bpy.utils.register_class(ApplyMirrorEdit)
-    bpy.utils.register_class(WazouSymetrize)
-    bpy.utils.register_class(CreateHole)
-    bpy.utils.register_class(RetopoSpace)
-    #Sculpt
-    bpy.utils.register_class(EnableDyntopo)
-    bpy.utils.register_class(SculptSymmetrizePlusX)
-    bpy.utils.register_class(SculptSymmetrizeMoinsX)
-    bpy.utils.register_class(DetailSizevariable)
-    bpy.utils.register_class(SymetryLockX)
-    bpy.utils.register_class(SymetryLockY)
-    bpy.utils.register_class(SymetryLockZ)
-    bpy.utils.register_class(DyntopoSmoothShading)
-    bpy.utils.register_class(DTPDetailType)
-    bpy.utils.register_class(DTPDetailRefine)
-    bpy.utils.register_class(DetailSizevariableRelative)
-    bpy.utils.register_class(PieSculptMirror)
-    bpy.utils.register_class(SculptUseSymmetryX)
-    bpy.utils.register_class(SculptUseSymmetryY)
-    bpy.utils.register_class(SculptUseSymmetryZ)
-    bpy.utils.register_class(PieSculptCurves)
-    bpy.utils.register_class(PieSculptDetailSizeVariableRelative)
-    bpy.utils.register_class(PieSculptDetailSizeVariableConstant)
-    bpy.utils.register_class(PieSculptConstantRelative)
-    #Particles
-    bpy.utils.register_class(PieParticleBrushes)
-    bpy.utils.register_class(PieParticleOptions)
-    bpy.utils.register_class(SelectionParticlesMode)
-    bpy.utils.register_class(SelectionParticlesBrushes)
-    bpy.utils.register_class(ParticleChildrens)
-    bpy.utils.register_class(ParticleLength)
-    bpy.utils.register_class(ParticleXMirror)
-    bpy.utils.register_class(ParticleRoot)
-    bpy.utils.register_class(ParticlePathSteps)
-    bpy.utils.register_class(ParticlesInterpolate)
+    bpy.utils.register_module(__name__)
     
     
 # Keympa Config   
@@ -1296,61 +1271,7 @@ def register():
         kmi.properties.name = "pie.rightclicmenu"  
         
 def unregister():
-    bpy.utils.unregister_class(View3dRightClicMenu)
-    bpy.utils.unregister_class(WazouRightMenuPiePrefs)
-    #Object
-    bpy.utils.unregister_class(AddMenu)
-    bpy.utils.unregister_class(SubSurf2)
-    bpy.utils.unregister_class(RemoveSubsurf)
-    bpy.utils.unregister_class(AddMirrorObject)
-    bpy.utils.unregister_class(ApplySubsurfEdit)
-    bpy.utils.unregister_class(VIEW3D_MT_edit_mesh_looptools)
-    bpy.utils.unregister_class(ApplyTransformAll)
-    bpy.utils.unregister_class(DeleteModifiers)
-    bpy.utils.unregister_class(ClearAll)
-    bpy.utils.unregister_class(SeparateLooseParts)
-    bpy.utils.unregister_class(PivotToSelection)
-    bpy.utils.unregister_class(PivotBottom)
-    bpy.utils.unregister_class(MakeObjectAnEmpty)
-    bpy.utils.unregister_class(ClearEmpty)
-    #Edit
-    bpy.utils.unregister_class(AddMirrorEdit)
-    bpy.utils.unregister_class(ApplyMirrorEdit)
-    bpy.utils.unregister_class(WazouSymetrize)
-    bpy.utils.unregister_class(CreateHole)
-    bpy.utils.unregister_class(RetopoSpace)
-    #Sculpt
-    bpy.utils.unregister_class(EnableDyntopo)
-    bpy.utils.unregister_class(SculptSymmetrizePlusX)
-    bpy.utils.unregister_class(SculptSymmetrizeMoinsX)
-    bpy.utils.unregister_class(DetailSizevariable)
-    bpy.utils.unregister_class(SymetryLockX)
-    bpy.utils.unregister_class(SymetryLockY)
-    bpy.utils.unregister_class(SymetryLockZ)
-    bpy.utils.unregister_class(DyntopoSmoothShading)
-    bpy.utils.unregister_class(DTPDetailType)
-    bpy.utils.unregister_class(DTPDetailRefine)
-    bpy.utils.unregister_class(DetailSizevariableRelative)
-    bpy.utils.unregister_class(PieSculptMirror)
-    bpy.utils.unregister_class(SculptUseSymmetryX)
-    bpy.utils.unregister_class(SculptUseSymmetryY)
-    bpy.utils.unregister_class(SculptUseSymmetryZ)
-    bpy.utils.unregister_class(PieSculptCurves)
-    bpy.utils.unregister_class(PieSculptDetailSizeVariableRelative)
-    bpy.utils.unregister_class(PieSculptDetailSizeVariableConstant)
-    bpy.utils.unregister_class(PieSculptConstantRelative)
-    #Particles
-    bpy.utils.unregister_class(PieParticleBrushes)
-    bpy.utils.unregister_class(PieParticleOptions)
-    bpy.utils.unregister_class(SelectionParticlesMode)
-    bpy.utils.unregister_class(SelectionParticlesBrushes)
-    bpy.utils.unregister_class(ParticleChildrens)
-    bpy.utils.unregister_class(ParticleLength)
-    bpy.utils.unregister_class(ParticleXMirror)
-    bpy.utils.unregister_class(ParticleRoot)
-    bpy.utils.unregister_class(ParticlePathSteps)
-    bpy.utils.unregister_class(ParticlesInterpolate)
-    
+    bpy.utils.unregister_module(__name__)
     
     
     
