@@ -19,7 +19,7 @@
 bl_info = {
     "name": "Wazou Right clic Pie Menu",
     "author": "Cédric Lepiller",
-    "version": (0, 1, 5),
+    "version": (0, 1, 6),
     "blender": (2, 7, 1),
     "location": "View3D > RMB",
     "description": "Right Click Pie Menu",
@@ -523,7 +523,32 @@ class RetopoSpace(bpy.types.Operator):
   
     def execute(self, context):
         bpy.ops.mesh.looptools_space(influence=100, input='selected', interpolation='cubic', lock_x=False, lock_y=False, lock_z=False)
-        return {'FINISHED'}   
+        return {'FINISHED'}  
+    
+#Freeze and keep pivot
+class FreezeAndKeepPivot(bpy.types.Operator):  
+    bl_idname = "object.freezeandkeeppivot"  
+    bl_label = "Freeze And Keep Pivot"  
+    bl_options = {'REGISTER', 'UNDO'}
+  
+    def execute(self, context): 
+        #Save the cursor first position
+        saved_location_0 = bpy.context.scene.cursor_location.copy() 
+        #Move the cursor to the active origin object 
+        bpy.ops.view3d.snap_cursor_to_active()
+        #Save the cursor position 2
+        saved_location = bpy.context.scene.cursor_location.copy()
+        #apply all transforms, that move the origin of the object to 0,0,0
+        bpy.ops.apply.transformall()
+        #Move the cursor to the second location saved
+        bpy.context.scene.cursor_location = saved_location
+        #Move the origin to the cursor
+        bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+        #Move the cursor to his first location
+        bpy.context.scene.cursor_location = saved_location_0
+        return {'FINISHED'}     
+    
+     
 #--------------------------------------------------------------------------
 #Particles
 #--------------------------------------------------------------------------
@@ -1003,9 +1028,6 @@ class View3dRightClicMenu(Menu):
             row = box.split(align=True)
             row.operator("object.modifier_apply", text="Apply Mirror", icon='FILE_TICK').modifier="Mirror"
             row.operator("delete.modifiers", text="Del Modifiers", icon='X')
-            row = box.row(align=True)
-            row = box.split(align=True)
-            row.operator("object.modifier_apply", text="Apply Subsurf", icon='FILE_TICK').modifier="Subsurf"
             #9 - TOP - RIGHT
             box = pie.split().column()
             row = box.row(align=True)
@@ -1023,10 +1045,15 @@ class View3dRightClicMenu(Menu):
             #1 - BOTTOM - LEFT
             box = pie.split().column()
             row = box.row(align=True)
-            row.operator("apply.transformall", text="Freeze T", icon='FREEZE')
+            
+            row.operator("object.freezeandkeeppivot", text="Apply T Keep Origin", icon='FILE_TICK')
+            row = box.row(align=True)
+            row.operator("apply.transformall", text="Apply T", icon='FILE_TICK')
             row.operator("clear.all", text="Clear All", icon='MANIPUL')
             #3 - BOTTOM - RIGHT
             box = pie.split().column()
+            row = box.row(align=True)
+            row.operator("object.modifier_apply", text="Apply Subsurf", icon='FILE_TICK').modifier="Subsurf"
             row = box.row(align=True)
             if bpy.context.object.hide_render == False:
                 row.operator("object.makeempty", text="Make Empty", icon='OUTLINER_OB_EMPTY')
