@@ -1,16 +1,3 @@
-bl_info = {
-    "name": "Addon Create Hole",
-    "author": "Cédric Lepiller",
-    "version": (0, 1, 1),
-    "blender": (2, 74, 0),
-    "location": "View3D > Tools",
-    "description": "This Operator create a hole on a selection",
-    "warning": "",
-    "wiki_url": "",
-    "category": "Tools"}
-     
-import bpy
- 
 #Create Hole
 class CreateHole(bpy.types.Operator):                  
     """This Operator create a hole on a selection"""                  
@@ -47,15 +34,7 @@ class PanelCreateHole(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         
-        
-        if bpy.context.area.type == 'VIEW_3D' and not bpy.context.object:
-            layout.label("No objects", icon='ERROR')
-        
-        elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'OBJECT':
-            layout.label("Go in Edit Mode", icon='ERROR')
-        
-        elif bpy.context.object.mode == 'EDIT': 
-            layout.operator("object.createhole", icon='CLIPUV_DEHLT')
+        layout.operator("object.createhole", icon='CLIPUV_DEHLT')
  
  
 def register():
