@@ -19,8 +19,8 @@
 bl_info = {
     "name": "Wazou Right clic Pie Menu",
     "author": "Cédric Lepiller",
-    "version": (0, 1, 6),
-    "blender": (2, 7, 1),
+    "version": (0, 1, 7),
+    "blender": (2, 74, 0),
     "location": "View3D > RMB",
     "description": "Right Click Pie Menu",
     "category": "3D View"}
@@ -711,80 +711,7 @@ class ClearEmpty(bpy.types.Operator):
 ######################
 #        Pies        #               
 ######################  
-#Pie Sculpt Constant/Relative
-class PieSculptConstantRelative(Menu):
-    bl_idname = "pie.sculptconstantrelative"
-    bl_label = "Pie Sculpt Constant/Relative"
-
-    def draw(self, context):
-        layout = self.layout
-        pie = layout.menu_pie()
-        #4 - LEFT
-        pie.operator("object.detailrefine", text="Subdiv Collapse").variable = 'SUBDIVIDE_COLLAPSE'
-        #6 - RIGHT
-        pie.operator("object.detailrefine", text="Collapse").variable = 'COLLAPSE'
-        #2 - BOTTOM
-        pie.operator("object.detailrefine", text="Subdivide").variable = 'SUBDIVIDE'
-        #8 - TOP
-        if bpy.context.tool_settings.sculpt.detail_type_method == 'CONSTANT':
-            pie.operator("object.detailtype", text="Relative").variable = 'RELATIVE'
-        elif bpy.context.tool_settings.sculpt.detail_type_method == 'RELATIVE': 
-            pie.operator("object.detailtype", text="Constant").variable = 'CONSTANT'
-        #7 - TOP - LEFT 
-        #9 - TOP - RIGHT
-        #1 - BOTTOM - LEFT
-        #3 - BOTTOM - RIGHT
-        
-#Pie Sculpt Detail Size Variable Constant
-class PieSculptDetailSizeVariableConstant(Menu):
-    bl_idname = "pie.sculptdetailsizevariableconstant"
-    bl_label = "Detail Size Values"
-
-    def draw(self, context):
-        layout = self.layout
-        pie = layout.menu_pie()
-        #4 - LEFT
-        pie.operator("object.detailsizevariable", text="1").variable = 1
-        #6 - RIGHT
-        pie.operator("object.detailsizevariable", text="15").variable = 15
-        #2 - BOTTOM
-        pie.operator("object.detailsizevariable", text="25").variable = 25
-        #8 - TOP
-        pie.operator("object.detailsizevariable", text="5").variable = 5
-        #7 - TOP - LEFT 
-        pie.operator("object.detailsizevariable", text="2").variable = 2
-        #9 - TOP - RIGHT
-        pie.operator("object.detailsizevariable", text="10").variable = 10
-        #1 - BOTTOM - LEFT
-        pie.operator("object.detailsizevariablerelative", text="30").variable = 30
-        #3 - BOTTOM - RIGHT
-        pie.operator("object.detailsizevariable", text="20").variable = 20
-        
-#Pie Sculpt Detail Size Variable Relative
-class PieSculptDetailSizeVariableRelative(Menu):
-    bl_idname = "pie.sculptdetailsizevariablerelative"
-    bl_label = "Detail Size Values"
-
-    def draw(self, context):
-        layout = self.layout
-        pie = layout.menu_pie()
-        
-        pie.operator("object.detailsizevariablerelative", text="1").variable = 1
-        #6 - RIGHT
-        pie.operator("object.detailsizevariablerelative", text="15").variable = 15
-        #2 - BOTTOM
-        pie.operator("object.detailsizevariablerelative", text="25").variable = 25
-        #8 - TOP
-        pie.operator("object.detailsizevariablerelative", text="5").variable = 5
-        #7 - TOP - LEFT 
-        pie.operator("object.detailsizevariablerelative", text="2").variable = 2
-        #9 - TOP - RIGHT
-        pie.operator("object.detailsizevariablerelative", text="10").variable = 10
-        #1 - BOTTOM - LEFT
-        pie.operator("object.detailsizevariablerelative", text="30").variable = 30
-        #3 - BOTTOM - RIGHT
-        pie.operator("object.detailsizevariablerelative", text="20").variable = 20
-        
+      
 #Pie Sculpt Mirror
 class PieSculptMirror(Menu):
     bl_idname = "pie.sculptmirror"
@@ -819,30 +746,7 @@ class PieSculptMirror(Menu):
             pie.operator("sculpt.sculptusesymmetryz", text="Unlock Z", icon='LOCKED')
         else:
             pie.operator("sculpt.sculptusesymmetryz", text="Lock Z", icon='UNLOCKED') 
-
-#Pie Sculpt Curves
-class PieSculptCurves(Menu):
-    bl_idname = "pie.sculptcurves"
-    bl_label = "Pie Sculpt Curves"
-
-    def draw(self, context):
-        layout = self.layout
-        pie = layout.menu_pie()
-        #4 - LEFT
-        pie.operator("brush.curve_preset", icon='SMOOTHCURVE', text="Smooth").shape = 'SMOOTH'
-        #6 - RIGHT
-        pie.operator("brush.curve_preset", icon='SPHERECURVE', text="Rounde").shape = 'ROUND'
-        #2 - BOTTOM
-        pie.operator("brush.curve_preset", icon='ROOTCURVE', text="Root").shape = 'ROOT'
-        #8 - TOP
-        pie.operator("brush.curve_preset", icon='SHARPCURVE', text="Sharp").shape = 'SHARP'
-        #7 - TOP - LEFT 
-        pie.operator("brush.curve_preset", icon='LINCURVE', text="Line").shape = 'LINE'
-        #9 - TOP - RIGHT
-        pie.operator("brush.curve_preset", icon='NOCURVE', text="Max").shape = 'MAX'
-        #1 - BOTTOM - LEFT
-        #3 - BOTTOM - RIGHT
-        
+     
 #Pie Particle Brushes    
 class PieParticleBrushes(Menu):
     bl_idname = "pie.particlebrushes"
@@ -903,7 +807,9 @@ class PieParticleOptions(Menu):
         pie.operator("object.particlepathsteps", text="Path Steps = 5", icon='PARTICLE_POINT').variable = 5 
         #3 - BOTTOM - RIGHT
         pie.operator("object.particlepathsteps", text="Path Steps = 3", icon='PARTICLE_POINT').variable = 3 
-                
+
+
+              
 ########################################################################
 
 ########################################################################
@@ -911,6 +817,7 @@ class PieParticleOptions(Menu):
 class View3dRightClicMenu(Menu):
     bl_idname = "pie.rightclicmenu"
     bl_label = "Right Clic Menu"
+    
 
     def draw(self, context):
         layout = self.layout
@@ -1174,59 +1081,28 @@ class View3dRightClicMenu(Menu):
         ################################################    
         elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'SCULPT':
             
+            
+            #------Dyntopo
+            
             if context.sculpt_object.use_dynamic_topology_sculpting:
                 #4 - LEFT
                 pie.operator("sculpt.dynamic_topology_toggle", icon='X', text="Disable Dyntopo")
                 #6 - RIGHT
-                pie.operator("sculpt.detail_flood_fill", text="Detail flood Fill") 
+                box = pie.split().column()
+                row = box.split(align=True)
+                
+                row.label(text="Curves:")      
+                
+                row = box.row(align=True)
+                row = box.split(align=True)
+                row.operator("brush.curve_preset", icon='SMOOTHCURVE', text="").shape = 'SMOOTH'
+                row.operator("brush.curve_preset", icon='SPHERECURVE', text="").shape = 'ROUND'
+                row.operator("brush.curve_preset", icon='ROOTCURVE', text="").shape = 'ROOT'
+                row.operator("brush.curve_preset", icon='SHARPCURVE', text="").shape = 'SHARP'
+                row.operator("brush.curve_preset", icon='LINCURVE', text="").shape = 'LINE'
+                row.operator("brush.curve_preset", icon='NOCURVE', text="").shape = 'MAX'
+                
                 #2 - BOTTOM
-                if bpy.context.scene.tool_settings.sculpt.use_smooth_shading == True:
-                    pie.operator("object.dtpsmoothshading", text="flat Shading", icon='MESH_ICOSPHERE')
-                else:
-                    pie.operator("object.dtpsmoothshading", text="Smooth Shading", icon='SOLID')
-                #8 - TOP
-                if bpy.context.tool_settings.sculpt.detail_type_method == 'CONSTANT':
-                    
-                    sculpt = context.tool_settings.sculpt
-                    
-                    col = pie.column(align=True)        
-                    col.operator("sculpt.sample_detail_size", text="Pick Detail Size", icon='EYEDROPPER')
-                    col.prop(sculpt, "constant_detail")
-                    
-                elif bpy.context.tool_settings.sculpt.detail_type_method == 'RELATIVE':
-                    
-                    toolsettings = context.tool_settings
-                    sculpt_relative = toolsettings.sculpt
-                    
-                    col = pie.column(align=True)     
-                    col.prop(sculpt_relative, "detail_size")
-                #7 - TOP - LEFT 
-                pie.operator("wm.call_menu_pie", text="Contant/Relative", icon='MOD_MIRROR').name="pie.sculptconstantrelative"
-                #9 - TOP - RIGHT
-                pie.operator("wm.call_menu_pie", text="Curves", icon='SHARPCURVE').name="pie.sculptcurves"
-                #1 - BOTTOM - LEFT
-                pie.operator("wm.call_menu_pie", text="Symmetrize/Lock", icon='MOD_MIRROR').name="pie.sculptmirror" 
-                #3 - BOTTOM - RIGHT
-                pie.operator("sculpt.optimize", text="Optimize")
-                
-            else:
-                #4 - LEFT
-                pie.operator("enable.dyntopo", text="Enable Dyntopo", icon='LINE_DATA')
-                #6 - RIGHT
-                pie.operator("wm.call_menu_pie", text="Curves", icon='SHARPCURVE').name="pie.sculptcurves"
-                #2 - BOTTOM
-                pie.operator("wm.call_menu_pie", text="Symmetrize/Lock", icon='MOD_MIRROR').name="pie.sculptmirror" 
-                #8 - TOP
-                ups = context.tool_settings.unified_paint_settings
-                brush = context.tool_settings.sculpt.brush
-                
-                col = pie.column(align=True)      
-                col.prop(ups, "size", text="Radius", slider=False)
-                col.prop(brush, "strength",  slider=True)
-                #7 - TOP - LEFT
-                
-             
-                #9 - TOP - RIGHT
                 brush = context.tool_settings.sculpt.brush
                 capabilities = brush.sculpt_capabilities
                 if capabilities.has_auto_smooth:
@@ -1235,13 +1111,244 @@ class View3dRightClicMenu(Menu):
                     
                     row.prop(brush, "auto_smooth_factor", slider=True)
                     row.prop(brush, "use_inverse_smooth_pressure", toggle=True, text="")
-                    col.prop(brush, "use_frontface", text="Front Faces Only")
+                    
+                    # normal_weight
+                if capabilities.has_normal_weight:
+                    
+                    row = col.row(align=True)
+                    row.prop(brush, "normal_weight", slider=True)
+
+                # crease_pinch_factor
+                if capabilities.has_pinch_factor:
+                    
+                    row = col.row(align=True)
+                    row.prop(brush, "crease_pinch_factor", slider=True, text="Pinch")
+
+                # use_original_normal and sculpt_plane
+                if capabilities.has_sculpt_plane:
+                    
+                    row = col.row(align=True)
+
+                    row.prop(brush, "use_original_normal", toggle=True, icon_only=True)
+
+                    row.prop(brush, "sculpt_plane", text="")
+
+                if brush.sculpt_tool == 'MASK':
+                    col.prop(brush, "mask_tool", text="")
+
+                # plane_offset, use_offset_pressure, use_plane_trim, plane_trim
+                if capabilities.has_plane_offset:
+                    row = col.row(align=True)
+                    row.prop(brush, "plane_offset", slider=True)
+                    row.prop(brush, "use_offset_pressure", text="")
+
+                    #col.separator()
+
+                    row = col.row()
+                    row.prop(brush, "use_plane_trim", text="Trim")
+                    row = col.row()
+                    row.active = brush.use_plane_trim
+                    row.prop(brush, "plane_trim", slider=True, text="Distance")
+
+                # height
+                if capabilities.has_height:
+                    row = col.row()
+                    row.prop(brush, "height", slider=True, text="Height")
+
+                # use_frontface
+                row = col.row()
+                row.prop(brush, "use_frontface", text="Front Faces Only")
+
+                # use_accumulate
+                if capabilities.has_accumulate:
+                    col.prop(brush, "use_accumulate")
+              
+                #8 - TOP
+                ups = context.tool_settings.unified_paint_settings
+                brush = context.tool_settings.sculpt.brush
                 
+                col = pie.column(align=True)      
+                col.prop(ups, "size", text="Radius", slider=False)
+                col.prop(brush, "strength",  slider=True)
+                
+                #7 - TOP - LEFT
+                if bpy.context.tool_settings.sculpt.detail_type_method == 'CONSTANT':
+                    
+                    sculpt = context.tool_settings.sculpt
+                    
+                    col = pie.column(align=True)        
+                    col.operator("sculpt.sample_detail_size", text="Pick Detail Size", icon='EYEDROPPER')
+                    col.prop(sculpt, "constant_detail")
+                    col.prop(sculpt, "detail_refine_method", text="")
+                    col.prop(sculpt, "detail_type_method", text="")
+                    
+                elif bpy.context.tool_settings.sculpt.detail_type_method == 'RELATIVE':
+                    
+                    
+                    toolsettings = context.tool_settings
+                    sculpt_relative = toolsettings.sculpt
+                    sculpt = context.tool_settings.sculpt
+                    
+                    col = pie.column(align=True)     
+                    col.prop(sculpt_relative, "detail_size")
+                    col.prop(sculpt, "detail_refine_method", text="")
+                    col.prop(sculpt, "detail_type_method", text="")
+                  
+                #9 - TOP - RIGHT
+                col = pie.column(align=True) 
+                col.operator("sculpt.optimize", text="Optimize") 
+                col.operator("sculpt.detail_flood_fill", text="Detail flood Fill") 
+                if bpy.context.scene.tool_settings.sculpt.use_smooth_shading == True:
+                    col.operator("object.dtpsmoothshading", text="flat Shading", icon='MESH_ICOSPHERE')
+                else:
+                    col.operator("object.dtpsmoothshading", text="Smooth Shading", icon='SOLID')
+                
+                #1 - BOTTOM - LEFT
+                sculpt = context.tool_settings.sculpt
+                box = pie.split().column()
+                row = box.split(align=True)
+                row.operator("wm.call_menu_pie", text="Symmetrize/Lock", icon='MOD_MIRROR').name="pie.sculptmirror" 
+                row = box.row(align=True)
+                row = box.split(align=True)
+                row.prop(sculpt, "use_symmetry_x", text="X", toggle=True)
+                row.prop(sculpt, "use_symmetry_y", text="Y", toggle=True)
+                row.prop(sculpt, "use_symmetry_z", text="Z", toggle=True)
+                #3 - BOTTOM - RIGHT
+                box = pie.split().column()
+                row = box.split(align=True)
+                
+                row.label(text="Stroke Method:")
+                row = box.row(align=True)
+                row = box.split(align=True)
+                row.prop(brush, "stroke_method", text="", icon='IPO_CONSTANT')
+                
+           
+            #------Normal Sculpt
+                 
+            else:
+                
+                
+                #4 - LEFT
+                pie.operator("enable.dyntopo", text="Enable Dyntopo", icon='LINE_DATA')
+                #6 - RIGHT
+                box = pie.split().column()
+                row = box.split(align=True)
+                
+                row.label(text="Curves:")      
+                
+                row = box.row(align=True)
+                row = box.split(align=True)
+                row.operator("brush.curve_preset", icon='SMOOTHCURVE', text="").shape = 'SMOOTH'
+                row.operator("brush.curve_preset", icon='SPHERECURVE', text="").shape = 'ROUND'
+                row.operator("brush.curve_preset", icon='ROOTCURVE', text="").shape = 'ROOT'
+                row.operator("brush.curve_preset", icon='SHARPCURVE', text="").shape = 'SHARP'
+                row.operator("brush.curve_preset", icon='LINCURVE', text="").shape = 'LINE'
+                row.operator("brush.curve_preset", icon='NOCURVE', text="").shape = 'MAX'
+                
+                #2 - BOTTOM
+                 
+                brush = context.tool_settings.sculpt.brush
+                capabilities = brush.sculpt_capabilities
+                if capabilities.has_auto_smooth:
+                    col = pie.column()
+                    row = col.row(align=True)
+                    
+                    row.prop(brush, "auto_smooth_factor", slider=True)
+                    row.prop(brush, "use_inverse_smooth_pressure", toggle=True, text="")
+                    
+                    # normal_weight
+                if capabilities.has_normal_weight:
+                    
+                    row = col.row(align=True)
+                    row.prop(brush, "normal_weight", slider=True)
+
+                # crease_pinch_factor
+                if capabilities.has_pinch_factor:
+                    
+                    row = col.row(align=True)
+                    row.prop(brush, "crease_pinch_factor", slider=True, text="Pinch")
+
+                # use_original_normal and sculpt_plane
+                if capabilities.has_sculpt_plane:
+                    
+                    row = col.row(align=True)
+
+                    row.prop(brush, "use_original_normal", toggle=True, icon_only=True)
+
+                    row.prop(brush, "sculpt_plane", text="")
+
+                #if brush.sculpt_tool == 'MASK':
+                    
+                    #row = col.row(align=True)
+                    #row.prop(brush, "mask_tool", text="")
+
+                # plane_offset, use_offset_pressure, use_plane_trim, plane_trim
+                if capabilities.has_plane_offset:
+                    row = col.row(align=True)
+                    row.prop(brush, "plane_offset", slider=True)
+                    row.prop(brush, "use_offset_pressure", text="")
+
+                    #col.separator()
+
+                    row = col.row()
+                    row.prop(brush, "use_plane_trim", text="Trim")
+                    row = col.row()
+                    row.active = brush.use_plane_trim
+                    row.prop(brush, "plane_trim", slider=True, text="Distance")
+
+                # height
+                if capabilities.has_height:
+                    row = col.row()
+                    row.prop(brush, "height", slider=True, text="Height")
+
+                # use_frontface
+                row = col.row()
+                row.prop(brush, "use_frontface", text="Front Faces Only")
+
+                # use_accumulate
+                if capabilities.has_accumulate:
+                    col.prop(brush, "use_accumulate")
+              
+                #8 - TOP
+                ups = context.tool_settings.unified_paint_settings
+                brush = context.tool_settings.sculpt.brush
+                
+                col = pie.column(align=True)      
+                col.prop(ups, "size", text="Radius", slider=False)
+                col.prop(brush, "strength",  slider=True)
+                
+                #7 - TOP - LEFT
+                sculpt = context.tool_settings.sculpt
+                box = pie.split().column()
+                row = box.split(align=True)
+                row.label(text="Symmetry:")
+                row = box.row(align=True)
+                row = box.split(align=True)
+                row.prop(sculpt, "use_symmetry_x", text="X", toggle=True)
+                row.prop(sculpt, "use_symmetry_y", text="Y", toggle=True)
+                row.prop(sculpt, "use_symmetry_z", text="Z", toggle=True)
+             
+                #9 - TOP - RIGHT
+                box = pie.split().column()
+                row = box.split(align=True)
+                
+                row.label(text="Stroke Method:")
+                row = box.row(align=True)
+                row = box.split(align=True)
+                row.prop(brush, "stroke_method", text="", icon='IPO_CONSTANT')
+             
                 #1 - BOTTOM - LEFT
                 
                 
+                
                 #3 - BOTTOM - RIGHT
-  
+        
+        
+        ################################################
+        # Dyntopo                                      #
+        ################################################ 
+        
+                
         ################################################
         # Particles                                    #
         ################################################    
@@ -1272,10 +1379,7 @@ class View3dRightClicMenu(Menu):
                 pie.operator("wm.context_toggle", text="Occlude Geo ON", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
             else:
                 pie.operator("wm.context_toggle", text="Occlude Geo OFF", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
-          
-#pie.operator("wm.radial_control", text="Strength", icon='RADIOBUT_ON').data_path_primary="tool_settings.particle_edit.brush.strength"
-#pie.operator("wm.radial_control", text="Radius", icon='RADIOBUT_OFF').data_path_primary="tool_settings.particle_edit.brush.size"
-#pie.operator("particle.select_linked", text="Select Linked", icon='LINKED')
+
           
 addon_keymaps = []
 def register():
@@ -1296,6 +1400,12 @@ def register():
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS')
         kmi.properties.name = "pie.rightclicmenu"  
+        
+        #Right Clic - Dyntopo
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS', ctrl=True)
+        kmi.properties.name = "pie.rightclicmenu" 
+        
         
 def unregister():
     bpy.utils.unregister_module(__name__)
