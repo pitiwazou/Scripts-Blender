@@ -1401,12 +1401,6 @@ def register():
         kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS')
         kmi.properties.name = "pie.rightclicmenu"  
         
-        #Right Clic - Dyntopo
-        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS', ctrl=True)
-        kmi.properties.name = "pie.rightclicmenu" 
-        
-        
 def unregister():
     bpy.utils.unregister_module(__name__)
     
