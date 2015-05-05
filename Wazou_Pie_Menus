@@ -19,8 +19,8 @@
 bl_info = {
     "name": "Wazou_Pie_Menus",
     "author": "Cédric Lepiller & DavideDozza & Lapineige & Leafar & 0rAngE",
-    "version": (0, 2, 0),
-    "blender": (2, 73, 1),
+    "version": (0, 2, 1),
+    "blender": (2, 74, 0),
     "description": "Custom Pie Menus",
     "category": "3D View",}
     
@@ -1635,6 +1635,8 @@ class PerspOrthoView(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.view3d.view_persportho()
         return {'FINISHED'} 
+    
+
 #######################################################
 # Camera                                              #
 ####################################################### 
@@ -1800,7 +1802,9 @@ class PieObjectEditMode(Menu):
             
         elif ob.object.type == 'ARMATURE':
             pie = layout.menu_pie()
-            pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')       
+            pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')     
+            
+            
 
 #Pie View Animation Etc - Space
 class PieAnimationEtc(Menu):
@@ -2560,7 +2564,100 @@ class PieSaveOpen(Menu):
         box.operator("wm.link", text="Link", icon='LINK_BLEND')
         box.operator("wm.append", text="Append", icon='APPEND_BLEND')
         box.menu("external.data", text="External Data", icon='EXTERNAL_DATA')
+        
+       
 
+#Pie UV's Select Mode     
+class PIE_IMAGE_MT_uvs_select_mode(Menu):
+    bl_label = "UV Select Mode"
+    bl_idname = "pie.uvsselectmode"
+
+    def draw(self, context):
+        layout = self.layout
+
+        layout.operator_context = 'INVOKE_REGION_WIN'
+        toolsettings = context.tool_settings
+        pie = layout.menu_pie()
+        # do smart things depending on whether uv_select_sync is on
+
+        if toolsettings.use_uv_select_sync:
+            
+            props = pie.operator("wm.context_set_value", text="Vertex", icon='VERTEXSEL')
+            props.value = "(True, False, False)"
+            props.data_path = "tool_settings.mesh_select_mode"
+
+            props = pie.operator("wm.context_set_value", text="Edge", icon='EDGESEL')
+            props.value = "(False, True, False)"
+            props.data_path = "tool_settings.mesh_select_mode"
+
+            props = pie.operator("wm.context_set_value", text="Face", icon='FACESEL')
+            props.value = "(False, False, True)"
+            props.data_path = "tool_settings.mesh_select_mode"
+
+        else:
+            props = pie.operator("wm.context_set_string", text="Vertex", icon='UV_VERTEXSEL')
+            props.value = 'VERTEX'
+            props.data_path = "tool_settings.uv_select_mode"
+
+            props = pie.operator("wm.context_set_string", text="Edge", icon='UV_EDGESEL')
+            props.value = 'EDGE'
+            props.data_path = "tool_settings.uv_select_mode"
+
+            props = pie.operator("wm.context_set_string", text="Face", icon='UV_FACESEL')
+            props.value = 'FACE'
+            props.data_path = "tool_settings.uv_select_mode"
+
+            props = pie.operator("wm.context_set_string", text="Island", icon='UV_ISLANDSEL')
+            props.value = 'ISLAND'
+            props.data_path = "tool_settings.uv_select_mode"
+
+
+#Pie UV's Weld/Align
+class Pie_UV_W(Menu):
+    bl_idname = "pie.uvsweldalign"
+    bl_label = "Pie UV's Welde/Align"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("uv.align", text="Align X").axis = 'ALIGN_X'
+        #6 - RIGHT
+        pie.operator("uv.align", text="Align Y").axis = 'ALIGN_Y'
+        #2 - BOTTOM
+        pie.operator("uv.align", text="Straighten").axis = 'ALIGN_S'
+        #8 - TOP
+        pie.operator("uv.align", text="Align Auto").axis = 'ALIGN_AUTO'
+        #7 - TOP - LEFT 
+        pie.operator("uv.weld", text="Weld", icon='AUTOMERGE_ON')
+        #9 - TOP - RIGHT
+        pie.operator("uv.remove_doubles", text="Remouve doubles")
+        #1 - BOTTOM - LEFT
+        pie.operator("uv.align", text="Straighten X").axis = 'ALIGN_T'
+        #3 - BOTTOM - RIGHT
+        pie.operator("uv.align", text="Straighten Y").axis = 'ALIGN_U'
+        
+#Pie Texture Paint Pie Menu - W
+class PieTexturePainttPie(Menu):
+    bl_idname = "pie.texturepaint"
+    bl_label = "Pie Texture Paint"
+
+    def draw(self, context):
+        layout = self.layout
+        pie = layout.menu_pie()
+        #4 - LEFT
+        pie.operator("paint.brush_select", text="Fill", icon='BRUSH_TEXFILL').texture_paint_tool='FILL'
+        #6 - RIGHT
+        pie.operator("paint.brush_select", text="Draw", icon='BRUSH_TEXDRAW').texture_paint_tool='DRAW'
+        #2 - BOTTOM
+        pie.operator("paint.brush_select", text='Soften', icon='BRUSH_SOFTEN').texture_paint_tool='SOFTEN'
+        #8 - TOP
+        pie.operator("paint.brush_select", text='Mask', icon='BRUSH_TEXMASK').texture_paint_tool='MASK'
+        #7 - TOP - LEFT 
+        pie.operator("paint.brush_select", text='Smear', icon='BRUSH_SMEAR').texture_paint_tool='SMEAR'
+        #9 - TOP - RIGHT
+        pie.operator("paint.brush_select", text='Clone', icon='BRUSH_CLONE').texture_paint_tool='CLONE'        
+        
 #Search Menu
 def SearchMenu(self, context):
     layout = self.layout
@@ -2692,6 +2789,25 @@ def register():
         km = wm.keyconfigs.addon.keymaps.new(name='Window')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', ctrl=True)
         kmi.properties.name = "pie.saveopen"
+        
+        #UV's Select Mode
+        km = wm.keyconfigs.addon.keymaps.new(name = 'Image', space_type = 'IMAGE_EDITOR')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS')
+        kmi.properties.name = "pie.uvsselectmode" 
+        
+        # Set 2d cursor with double click LMB
+        km = bpy.context.window_manager.keyconfigs.addon.keymaps.new(name = 'Image', space_type = 'IMAGE_EDITOR')
+        kmi = km.keymap_items.new('uv.cursor_set', 'RIGHTMOUSE', 'DOUBLE_CLICK', ctrl=True)
+        
+        #UV's Weld/align
+        km = wm.keyconfigs.addon.keymaps.new(name = 'UV Editor')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS')
+        kmi.properties.name = "pie.uvsweldalign" 
+        
+        #Texturepaint Pie Menu
+        km = wm.keyconfigs.addon.keymaps.new(name = 'Image Paint')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS')
+        kmi.properties.name = "pie.texturepaint"
         
         addon_keymaps.append(km)
         
