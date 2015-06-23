@@ -19,7 +19,7 @@
 bl_info = {
     "name": "Wazou_Pie_Menus",
     "author": "Cédric Lepiller & DavideDozza & Lapineige & Leafar & 0rAngE",
-    "version": (0, 2, 1),
+    "version": (0, 2, 2),
     "blender": (2, 74, 0),
     "description": "Custom Pie Menus",
     "category": "3D View",}
@@ -597,111 +597,26 @@ class MeshDisplayOverlays(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         
-        layout.operator("wm.context_toggle", text="Show Faces", icon='FACESEL').data_path = "object.data.show_faces"
-        layout.operator("wm.context_toggle", text="Show Edges", icon='FACESEL').data_path = "object.data.show_edges"
-        layout.operator("wm.context_toggle", text="Show Crease", icon='FACESEL').data_path = "object.data.show_edge_crease"
-        layout.operator("wm.context_toggle", text="Show Seams", icon='FACESEL').data_path = "object.data.show_edge_seams"
-        layout.operator("wm.context_toggle", text="Show Sharp", icon='FACESEL').data_path = "object.data.show_edge_sharp"
-        layout.operator("wm.context_toggle", text="Show Bevel", icon='FACESEL').data_path = "object.data.show_edge_bevel_weight"
-        layout.operator("wm.context_toggle", text="Show Edges Marks", icon='FACESEL').data_path = "object.data.show_freestyle_edge_marks"
-        layout.operator("wm.context_toggle", text="Show Face Marks", icon='FACESEL').data_path = "object.data.show_freestyle_face_marks"
-        layout.operator("wm.context_toggle", text="Show Weight", icon='FACESEL').data_path = "object.data.show_weight"
+        with_freestyle = bpy.app.build_options.freestyle
+
+        mesh = context.active_object.data
+        scene = context.scene
+
+        split = layout.split()
+
+        col = split.column()
+        col.label(text="Overlays:")
+        col.prop(mesh, "show_faces", text="Faces")
+        col.prop(mesh, "show_edges", text="Edges")
+        col.prop(mesh, "show_edge_crease", text="Creases")
+        col.prop(mesh, "show_edge_seams", text="Seams")
+        layout.prop(mesh, "show_weight")
+        col.prop(mesh, "show_edge_sharp", text="Sharp")
+        col.prop(mesh, "show_edge_bevel_weight", text="Bevel")
+        col.prop(mesh, "show_freestyle_edge_marks", text="Edge Marks")
+        col.prop(mesh, "show_freestyle_face_marks", text="Face Marks")
+
         
-#auto smooth Menu
-class AutoSmoothMenu(bpy.types.Menu):
-    bl_idname = "auto.smooth_menu"
-    bl_label = "Auto Smooth"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def draw(self, context):
-        layout = self.layout
-        layout.operator("wm.context_toggle", text="Auto Smooth", icon='MESH_DATA').data_path = "object.data.use_auto_smooth"
-        layout.operator("auto.smooth_30", text="Auto Smooth 30", icon='MESH_DATA')
-        layout.operator("auto.smooth_45", text="Auto Smooth 45", icon='MESH_DATA')
-        layout.operator("auto.smooth_89", text="Auto Smooth 89", icon='MESH_DATA')
-
-#AutoSmooth_89
-class AutoSmooth89(bpy.types.Operator):
-    bl_idname = "auto.smooth_89"
-    bl_label = "Auto Smooth"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-        
-    def execute(self, context):
-        bpy.context.object.data.auto_smooth_angle = 1.55334
-        return {'FINISHED'}
-
-#AutoSmooth_30
-class AutoSmooth30(bpy.types.Operator):
-    bl_idname = "auto.smooth_30"
-    bl_label = "Auto Smooth"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-        
-    def execute(self, context):
-        bpy.context.object.data.auto_smooth_angle = 0.523599
-        return {'FINISHED'}
-
-#AutoSmooth_45
-class AutoSmooth45(bpy.types.Operator):
-    bl_idname = "auto.smooth_45"
-    bl_label = "Auto Smooth"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-        
-    def execute(self, context):
-        bpy.context.object.data.auto_smooth_angle = 0.785398
-        return {'FINISHED'}
-
-#Normals
-class NormalsMenu(bpy.types.Menu):
-    bl_idname = "normals.menu"
-    bl_label = "Normals Menu"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def draw(self, context):
-        layout = self.layout
-        layout.operator("wm.context_toggle", text="Show Normals Vertex", icon='MESH_DATA').data_path = "object.data.show_normal_vertex"
-        layout.operator("wm.context_toggle", text="Show Normals Loop", icon='MESH_DATA').data_path = "object.data.show_normal_vertex"
-        layout.operator("normalsize.01", text="Normal Size 01")
-        layout.operator("normalsize.02", text="Normal Size 02")
-
-#Normal Size 01
-class NormalSize01(bpy.types.Operator):
-    bl_idname = "normalsize.01"
-    bl_label = "Normal Size 01"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-        
-    def execute(self, context):
-        bpy.context.scene.tool_settings.normal_size = 0.1
-        return {'FINISHED'}  
-    
-#Normal Size 02
-class NormalSize02(bpy.types.Operator):
-    bl_idname = "normalsize.02"
-    bl_label = "Normal Size 02"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-        
-    def execute(self, context):
-        bpy.context.scene.tool_settings.normal_size = 0.2
-        return {'FINISHED'}              
 ######################
 #    Pivot Point     #               
 ######################
@@ -1749,8 +1664,9 @@ class PieObjectEditMode(Menu):
 
     def draw(self, context):
         layout = self.layout
-           
+        toolsettings = context.tool_settings
         ob = context
+        
         if ob.object.type == 'MESH':
             pie = layout.menu_pie()
             #4 - LEFT
@@ -1768,7 +1684,11 @@ class PieObjectEditMode(Menu):
             #1 - BOTTOM - LEFT
             pie.operator("wm.call_menu_pie", text="Other Modes", icon='TPAINT_HLT').name="pie.objecteditmodeothermodes"
             #3 - BOTTOM - RIGHT
-            pie.operator("wm.call_menu_pie", text="V/E/F Modes", icon='UV_VERTEXSEL').name="pie.vertexedgesfacesmodes"
+            box = pie.split().column()
+            row = box.row(align=True)
+            row.prop(toolsettings, "use_mesh_automerge", text="Auto Merge")
+            row = box.row(align=True)
+            row.operator("wm.call_menu_pie", text="V/E/F Modes", icon='UV_VERTEXSEL').name="pie.vertexedgesfacesmodes"
             
         elif ob.object.type == 'CURVE':
             pie = layout.menu_pie()
@@ -1919,11 +1839,8 @@ class PieCamera(Menu):
             pie.operator("wm.context_toggle", text="Lock Cam to View", icon='UNLOCKED').data_path = "space_data.lock_camera"
         elif context.space_data.lock_camera == True:
             pie.operator("wm.context_toggle", text="Lock Cam to View", icon='LOCKED').data_path = "space_data.lock_camera"
-        #6 - RIGHT
         pie.operator("view3d.viewnumpad", text="View Camera", icon='VISIBLE_IPO_ON').type='CAMERA'
-        #2 - BOTTOM   
         pie.operator("view3d.camera_to_view", text="Cam to view", icon = 'MAN_TRANS')
-        #8 - TOP
         if ob.lock_rotation[0] == False:
             pie.operator("object.lockcameratransforms", text="Lock Transforms", icon = 'UNLOCKED')
         elif  ob.lock_rotation[0] == True:
@@ -1940,6 +1857,8 @@ class PieViewNumpad(Menu):
 
     def draw(self, context):
         layout = self.layout
+        ob = bpy.context.object
+        obj = context.object
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("view3d.viewnumpad", text="Left", icon='TRIA_LEFT').type='LEFT'
@@ -1954,7 +1873,24 @@ class PieViewNumpad(Menu):
         #9 - TOP - RIGHT
         pie.operator("view3d.viewnumpad", text="Back").type='BACK'
         #1 - BOTTOM - LEFT
-        pie.operator("wm.call_menu_pie", text="Camera", icon='CAMERA_DATA').name="pie.camera"
+        box = pie.split().column()
+        row = box.row(align=True)
+        if context.space_data.lock_camera == False:
+            row.operator("wm.context_toggle", text="Lock Cam to View", icon='UNLOCKED').data_path = "space_data.lock_camera"
+        elif context.space_data.lock_camera == True:
+            row.operator("wm.context_toggle", text="Lock Cam to View", icon='LOCKED').data_path = "space_data.lock_camera"
+        
+        row = box.row(align=True)
+        row.operator("view3d.viewnumpad", text="View Camera", icon='VISIBLE_IPO_ON').type='CAMERA'
+        row = box.row(align=True)
+        row.operator("view3d.camera_to_view", text="Cam to view", icon = 'MAN_TRANS')
+        
+        if ob.lock_rotation[0] == False:
+            row = box.row(align=True)
+            row.operator("object.lockcameratransforms", text="Lock Transforms", icon = 'LOCKED')
+        elif  ob.lock_rotation[0] == True:
+            row = box.row(align=True)
+            row.operator("object.lockcameratransforms", text="UnLock Transforms", icon = 'UNLOCKED')
         
         #3 - BOTTOM - RIGHT
         pie.operator("wm.call_menu_pie", text="View All/Sel/Glob...", icon='BBOX').name="pie.vieallselglobetc"
@@ -1980,7 +1916,7 @@ class PieSculptPie(Menu):
         #9 - TOP - RIGHT
         pie.operator("paint.brush_select", text='Grab', icon='BRUSH_GRAB').sculpt_tool='GRAB'
         #1 - BOTTOM - LEFT
-        pie.operator("paint.brush_select", text='Mask', icon='BRUSH_MASK').sculpt_tool='MASK'
+        pie.operator("paint.brush_select", text='Simplify', icon='BRUSH_DATA').sculpt_tool='SIMPLIFY'
         #3 - BOTTOM - RIGHT
         pie.operator("wm.call_menu_pie", text="Others Brushes", icon='LINE_DATA').name="pie.sculpttwo"
 
@@ -2010,6 +1946,7 @@ class PieSculpttwo(Menu):
         box.operator("paint.brush_select", text='Twist', icon='BRUSH_ROTATE').sculpt_tool= 'ROTATE'
         box.operator("paint.brush_select", text='Scrape/Peaks', icon='BRUSH_SCRAPE').sculpt_tool= 'SCRAPE'
         box.operator("sculpt.sculptraw", text='SculptDraw', icon='BRUSH_SCULPT_DRAW')
+        box.operator("paint.brush_select", text='Mask', icon='BRUSH_MASK').sculpt_tool='MASK'
         #3 - BOTTOM - RIGHT
         box = pie.split().column()
         row = box.row(align=True)
@@ -2215,21 +2152,15 @@ class PieObjectShading2(Menu):
 
     def draw(self, context):
         layout = self.layout
+        
         pie = layout.menu_pie()
         #4 - LEFT
-        pie.operator("wm.context_toggle", text="Only Render", icon='SOLID').data_path = "space_data.show_only_render"
         #6 - RIGHT
-        pie.operator("scene.togglegridaxis", text="Show/Hide Grid", icon="MESH_GRID")
         #2 - BOTTOM
-        pie.menu("meshdisplay.overlays", text="Mesh display")
         #8 - TOP
-        pie.menu("normals.menu", text="Normals", icon='FACESEL')
         #7 - TOP - LEFT 
-        pie.menu("auto.smooth_menu", text="Auto Smooth", icon='MESH_DATA')
         #9 - TOP - RIGHT
-        pie.operator("wm.context_toggle", text="Matcaps", icon='MATCAP_02').data_path = "space_data.use_matcap"
         #1 - BOTTOM - LEFT
-        
         #3 - BOTTOM - RIGHT
 
 #Pie Object Shading- Shift + Z
@@ -2239,23 +2170,114 @@ class PieObjectShading(Menu):
 
     def draw(self, context):
         layout = self.layout
+        
+        toolsettings = context.tool_settings
+        view = context.space_data
+        obj = context.object
+        mesh = context.active_object.data
+        fx_settings = view.fx_settings
+        
+        
         pie = layout.menu_pie()
         #4 - LEFT
-        pie.operator("wm.context_toggle", text="Backface Culling", icon="ORTHO").data_path = "space_data.show_backface_culling"
+        pie.operator("scene.togglegridaxis", text="Show/Hide Grid", icon="MESH_GRID")
         #6 - RIGHT
         pie.operator("wire.selectedall", text="Wire", icon='WIRE')
         #2 - BOTTOM
-        pie.operator("wm.context_toggle", text="Auto Merge", icon='AUTOMERGE_ON').data_path = "scene.tool_settings.use_mesh_automerge"
+        
+        
+        border_lines = context.window_manager.border_lines
+        
+        box = pie.split().column()
+        row = box.row(align=True)
+        row.prop(border_lines, "borderlines_use")
+
+        if border_lines.borderlines_use:
+            row = box.row(align=True)
+            row.prop(border_lines, "borderlines_width")
+
+            
+            if border_lines.custom_color_use:
+                row = box.split(align=True)    
+                row.prop(border_lines, "custom_color_use")
+                row = box.split(align=True) 
+                row.prop(border_lines, "custom_color", text="")
+                row = box.row(align=True)
+                row.separator()
+            else:
+                row = box.split(align=True) 
+                row.prop(border_lines, "custom_color_use")
+                row = box.row(align=True)
+                row.separator()
+                
+        if view.viewport_shade not in {'BOUNDBOX', 'WIREFRAME'}:
+            row = box.row(align=True)
+            row.prop(fx_settings, "use_dof")
+            row = box.row(align=True)
+            row.prop(fx_settings, "use_ssao", text="AO")
+            if fx_settings.use_ssao:
+                ssao_settings = fx_settings.ssao
+                row = box.row(align=True)
+                row.prop(ssao_settings, "factor")
+                row = box.row(align=True)
+                row.prop(ssao_settings, "distance_max")
+                row = box.row(align=True)
+                row.prop(ssao_settings, "attenuation")
+                row = box.row(align=True)
+                row.prop(ssao_settings, "samples")
+                row = box.row(align=True)
+                row.prop(ssao_settings, "color")
         #8 - TOP
-        pie.operator("wm.context_toggle", text="Xray", icon='META_CUBE').data_path = "object.show_x_ray"
+        box = pie.split().column()
+        row = box.row(align=True)
+        row.prop(obj, "show_x_ray", text="X-Ray")
+        row = box.row(align=True)
+        row.prop(view, "show_occlude_wire", text="Hidden Wire")
+        row = box.row(align=True)
+        row.prop(view, "show_backface_culling", text="Backface Culling")
         #7 - TOP - LEFT
-        pie.operator("wm.context_toggle", text="Show Normals Faces", icon='FACESEL').data_path = "object.data.show_normal_face"
+        box = pie.split().column()
+        row = box.row(align=True)
+        row.prop(mesh, "show_normal_face", text="Show Normals Faces", icon='FACESEL')
+        row = box.row()
+        row.menu("meshdisplay.overlays", text="Mesh display", icon='OBJECT_DATAMODE')
         #9 - TOP - RIGHT
-        pie.operator("wm.context_toggle", text="Hidden Wire", icon='GHOST_ENABLED').data_path = "space_data.show_occlude_wire"
+        box = pie.split().column()
+        row = box.row(align=True)
+        row.prop(mesh, "show_double_sided", text="Double sided")
+        row = box.row(align=True)
+        row.prop(mesh, "use_auto_smooth")
+        if mesh.use_auto_smooth:
+            row = box.row(align=True)
+            row.prop(mesh, "auto_smooth_angle", text="Angle")
         #1 - BOTTOM - LEFT
-        pie.operator("wm.context_toggle", text="Double sided", icon='SNAP_FACE').data_path = "object.data.show_double_sided"
+        box = pie.split().column()
+        row = box.row(align=True)
+        box.prop(view, "show_only_render")
+        row = box.row(align=True)
+        box.prop(view, "show_world")
+        row = box.row(align=True)
+        box.prop(view, "show_outline_selected")
+        
         #3 - BOTTOM - RIGHT
-        pie.operator("wm.call_menu_pie", text="Others", icon='GROUP').name="pie.objectshading2" 
+        box = pie.split().column()
+        row = box.row(align=True)
+        row.prop(view, "use_matcap", text="Matcaps")
+        if view.use_matcap:
+            row = box.row(align=True)
+            row.menu("meshdisplay.matcaps", text="Choose Matcaps", icon='MATCAP_02')
+        
+#Overlays
+class MeshDisplayMatcaps(bpy.types.Menu):
+    bl_idname = "meshdisplay.matcaps"
+    bl_label = "Mesh Display Matcaps"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def draw(self, context):
+        layout = self.layout
+        view = context.space_data
+        layout.template_icon_view(view, "matcap_icon")
+                
 
 #Pie ProportionalEditObj - O
 class PieProportionalObj(Menu):
