@@ -1,4 +1,4 @@
-﻿# ##### BEGIN GPL LICENSE BLOCK #####
+# ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 bl_info = {
     "name": "Wazou_Pie_Menus",
     "author": "Cédric Lepiller & DavideDozza & Lapineige & Leafar & 0rAngE",
-    "version": (0, 2, 2),
+    "version": (0, 2, 3),
     "blender": (2, 74, 0),
     "description": "Custom Pie Menus",
     "category": "3D View",}
@@ -1822,33 +1822,6 @@ class PieAreaViews(Menu):
         pie.operator("split.vertical", text="Split Vertical", icon= 'TRIA_RIGHT')
         #3 - BOTTOM - RIGHT
         pie.operator("split.horizontal", text="Split Horizontal", icon= 'TRIA_DOWN')
-
-#Pie Camera - C
-class PieCamera(Menu):
-    bl_idname = "pie.camera"
-    bl_label = "Pie Camera"
-
-    def draw(self, context):
-        layout = self.layout
-        pie = layout.menu_pie()
-        ob = bpy.context.object
-        obj = context.object
-        
-        #4 - LEFT
-        if context.space_data.lock_camera == False:
-            pie.operator("wm.context_toggle", text="Lock Cam to View", icon='UNLOCKED').data_path = "space_data.lock_camera"
-        elif context.space_data.lock_camera == True:
-            pie.operator("wm.context_toggle", text="Lock Cam to View", icon='LOCKED').data_path = "space_data.lock_camera"
-        pie.operator("view3d.viewnumpad", text="View Camera", icon='VISIBLE_IPO_ON').type='CAMERA'
-        pie.operator("view3d.camera_to_view", text="Cam to view", icon = 'MAN_TRANS')
-        if ob.lock_rotation[0] == False:
-            pie.operator("object.lockcameratransforms", text="Lock Transforms", icon = 'UNLOCKED')
-        elif  ob.lock_rotation[0] == True:
-            pie.operator("object.lockcameratransforms", text="Lock Transforms", icon = 'LOCKED')
-        #7 - TOP - LEFT
-        #9 - TOP - RIGHT
-        #1 - BOTTOM - LEFT
-        #3 - BOTTOM - RIGHT
         
 #Pie views numpad - Q
 class PieViewNumpad(Menu):
@@ -1860,6 +1833,9 @@ class PieViewNumpad(Menu):
         ob = bpy.context.object
         obj = context.object
         pie = layout.menu_pie()
+        scene = context.scene
+        rd = scene.render
+        
         #4 - LEFT
         pie.operator("view3d.viewnumpad", text="Left", icon='TRIA_LEFT').type='LEFT'
         #6 - RIGHT
@@ -1881,20 +1857,21 @@ class PieViewNumpad(Menu):
             row.operator("wm.context_toggle", text="Lock Cam to View", icon='LOCKED').data_path = "space_data.lock_camera"
         
         row = box.row(align=True)
-        row.operator("view3d.viewnumpad", text="View Camera", icon='VISIBLE_IPO_ON').type='CAMERA'
-        row = box.row(align=True)
+        row.operator("view3d.viewnumpad", text="View Cam", icon='VISIBLE_IPO_ON').type='CAMERA'
         row.operator("view3d.camera_to_view", text="Cam to view", icon = 'MAN_TRANS')
         
         if ob.lock_rotation[0] == False:
             row = box.row(align=True)
             row.operator("object.lockcameratransforms", text="Lock Transforms", icon = 'LOCKED')
+            
         elif  ob.lock_rotation[0] == True:
             row = box.row(align=True)
             row.operator("object.lockcameratransforms", text="UnLock Transforms", icon = 'UNLOCKED')
-        
+        row = box.row(align=True)
+        row.prop(rd, "use_border", text="Border")     
         #3 - BOTTOM - RIGHT
         pie.operator("wm.call_menu_pie", text="View All/Sel/Glob...", icon='BBOX').name="pie.vieallselglobetc"
-        
+       
 #Pie Sculp Pie Menus - W
 class PieSculptPie(Menu):
     bl_idname = "pie.sculpt"
