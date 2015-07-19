@@ -19,8 +19,8 @@
 bl_info = {
     "name": "Wazou Right clic Pie Menu",
     "author": "Cédric Lepiller",
-    "version": (0, 1, 8),
-    "blender": (2, 74, 0),
+    "version": (0, 2, 0),
+    "blender": (2, 75, 0),
     "location": "View3D > RMB",
     "description": "Right Click Pie Menu",
     "category": "3D View"}
@@ -707,7 +707,26 @@ class ClearEmpty(bpy.types.Operator):
             bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
             bpy.ops.object.select_all(action='TOGGLE')
         return {'FINISHED'}
-                                                     
+
+#Mark Seam
+class MarkSeam(bpy.types.Operator):  
+    bl_idname = "mark.seam"  
+    bl_label = "Mark Seam" 
+    bl_options = {'REGISTER', 'UNDO'} 
+  
+    def execute(self, context):
+        bpy.ops.mesh.mark_seam()
+        return {'FINISHED'}
+        
+#Clear Seam
+class ClearSeam(bpy.types.Operator):  
+    bl_idname = "clear.seam"  
+    bl_label = "Clear Seam" 
+    bl_options = {'REGISTER', 'UNDO'} 
+  
+    def execute(self, context):
+        bpy.ops.mesh.mark_seam(clear=True)
+        return {'FINISHED'}                                                      
 ######################
 #        Pies        #               
 ######################  
@@ -749,29 +768,39 @@ class PieSculptMirror(Menu):
      
 #Pie Particle Brushes    
 class PieParticleBrushes(Menu):
-    bl_idname = "pie.particlebrushes"
-    bl_label = "Pie Particle Brushes"
+    bl_idname = "pie.particleparameters"
+    bl_label = "Pie Particle Parameters"
 
     def draw(self, context):
         layout = self.layout
 
         pie = layout.menu_pie()
         #4 - LEFT
-        pie.operator("object.spb", text="Smooth", icon='BRUSH_DATA').variable = 'SMOOTH'
+        pie.operator("object.spm", text="Path", icon='PARTICLE_PATH').variable = 'PATH'
         #6 - RIGHT
-        pie.operator("object.spb", text="Length", icon='BRUSH_DATA').variable = 'LENGTH'
+        pie.operator("object.spm", text="Point", icon='PARTICLE_POINT').variable = 'POINT'
         #2 - BOTTOM
-        pie.operator("object.spb", text="Puff", icon='BRUSH_DATA').variable = 'PUFF'
+        pie.operator("object.spm", text="Tip", icon='PARTICLE_TIP').variable = 'TIP'
         #8 - TOP
-        pie.operator("object.spb", text="Comb", icon='BRUSH_DATA').variable = 'COMB'
+        pie.operator("wm.call_menu_pie", text="Brushes", icon='BRUSH_DATA').name="pie.particlebrushes" 
         #7 - TOP - LEFT 
-        pie.operator("object.spb", text="Add", icon='BRUSH_DATA').variable = 'ADD'
+        pie.operator("wm.call_menu_pie", text="Options", icon='SCRIPTWIN').name="pie.particleoptions" 
         #9 - TOP - RIGHT
-        pie.operator("object.spb", text="Cut", icon='BRUSH_DATA').variable = 'CUT'
+        if bpy.context.scene.tool_settings.particle_edit.show_particles == (True):
+            pie.operator("object.particlechildren", text="Chidren OFF", icon='HAIR')
+        else:
+            pie.operator("object.particlechildren", text="Chidren ON", icon='HAIR')
         #1 - BOTTOM - LEFT
-        pie.operator("object.spb", text="None", icon='BRUSH_DATA').variable = 'NONE'
+        if bpy.context.scene.tool_settings.particle_edit.use_default_interpolate == (True):
+            pie.operator("object.particleinterpolate", text="Interpolate OFF", icon='HAIR')
+        else:
+            pie.operator("object.particleinterpolate", text="Interpolate ON", icon='HAIR') 
         #3 - BOTTOM - RIGHT
-        pie.operator("object.spb", text="Weight", icon='BRUSH_DATA').variable = 'WEIGHT'
+        if bpy.context.space_data.use_occlude_geometry == (True):
+            pie.operator("wm.context_toggle", text="Occlude Geo ON", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
+        else:
+            pie.operator("wm.context_toggle", text="Occlude Geo OFF", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
+
 
 #Pie Particle Options  
 class PieParticleOptions(Menu):
@@ -1056,6 +1085,10 @@ class View3dRightClicMenu(Menu):
             row = box.split(align=True)
             row.operator("mesh.poke", text="Poke Faces")
             row.operator("mesh.fill_grid", text="Grid Fill")
+            row = box.row(align=True)
+            row = box.split(align=True)
+            row.operator("mark.seam", "Mark Seam", icon='UV_EDGESEL')
+            row.operator("clear.seam", "Clear Seam", icon='UV_EDGESEL')
             #1 - BOTTOM - LEFT
             box = pie.split().column()
             row = box.split(align=True)
@@ -1067,6 +1100,7 @@ class View3dRightClicMenu(Menu):
             row.operator("mesh.vertex_align", icon='ALIGN', text="Align")
             row.operator("retopo.space", icon='ALIGN', text="Distribute")
             row.operator("mesh.vertex_inline", icon='ALIGN', text="Ali & Dis")
+            
             #3 - BOTTOM - RIGHT
             box = pie.split().column()
             row = box.split(align=True)
@@ -1358,33 +1392,24 @@ class View3dRightClicMenu(Menu):
         # Particles                                    #
         ################################################    
         elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'PARTICLE_EDIT':
-            
             #4 - LEFT
-            pie.operator("object.spm", text="Path", icon='PARTICLE_PATH').variable = 'PATH'
+            pie.operator("object.spb", text="Smooth", icon='BRUSH_DATA').variable = 'SMOOTH'
             #6 - RIGHT
-            pie.operator("object.spm", text="Point", icon='PARTICLE_POINT').variable = 'POINT'
+            pie.operator("object.spb", text="Length", icon='BRUSH_DATA').variable = 'LENGTH'
             #2 - BOTTOM
-            pie.operator("object.spm", text="Tip", icon='PARTICLE_TIP').variable = 'TIP'
+            pie.operator("object.spb", text="Puff", icon='BRUSH_DATA').variable = 'PUFF'
             #8 - TOP
-            pie.operator("wm.call_menu_pie", text="Brushes", icon='BRUSH_DATA').name="pie.particlebrushes" 
+            pie.operator("object.spb", text="Comb", icon='BRUSH_DATA').variable = 'COMB'
             #7 - TOP - LEFT 
-            pie.operator("wm.call_menu_pie", text="Options", icon='SCRIPTWIN').name="pie.particleoptions" 
+            pie.operator("object.spb", text="Add", icon='BRUSH_DATA').variable = 'ADD'
             #9 - TOP - RIGHT
-            if bpy.context.scene.tool_settings.particle_edit.show_particles == (True):
-                pie.operator("object.particlechildren", text="Chidren OFF", icon='HAIR')
-            else:
-                pie.operator("object.particlechildren", text="Chidren ON", icon='HAIR')
+            pie.operator("object.spb", text="Cut", icon='BRUSH_DATA').variable = 'CUT'
             #1 - BOTTOM - LEFT
-            if bpy.context.scene.tool_settings.particle_edit.use_default_interpolate == (True):
-                pie.operator("object.particleinterpolate", text="Interpolate OFF", icon='HAIR')
-            else:
-                pie.operator("object.particleinterpolate", text="Interpolate ON", icon='HAIR') 
+            pie.operator("object.spb", text="None", icon='BRUSH_DATA').variable = 'NONE'
             #3 - BOTTOM - RIGHT
-            if bpy.context.space_data.use_occlude_geometry == (True):
-                pie.operator("wm.context_toggle", text="Occlude Geo ON", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
-            else:
-                pie.operator("wm.context_toggle", text="Occlude Geo OFF", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
-
+            pie.operator("object.spb", text="Weight", icon='BRUSH_DATA').variable = 'WEIGHT'
+            
+            
           
 addon_keymaps = []
 def register():
@@ -1406,11 +1431,13 @@ def register():
         kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS')
         kmi.properties.name = "pie.rightclicmenu"  
         
+        #CTRL + Right Clic
+        km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS', ctrl=True)
+        kmi.properties.name = "pie.particleparameters"  
+        
 def unregister():
     bpy.utils.unregister_module(__name__)
-    
-    
-    
     
     
 if __name__ == "__main__":
