@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Mesh check",
     "author": "Clarkx, Cedric Lepiller, CoDEmanX, Pistiwique",
-    "version": (0, 1, 0),
+    "version": (0, 1, 1),
     "blender": (2, 75, 0),
     "description": "Custom Menu to show faces, tris, Ngons on the mesh",
     "category": "3D View",}
@@ -34,7 +34,7 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
             row.operator("wm.url_open", text="BlenderLounge Forum ").url = "http://blenderlounge.fr/forum/"
  
 
-handle = []
+mesh_check_handle = []
 display_color = [False]  
 
 
@@ -89,7 +89,7 @@ class AddMaterials(bpy.types.Operator):
     
     @classmethod
     def poll(cls, context):
-        return context.active_object.type == 'MESH'
+        return context.object is not None and context.object.type == 'MESH'
     
     def execute(sefl, context):        
         m_check = context.window_manager.m_check  
@@ -175,8 +175,9 @@ class RemoveMaterials(bpy.types.Operator):
         return {'FINISHED'}
                 
                 
-def display_color_callback():    
-    if bpy.context.object.mode == 'EDIT':         
+def mesh_check_display_color_callback():    
+    obj = bpy.context.object
+    if obj and obj.type == 'MESH' and obj.mode == 'EDIT':         
         if display_color[0]:              
             ob = bpy.context.object
             me = ob.data
@@ -236,7 +237,7 @@ class DATA_OP_facetype_select(bpy.types.Operator):
                              default = "5")
     @classmethod
     def poll(cls, context):
-        return context.active_object.type == 'MESH'
+        return context.object is not None and context.object.type == 'MESH'
 
     def execute(self, context):
         bpy.ops.object.mode_set(mode='EDIT')
@@ -261,42 +262,43 @@ def DisplayMeshCheckPanel(self, context):
     layout = self.layout    
     m_check = context.window_manager.m_check
     
-    layout.prop(m_check, "meshcheck_use")
-    
-    if m_check.meshcheck_use:
-        split = layout.split(percentage=0.1)
-        split.separator()
-        if m_check.meshcheck_enabled:
-            split.operator("object.remove_materials", text="Hidde color", icon='RESTRICT_VIEW_OFF')
-        else:
-            split.operator("object.add_materials", text="Display color", icon='COLOR') 
-        split = layout.split(percentage=0.1)
-        split.separator()
-        split2 = split.split(align=True)
-        split2.operator("data.facetype_select", text="Ngons").face_type = "5"
-        split2.operator("data.facetype_select", text="Tris").face_type = "3"
-        if bpy.context.object.mode == 'EDIT':
-                obj = bpy.context.object
-                me = obj.data
-                bm = bmesh.from_edit_mesh(me)
-                	
-                info_str = ""
-                tris = ngons = 0
+    if bpy.context.object and bpy.context.object.type == 'MESH':
+        layout.prop(m_check, "meshcheck_use")
+        
+        if m_check.meshcheck_use:
+            split = layout.split(percentage=0.1)
+            split.separator()
+            if m_check.meshcheck_enabled:
+                split.operator("object.remove_materials", text="Hidde color", icon='RESTRICT_VIEW_OFF')
+            else:
+                split.operator("object.add_materials", text="Display color", icon='COLOR') 
+            split = layout.split(percentage=0.1)
+            split.separator()
+            split2 = split.split(align=True)
+            split2.operator("data.facetype_select", text="Ngons").face_type = "5"
+            split2.operator("data.facetype_select", text="Tris").face_type = "3"
+            if bpy.context.object.mode == 'EDIT':
+                    obj = bpy.context.object
+                    me = obj.data
+                    bm = bmesh.from_edit_mesh(me)
+                    	
+                    info_str = ""
+                    tris = ngons = 0
 
-                for f in bm.faces:
-            
-                    v = len(f.verts)
-                    if v == 3:
-                        tris += 1
-                    elif v > 4:
-                        ngons += 1
+                    for f in bm.faces:
                 
-                bmesh.update_edit_mesh(me)
-                info_str = "  Ngons: %i   Tris: %i" % (ngons, tris)
-                
-                split = layout.split(percentage=0.1)
-                split.separator()
-                split.label(info_str, icon='MESH_DATA')       
+                        v = len(f.verts)
+                        if v == 3:
+                            tris += 1
+                        elif v > 4:
+                            ngons += 1
+                    
+                    bmesh.update_edit_mesh(me)
+                    info_str = "  Ngons: %i   Tris: %i" % (ngons, tris)
+                    
+                    split = layout.split(percentage=0.1)
+                    split.separator()
+                    split.label(info_str, icon='MESH_DATA')       
         
     
 def register():
@@ -304,17 +306,17 @@ def register():
     bpy.types.WindowManager.m_check = bpy.props.PointerProperty(
         type=MeshCheckCollectionGroup)
     bpy.types.VIEW3D_PT_view3d_shading.append(DisplayMeshCheckPanel)
-    if handle:
-        bpy.types.SpaceView3D.draw_handler_remove(handle[0], 'WINDOW')
-    handle[:] = [bpy.types.SpaceView3D.draw_handler_add(display_color_callback, (), 'WINDOW', 'POST_VIEW')]
+    if mesh_check_handle:
+        bpy.types.SpaceView3D.draw_handler_remove(mesh_check_handle[0], 'WINDOW')
+    mesh_check_handle[:] = [bpy.types.SpaceView3D.draw_handler_add(mesh_check_display_color_callback, (), 'WINDOW', 'POST_VIEW')]
     
 def unregister():
     bpy.types.VIEW3D_PT_view3d_shading.remove(DisplayMeshCheckPanel)
     bpy.utils.unregister_module(__name__)
     del bpy.types.WindowManager.m_check
-    if handle:
-        bpy.types.SpaceView3D.draw_handler_remove(handle[0], 'WINDOW')
-        handle[:] = []
+    if mesh_check_handle:
+        bpy.types.SpaceView3D.draw_handler_remove(mesh_check_handle[0], 'WINDOW')
+        mesh_check_handle[:] = []
 
 if __name__ == "__main__":
     register()
