@@ -1,4 +1,4 @@
-# ##### BEGIN GPL LICENSE BLOCK #####
+﻿# ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 bl_info = {
     "name": "Wazou_Pie_Menus",
     "author": "Cédric Lepiller & DavideDozza & Lapineige & Leafar & 0rAngE",
-    "version": (0, 2, 3),
+    "version": (0, 2, 4),
     "blender": (2, 74, 0),
     "description": "Custom Pie Menus",
     "category": "3D View",}
@@ -2122,24 +2122,6 @@ class PieShadingView(Menu):
         #3 - BOTTOM - RIGHT
         pie.operator("shading.flat", text="Shade Flat", icon='MESH_ICOSPHERE')
 
-#Pie Object Shading 2 - Shift + Z
-class PieObjectShading2(Menu):
-    bl_idname = "pie.objectshading2"
-    bl_label = "Pie Shading Object Others"
-
-    def draw(self, context):
-        layout = self.layout
-        
-        pie = layout.menu_pie()
-        #4 - LEFT
-        #6 - RIGHT
-        #2 - BOTTOM
-        #8 - TOP
-        #7 - TOP - LEFT 
-        #9 - TOP - RIGHT
-        #1 - BOTTOM - LEFT
-        #3 - BOTTOM - RIGHT
-
 #Pie Object Shading- Shift + Z
 class PieObjectShading(Menu):
     bl_idname = "pie.objectshading"
@@ -2161,32 +2143,9 @@ class PieObjectShading(Menu):
         #6 - RIGHT
         pie.operator("wire.selectedall", text="Wire", icon='WIRE')
         #2 - BOTTOM
-        
-        
-        border_lines = context.window_manager.border_lines
-        
         box = pie.split().column()
         row = box.row(align=True)
-        row.prop(border_lines, "borderlines_use")
-
-        if border_lines.borderlines_use:
-            row = box.row(align=True)
-            row.prop(border_lines, "borderlines_width")
-
-            
-            if border_lines.custom_color_use:
-                row = box.split(align=True)    
-                row.prop(border_lines, "custom_color_use")
-                row = box.split(align=True) 
-                row.prop(border_lines, "custom_color", text="")
-                row = box.row(align=True)
-                row.separator()
-            else:
-                row = box.split(align=True) 
-                row.prop(border_lines, "custom_color_use")
-                row = box.row(align=True)
-                row.separator()
-                
+        
         if view.viewport_shade not in {'BOUNDBOX', 'WIREFRAME'}:
             row = box.row(align=True)
             row.prop(fx_settings, "use_dof")
