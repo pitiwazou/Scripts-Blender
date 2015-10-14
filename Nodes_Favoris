@@ -1,0 +1,115 @@
+# ##### BEGIN GPL LICENSE BLOCK #####
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software Foundation,
+#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+# ##### END GPL LICENSE BLOCK #####
+
+
+bl_info = {
+    "name": "Nodes Favoris",
+    "description": "",
+    "author": "Cédric Lepiller",
+    "version": (0, 0, 1),
+    "blender": (2, 76, 0),
+    "location": "NODE_EDITOR",
+    "warning": "",
+    "wiki_url": "",
+    "category": "Nodes" }
+    
+import bpy
+
+    
+class NodesFavoris(bpy.types.Panel):
+    bl_idname = "nodes_favoris"
+    bl_label = "Favoris"
+    bl_space_type = "NODE_EDITOR"
+    bl_region_type = "TOOLS"
+    bl_category = "Favoris"
+    
+    def draw(self, context):
+        layout = self.layout
+        
+        layout.label("Input")
+        row = layout.row(align=True)
+        row.operator("node.add_node", text="Text Co").type="ShaderNodeTexCoord"
+        row.operator("node.add_node", text="Mapping").type="ShaderNodeMapping"
+        row = layout.row(align=True)
+        row.operator("node.add_node", text="Fresnel").type="ShaderNodeFresnel"
+        row.operator("node.add_node", text="Layer Weight").type="ShaderNodeLayerWeight"
+        layout.operator("node.add_node", text="RGB").type="ShaderNodeRGB"
+        
+        layout.label("Shaders")
+        layout.operator("node.add_node", text="Mix shader").type="ShaderNodeMixShader"
+        row = layout.row(align=True)
+        row.operator("node.add_node", text="Diffuse").type="ShaderNodeBsdfDiffuse"
+        row.operator("node.add_node", text="Glossy").type="ShaderNodeBsdfGlossy"
+        row = layout.row(align=True)
+        row.operator("node.add_node", text="Transparent").type="ShaderNodeBsdfTransparent"
+        row.operator("node.add_node", text="Glass").type="ShaderNodeBsdfGlass"
+        row = layout.row(align=True)
+        row.operator("node.add_node", text="Translucent").type="ShaderNodeBsdfTranslucent"
+        row.operator("node.add_node", text="SSS").type="ShaderNodeSubsurfaceScattering"
+        layout.operator("node.add_node", text="Velvet").type="ShaderNodeBsdfVelvet"
+        layout.operator("node.add_node", text="Emission").type="ShaderNodeEmission"
+        
+        layout.label("Textures")
+        layout.operator("node.add_node", text="Image Texture").type="ShaderNodeTexImage"
+        row = layout.row(align=True)
+        row.operator("node.add_node", text="Noise").type="ShaderNodeTexNoise"
+        row.operator("node.add_node", text="Voronoi").type="ShaderNodeTexVoronoi"
+        row = layout.row(align=True)
+        row.operator("node.add_node", text="Musgrave").type="ShaderNodeTexMusgrave"
+        row.operator("node.add_node", text="Gradient").type="ShaderNodeTexGradient"
+        row = layout.row(align=True)
+        row.operator("node.add_node", text="Magic").type="ShaderNodeTexMagic"
+        row.operator("node.add_node", text="Checker").type="ShaderNodeTexChecker"
+        layout.operator("node.add_node", text="Brick").type="ShaderNodeTexBrick"
+        
+        layout.label("Color")
+        row = layout.row(align=True)
+        row.operator("node.add_node", text="Mix RGB").type="ShaderNodeMixRGB"
+        row.operator("node.add_node", text="RGB Curves").type="ShaderNodeRGBCurve"
+        row = layout.row(align=True)
+        row.operator("node.add_node", text="Invert").type="ShaderNodeInvert"
+        row.operator("node.add_node", text="Light Falloff").type="ShaderNodeLightFalloff"
+        row = layout.row(align=True)
+        row.operator("node.add_node", text="Hue/Sat").type="ShaderNodeHueSaturation"
+        row.operator("node.add_node", text="Gamma").type="ShaderNodeGamma"
+        layout.operator("node.add_node", text="Bright Contrast").type="ShaderNodeBrightContrast"
+        
+        layout.label("Vector")
+        layout.operator("node.add_node", text="Bump").type="ShaderNodeBump"
+        layout.operator("node.add_node", text="NormalMap").type="ShaderNodeNormalMap"
+        
+        layout.label("Converter")
+        row = layout.row(align=True)
+        row.operator("node.add_node", text="Math").type="ShaderNodeMath"
+        row.operator("node.add_node", text="Color Ramp").type="ShaderNodeValToRGB"
+        row = layout.row(align=True)
+        row.operator("node.add_node", text="RGB To BW").type="ShaderNodeRGBToBW"
+        row.operator("node.add_node", text="Separate RGB").type="ShaderNodeSeparateRGB"
+        
+        layout.label("Layout")
+        layout.operator("node.add_node", text="Frame").type="NodeFrame"
+
+def register():
+    bpy.utils.register_module(__name__)
+
+def unregister():
+    bpy.utils.unregister_module(__name__)
+    
+if __name__ == "__main__":
+    register()
+     
