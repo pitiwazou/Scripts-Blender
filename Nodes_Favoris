@@ -155,8 +155,9 @@ class NodesFavoris(bpy.types.Panel):
             row = layout.row(align=True)
             row.operator("node.add_node", text="Translucent").type="ShaderNodeBsdfTranslucent"
             row.operator("node.add_node", text="SSS").type="ShaderNodeSubsurfaceScattering"
-            layout.operator("node.add_node", text="Velvet").type="ShaderNodeBsdfVelvet"
-            layout.operator("node.add_node", text="Emission").type="ShaderNodeEmission"
+            row = layout.row(align=True)
+            row.operator("node.add_node", text="Velvet").type="ShaderNodeBsdfVelvet"
+            row.operator("node.add_node", text="Emission").type="ShaderNodeEmission"
         
         #####Textures#####
         
@@ -196,7 +197,9 @@ class NodesFavoris(bpy.types.Panel):
             row = layout.row(align=True)
             row.operator("node.add_node", text="Magic").type="ShaderNodeTexMagic"
             row.operator("node.add_node", text="Checker").type="ShaderNodeTexChecker"
-            layout.operator("node.add_node", text="Brick").type="ShaderNodeTexBrick"
+            row = layout.row(align=True)
+            row.operator("node.add_node", text="Brick").type="ShaderNodeTexBrick"
+            row.operator("node.add_node", text="Wave").type="ShaderNodeTexWave"
         
         #####Color#####
         row = layout.row(align=True)
