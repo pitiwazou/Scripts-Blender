@@ -76,7 +76,10 @@ class WazouAddCustom_Meshes(bpy.types.AddonPreferences):
 def Add_Grid(self, context):   
     if bpy.context.window_manager.primitive_grid_add == "0":
         x_subdivs = 0
-        y_subdivs = 0    
+        y_subdivs = 0   
+    if bpy.context.window_manager.primitive_grid_add == "5":
+        x_subdivs = 5
+        y_subdivs = 5       
     if bpy.context.window_manager.primitive_grid_add == "10":
         x_subdivs = 10
         y_subdivs = 10
@@ -91,6 +94,7 @@ def Add_Grid(self, context):
 #enum property qui permet de creer X variantes de proprietes
 bpy.types.WindowManager.primitive_grid_add = bpy.props.EnumProperty(
             items=(('0', "0", ''),
+                   ('5', "5", ''),
                    ('10', "10", ''),
                    ('20', "20", ''),
                    ('30', "30", '')),
