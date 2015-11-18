@@ -19,8 +19,8 @@
 bl_info = {
     "name": "Wazou_Pie_Menus",
     "author": "Cédric Lepiller & DavideDozza & Lapineige & Leafar & 0rAngE",
-    "version": (0, 2, 4),
-    "blender": (2, 74, 0),
+    "version": (0, 2, 5),
+    "blender": (2, 76, 0),
     "description": "Custom Pie Menus",
     "category": "3D View",}
     
@@ -1611,6 +1611,81 @@ class CameraSelection(bpy.types.Operator):
             bpy.ops.object.select_camera()
             
         return {'FINISHED'}
+    
+#Pie Material
+class MaterialListMenu(bpy.types.Menu): # menu appelé par le pie
+    bl_idname = "object.material_list_menu"
+    bl_label = "Material_list"
+
+    def draw(self, context):
+        layout = self.layout
+        col = layout.column(align=True)
+        
+        if len(bpy.data.materials): # "len" retourne le nombre d'occurence donc, si il y a des materiaux dans les datas:
+            for mat in bpy.data.materials:  
+                name = mat.name
+                try:
+                    icon_val = layout.icon(mat) # récupère l'icon du materiau
+                except:
+                    icon_val = 1
+                    print ("WARNING [Mat Panel]: Could not get icon value for %s" % name)
+
+                op = col.operator("object.apply_material", text=name, icon_value=icon_val) # opérateur qui apparait dans le menu pour chaque matériau présent dans les datas materials
+                op.mat_to_assign = name # on "stock" le nom du matériau dans la variable "mat_to_assign" declarée dans la class opérateur "ApplyMaterial"
+        else:
+            layout.label("No data materials")
+
+        
+        
+class ApplyMaterial(bpy.types.Operator):
+    bl_idname = "object.apply_material"
+    bl_label = "Apply material"
+
+    mat_to_assign = bpy.props.StringProperty(default="")
+
+    def execute(self, context):
+                         
+        if context.object.mode == 'EDIT':
+            obj = context.object
+            bm = bmesh.from_edit_mesh(obj.data)
+            
+            selected_face = [f for f in bm.faces if f.select]  # si des faces sont sélectionnées, elles sont stockées dans la liste "selected_faces"          
+            
+            mat_name = [mat.name for mat in bpy.context.object.material_slots if len(bpy.context.object.material_slots)] # pour tout les material_slots, on stock les noms des mat de chaque slots dans la liste "mat_name"
+            
+            if self.mat_to_assign in mat_name: # on test si le nom du mat sélectionné dans le menu est présent dans la liste "mat_name" (donc, si un des slots possède le materiau du même nom). Si oui:
+                context.object.active_material_index = mat_name.index(self.mat_to_assign) # on definit le slot portant le nom du comme comme étant le slot actif
+                bpy.ops.object.material_slot_assign() # on assigne le matériau à la sélection
+            else: # sinon
+                bpy.ops.object.material_slot_add() # on ajout un slot
+                bpy.context.object.active_material = bpy.data.materials[self.mat_to_assign] # on lui assigne le materiau choisi
+                bpy.ops.object.material_slot_assign() # on assigne le matériau à la sélection
+          
+            return {'FINISHED'}
+            
+        elif context.object.mode == 'OBJECT':
+            
+            obj_list = [obj.name for obj in context.selected_objects]
+            
+            for obj in obj_list:
+                bpy.ops.object.select_all(action='DESELECT')
+                bpy.data.objects[obj].select = True                
+                bpy.context.scene.objects.active = bpy.data.objects[obj]
+                bpy.context.object.active_material_index = 0
+                
+                if self.mat_to_assign == bpy.data.materials:
+                    bpy.context.active_object.active_material = bpy.data.materials[mat_name]
+                
+                else:
+                    if not len(bpy.context.object.material_slots):
+                        bpy.ops.object.material_slot_add()
+                    
+                    bpy.context.active_object.active_material = bpy.data.materials[self.mat_to_assign]
+            
+            for obj in obj_list:
+                bpy.data.objects[obj].select = True
+            
+            return {'FINISHED'}    
 ######################
 #     Pie Menus      #               
 ######################
@@ -2110,11 +2185,12 @@ class PieShadingView(Menu):
         #6 - RIGHT
         pie.operator("object.shadingvariable", text="Wireframe", icon='WIRE').variable = 'WIREFRAME'
         #2 - BOTTOM
-        pie.operator("object.shadingvariable", text="Texture", icon='TEXTURE_SHADED').variable = 'TEXTURED'
+        pie.menu("object.material_list_menu", icon='MATERIAL_DATA')
+        
         #8 - TOP
         pie.operator("object.shadingvariable", text="Solid", icon='SOLID').variable = 'SOLID'
         #7 - TOP - LEFT 
-        pie.operator("object.shadingvariable", text="Bounding box", icon='BBOX').variable = 'BOUNDBOX'
+        pie.operator("object.shadingvariable", text="Texture", icon='TEXTURE_SHADED').variable = 'TEXTURED'
         #9 - TOP - RIGHT
         pie.operator("object.shadingvariable", text="Render", icon='SMOOTH').variable = 'RENDERED'
         #1 - BOTTOM - LEFT
@@ -2556,13 +2632,13 @@ class PIE_IMAGE_MT_uvs_select_mode(Menu):
             props = pie.operator("wm.context_set_string", text="Vertex", icon='UV_VERTEXSEL')
             props.value = 'VERTEX'
             props.data_path = "tool_settings.uv_select_mode"
-
-            props = pie.operator("wm.context_set_string", text="Edge", icon='UV_EDGESEL')
-            props.value = 'EDGE'
-            props.data_path = "tool_settings.uv_select_mode"
-
+            
             props = pie.operator("wm.context_set_string", text="Face", icon='UV_FACESEL')
             props.value = 'FACE'
+            props.data_path = "tool_settings.uv_select_mode"
+            
+            props = pie.operator("wm.context_set_string", text="Edge", icon='UV_EDGESEL')
+            props.value = 'EDGE'
             props.data_path = "tool_settings.uv_select_mode"
 
             props = pie.operator("wm.context_set_string", text="Island", icon='UV_ISLANDSEL')
