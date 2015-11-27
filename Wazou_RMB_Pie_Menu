@@ -19,8 +19,8 @@
 bl_info = {
     "name": "Wazou Right clic Pie Menu",
     "author": "Cédric Lepiller",
-    "version": (0, 2, 0),
-    "blender": (2, 75, 0),
+    "version": (0, 2, 1),
+    "blender": (2, 76, 0),
     "location": "View3D > RMB",
     "description": "Right Click Pie Menu",
     "category": "3D View"}
@@ -726,7 +726,22 @@ class ClearSeam(bpy.types.Operator):
   
     def execute(self, context):
         bpy.ops.mesh.mark_seam(clear=True)
-        return {'FINISHED'}                                                      
+        return {'FINISHED'}  
+    
+#Join - Separate
+class Join_Separate(bpy.types.Operator):  
+    bl_idname = "join.separate"  
+    bl_label = "Join Separate" 
+    bl_options = {'REGISTER', 'UNDO'} 
+  
+    def execute(self, context):    
+        if len(bpy.context.selected_objects) == 1:
+            bpy.ops.separate.looseparts()
+            bpy.context.active_object.select = True  
+        else:
+            bpy.ops.Object.join()  
+            
+        return {'FINISHED'}                                                           
 ######################
 #        Pies        #               
 ######################  
@@ -911,10 +926,15 @@ class View3dRightClicMenu(Menu):
         ################################################    
         elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'OBJECT':
             #4 - LEFT
-            box = pie.split().column()
-            row = box.split(percentage=0.4)
-            row.operator("Object.join", text="Join", icon='FULLSCREEN_EXIT')
-            row.operator("separate.looseparts", text="Separate", icon='FULLSCREEN_ENTER')
+
+            selection = bpy.context.selected_objects
+
+            if len(bpy.context.selected_objects) == 1:
+                pie.operator("join.separate", text="Separate", icon='FULLSCREEN_ENTER')
+                
+            else:
+                pie.operator("join.separate", text="Join", icon='FULLSCREEN_EXIT')
+        
             #6 - RIGHT
             is_subsurf = False
             for mode in bpy.context.object.modifiers :
@@ -1378,14 +1398,10 @@ class View3dRightClicMenu(Menu):
              
                 #1 - BOTTOM - LEFT
                 
-                
-                
                 #3 - BOTTOM - RIGHT
         
         
-        ################################################
-        # Dyntopo                                      #
-        ################################################ 
+        
         
                 
         ################################################
@@ -1431,9 +1447,9 @@ def register():
         kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS')
         kmi.properties.name = "pie.rightclicmenu"  
         
-        #CTRL + Right Clic
+        #ALT + Right Clic
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
-        kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS', ctrl=True)
+        kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS', alt=True)
         kmi.properties.name = "pie.particleparameters"  
         
 def unregister():
