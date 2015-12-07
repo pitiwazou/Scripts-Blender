@@ -1,4 +1,6 @@
-﻿# ##### BEGIN GPL LICENSE BLOCK #####
+# -*- coding: utf-8 -*-
+
+# ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -37,7 +39,6 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
     bl_idname = __name__
  
     bpy.types.Scene.Enable_Tab_01 = bpy.props.BoolProperty(default=False)
-    bpy.types.Scene.Enable_Tab_02 = bpy.props.BoolProperty(default=False)
     bpy.types.Scene.Enable_Tab_03 = bpy.props.BoolProperty(default=False)
     bpy.types.Scene.Enable_Tab_04 = bpy.props.BoolProperty(default=False)
  
@@ -52,30 +53,6 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
  
             layout.operator("wm.url_open", text="IceKing's tools").url = "http://www.blenderartists.org/forum/showthread.php?343641-Iceking-s-Tools"
             layout.operator("wm.url_open", text="Auto Mirror").url = "http://le-terrier-de-lapineige.over-blog.com/2014/07/automirror-mon-add-on-pour-symetriser-vos-objets-rapidement.html"
- 
-        layout.prop(context.scene, "Enable_Tab_02", text="Shortcuts", icon="QUESTION")
-        if context.scene.Enable_Tab_02:
-            row = layout.row()   
-            layout.label(text="– Open, save, import, export > Ctrl + S") 
-            layout.label(text="– Object/Edit mode > Tab")
-            layout.label(text="– Views > Space")
-            layout.label(text="– Sculpt > W & Alt + W")
-            layout.label(text="– Cursor/Origin > Shift + S")
-            layout.label(text="– Manipulators > Ctrl + Space")
-            layout.label(text="– Snapping > Shift + Tab")
-            layout.label(text="– Orientation > Alt + Space")
-            layout.label(text="– Retopo > Shift + RMB")
-            layout.label(text="– Shading > Z")
-            layout.label(text="– Shading Object > Shift + Z")
-            layout.label(text="– Views Ortho > Q")
-            layout.label(text="– CursorOrigin > Alt + Q")
-            layout.label(text="– Proportionnal Editing > O")
-            layout.label(text="– Align > Alt + X")
-            layout.label(text="– Delete > X")
-            layout.label(text="– Apply transforms > Ctrl + A")
-            layout.label(text="– Selections > A")
-            layout.label(text="– Text Editor > Ctrl + Alt + Right Mous Button")
-            layout.label(text="– Animation > Ctrl + A")
  
         layout.prop(context.scene, "Enable_Tab_03", text="Keymap", icon="URL")   
         if context.scene.Enable_Tab_03:
