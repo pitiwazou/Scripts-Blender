@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# ##### BEGIN GPL LICENSE BLOCK #####
+﻿# ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -17,42 +15,44 @@
 #  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 # ##### END GPL LICENSE BLOCK #####
-
+ 
 bl_info = {
     "name": "Wazou_Pie_Menus",
     "author": "Cédric Lepiller & DavideDozza & Lapineige & Leafar & 0rAngE",
-    "version": (0, 2, 5),
+    "version": (0, 2, 6),
     "blender": (2, 76, 0),
     "description": "Custom Pie Menus",
     "category": "3D View",}
-    
+ 
 import bpy, os
 from bpy.types import Menu, Header   
 from bpy.props import IntProperty, FloatProperty, BoolProperty
 import bmesh
 from mathutils import *
 import math
-
+import rna_keymap_ui
+ 
 class WazouPieMenuPrefs(bpy.types.AddonPreferences):
     """Creates the tools in a Panel, in the scene context of the properties editor"""
     bl_idname = __name__
-
+ 
     bpy.types.Scene.Enable_Tab_01 = bpy.props.BoolProperty(default=False)
     bpy.types.Scene.Enable_Tab_02 = bpy.props.BoolProperty(default=False)
     bpy.types.Scene.Enable_Tab_03 = bpy.props.BoolProperty(default=False)
-
+    bpy.types.Scene.Enable_Tab_04 = bpy.props.BoolProperty(default=False)
+ 
     def draw(self, context):
         layout = self.layout
-
+ 
         layout.prop(context.scene, "Enable_Tab_01", text="Info", icon="QUESTION")
         if context.scene.Enable_Tab_01:
             row = layout.row()
             layout.label(text="This Addon Need to activate 'Loop Tools' and 'Bsurfaces' in the Addon Tab to work properly.")
             layout.label(text="You need to install Iceking's Tool And Auto Mirror")
-            
+ 
             layout.operator("wm.url_open", text="IceKing's tools").url = "http://www.blenderartists.org/forum/showthread.php?343641-Iceking-s-Tools"
             layout.operator("wm.url_open", text="Auto Mirror").url = "http://le-terrier-de-lapineige.over-blog.com/2014/07/automirror-mon-add-on-pour-symetriser-vos-objets-rapidement.html"
-        
+ 
         layout.prop(context.scene, "Enable_Tab_02", text="Shortcuts", icon="QUESTION")
         if context.scene.Enable_Tab_02:
             row = layout.row()   
@@ -76,14 +76,25 @@ class WazouPieMenuPrefs(bpy.types.AddonPreferences):
             layout.label(text="– Selections > A")
             layout.label(text="– Text Editor > Ctrl + Alt + Right Mous Button")
             layout.label(text="– Animation > Ctrl + A")
-
-        layout.prop(context.scene, "Enable_Tab_03", text="URL's", icon="URL")   
+ 
+        layout.prop(context.scene, "Enable_Tab_03", text="Keymap", icon="URL")   
         if context.scene.Enable_Tab_03:
+            #Add the keymap in the prefs
+            col = layout.column()
+            kc = bpy.context.window_manager.keyconfigs.addon
+            for km, kmi in addon_keymaps:
+                km = km.active()
+                col.context_pointer_set("keymap", km)
+                rna_keymap_ui.draw_kmi([], kc, km, kmi, col, 0)
+ 
+ 
+        layout.prop(context.scene, "Enable_Tab_04", text="URL's", icon="URL")   
+        if context.scene.Enable_Tab_04:
             row = layout.row()
             row.operator("wm.url_open", text="Pitiwazou.com").url = "http://www.pitiwazou.com/"
             row.operator("wm.url_open", text="Wazou's Ghitub").url = "https://github.com/pitiwazou/Scripts-Blender"
             row.operator("wm.url_open", text="BlenderLounge Forum ").url = "http://blenderlounge.fr/forum/"
-            
+ 
 #####################################
 #      Proportional Edit Object     #               
 #####################################
@@ -91,123 +102,123 @@ class ProportionalEditObj(bpy.types.Operator):
     bl_idname = "proportional_obj.active"
     bl_label = "Proportional Edit Object"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
-        
+ 
         if bpy.context.scene.tool_settings.use_proportional_edit_objects == (True):
             bpy.context.scene.tool_settings.use_proportional_edit_objects = False
-            
+ 
         elif bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) :
-             bpy.context.scene.tool_settings.use_proportional_edit_objects = True
-
+            bpy.context.scene.tool_settings.use_proportional_edit_objects = True
+ 
         return {'FINISHED'}
-
+ 
 class ProportionalSmoothObj(bpy.types.Operator):
     bl_idname = "proportional_obj.smooth"
     bl_label = "Proportional Smooth Object"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
             bpy.context.scene.tool_settings.use_proportional_edit_objects = True
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'SMOOTH'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SMOOTH': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'SMOOTH' 
         return {'FINISHED'}    
-
+ 
 class ProportionalSphereObj(bpy.types.Operator):
     bl_idname = "proportional_obj.sphere"
     bl_label = "Proportional Sphere Object"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
             bpy.context.scene.tool_settings.use_proportional_edit_objects = True
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'SPHERE'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SPHERE': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'SPHERE' 
         return {'FINISHED'}    
-
+ 
 class ProportionalRootObj(bpy.types.Operator):
     bl_idname = "proportional_obj.root"
     bl_label = "Proportional Root Object"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
             bpy.context.scene.tool_settings.use_proportional_edit_objects = True
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'ROOT'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'ROOT': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'ROOT' 
         return {'FINISHED'}
-    
+ 
 class ProportionalSharpObj(bpy.types.Operator):
     bl_idname = "proportional_obj.sharp"
     bl_label = "Proportional Sharp Object"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
             bpy.context.scene.tool_settings.use_proportional_edit_objects = True
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'SHARP'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SHARP': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'SHARP' 
         return {'FINISHED'}
-    
+ 
 class ProportionalLinearObj(bpy.types.Operator):
     bl_idname = "proportional_obj.linear"
     bl_label = "Proportional Linear Object"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
             bpy.context.scene.tool_settings.use_proportional_edit_objects = True
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'LINEAR'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'LINEAR': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'LINEAR' 
         return {'FINISHED'}  
-
+ 
 class ProportionalConstantObj(bpy.types.Operator):
     bl_idname = "proportional_obj.constant"
     bl_label = "Proportional Constant Object"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
             bpy.context.scene.tool_settings.use_proportional_edit_objects = True
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'CONSTANT'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'CONSTANT': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'CONSTANT'
         return {'FINISHED'}  
-
+ 
 class ProportionalRandomObj(bpy.types.Operator):
     bl_idname = "proportional_obj.random"
     bl_label = "Proportional Random Object"
     bl_options = {'REGISTER', 'UNDO'}
-
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.use_proportional_edit_objects == (False) : 
             bpy.context.scene.tool_settings.use_proportional_edit_objects = True
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'RANDOM'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'RANDOM': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'RANDOM'
         return {'FINISHED'}
-
+ 
 #######################################
 #     Proportional Edit Edit Mode     #               
 #######################################
@@ -215,145 +226,145 @@ class ProportionalEditEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.active"
     bl_label = "Proportional Edit EditMode"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
-        
+ 
         if bpy.context.scene.tool_settings.proportional_edit != ('DISABLED'):
             bpy.context.scene.tool_settings.proportional_edit = 'DISABLED'
         elif bpy.context.scene.tool_settings.proportional_edit != ('ENABLED'):
             bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
         return {'FINISHED'}
-
+ 
 class ProportionalConnectedEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.connected"
     bl_label = "Proportional Connected EditMode"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
-        
+ 
         if bpy.context.scene.tool_settings.proportional_edit != ('CONNECTED'):
             bpy.context.scene.tool_settings.proportional_edit = 'CONNECTED'
         return {'FINISHED'}
-
+ 
 class ProportionalProjectedEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.projected"
     bl_label = "Proportional projected EditMode"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
-        
+ 
         if bpy.context.scene.tool_settings.proportional_edit != ('PROJECTED'):
             bpy.context.scene.tool_settings.proportional_edit = 'PROJECTED'
         return {'FINISHED'}
-
+ 
 class ProportionalSmoothEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.smooth"
     bl_label = "Proportional Smooth EditMode"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
             bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'SMOOTH'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SMOOTH': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'SMOOTH' 
         return {'FINISHED'}    
-
+ 
 class ProportionalSphereEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.sphere"
     bl_label = "Proportional Sphere EditMode"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
             bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'SPHERE'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SPHERE': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'SPHERE' 
         return {'FINISHED'}    
-
+ 
 class ProportionalRootEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.root"
     bl_label = "Proportional Root EditMode"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
             bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'ROOT'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'ROOT': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'ROOT' 
         return {'FINISHED'}
-    
+ 
 class ProportionalSharpEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.sharp"
     bl_label = "Proportional Sharp EditMode"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
             bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'SHARP'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'SHARP': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'SHARP' 
         return {'FINISHED'}
-    
+ 
 class ProportionalLinearEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.linear"
     bl_label = "Proportional Linear EditMode"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
             bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'LINEAR'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'LINEAR': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'LINEAR' 
         return {'FINISHED'}  
-
+ 
 class ProportionalConstantEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.constant"
     bl_label = "Proportional Constant EditMode"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
             bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'CONSTANT'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'CONSTANT': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'CONSTANT'
         return {'FINISHED'}  
-
+ 
 class ProportionalRandomEdt(bpy.types.Operator):
     bl_idname = "proportional_edt.random"
     bl_label = "Proportional Random EditMode"
     bl_options = {'REGISTER', 'UNDO'}
-
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.proportional_edit == ('DISABLED') : 
             bpy.context.scene.tool_settings.proportional_edit = 'ENABLED'
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'RANDOM'
-            
+ 
         if bpy.context.scene.tool_settings.proportional_edit_falloff != 'RANDOM': 
             bpy.context.scene.tool_settings.proportional_edit_falloff = 'RANDOM'
         return {'FINISHED'}
-
+ 
 ######################
 #      Snapping      #               
 ######################
@@ -361,205 +372,205 @@ class SnapActive(bpy.types.Operator):
     bl_idname = "snap.active"
     bl_label = "Snap Active"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
-        
+ 
         if bpy.context.scene.tool_settings.use_snap == (True):
             bpy.context.scene.tool_settings.use_snap = False
-            
+ 
         elif bpy.context.scene.tool_settings.use_snap == (False) :
-             bpy.context.scene.tool_settings.use_snap = True
-
+            bpy.context.scene.tool_settings.use_snap = True
+ 
         return {'FINISHED'}
-
-
+ 
+ 
 class SnapVolume(bpy.types.Operator):
     bl_idname = "snap.volume"
     bl_label = "Snap Volume"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.use_snap == (False) : 
             bpy.context.scene.tool_settings.use_snap = True
             bpy.context.scene.tool_settings.snap_element = 'VOLUME'
-            
+ 
         if bpy.context.scene.tool_settings.snap_element != 'VOLUME': 
             bpy.context.scene.tool_settings.snap_element = 'VOLUME' 
         return {'FINISHED'}    
-
+ 
 class SnapFace(bpy.types.Operator):
     bl_idname = "snap.face"
     bl_label = "Snap Face"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.use_snap == (False) : 
             bpy.context.scene.tool_settings.use_snap = True 
             bpy.context.scene.tool_settings.snap_element = 'FACE'
-            
+ 
         if bpy.context.scene.tool_settings.snap_element != 'FACE': 
             bpy.context.scene.tool_settings.snap_element = 'FACE' 
         return {'FINISHED'}    
-
+ 
 class SnapEdge(bpy.types.Operator):
     bl_idname = "snap.edge"
     bl_label = "Snap Edge"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.scene.tool_settings.use_snap == (False) : 
             bpy.context.scene.tool_settings.use_snap = True 
             bpy.context.scene.tool_settings.snap_element = 'EDGE'
-        
+ 
         if bpy.context.scene.tool_settings.snap_element != 'EDGE': 
             bpy.context.scene.tool_settings.snap_element = 'EDGE' 
         return {'FINISHED'}
-    
+ 
 class SnapVertex(bpy.types.Operator):
     bl_idname = "snap.vertex"
     bl_label = "Snap Vertex"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
         if bpy.context.scene.tool_settings.use_snap == (False) : 
             bpy.context.scene.tool_settings.use_snap = True
             bpy.context.scene.tool_settings.snap_element = 'VERTEX'
-        
+ 
         if bpy.context.scene.tool_settings.snap_element != 'VERTEX': 
             bpy.context.scene.tool_settings.snap_element = 'VERTEX' 
         return {'FINISHED'}
-    
+ 
 class SnapIncrement(bpy.types.Operator):
     bl_idname = "snap.increment"
     bl_label = "Snap Increment"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
         if bpy.context.scene.tool_settings.use_snap == (False) : 
             bpy.context.scene.tool_settings.use_snap = True
             bpy.context.scene.tool_settings.snap_element = 'INCREMENT'
-            
+ 
         if bpy.context.scene.tool_settings.snap_element != 'INCREMENT': 
             bpy.context.scene.tool_settings.snap_element = 'INCREMENT'    
         return {'FINISHED'}  
-
+ 
 class SnapAlignRotation(bpy.types.Operator):
     bl_idname = "snap.alignrotation"
     bl_label = "Snap Align rotation"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
         if bpy.context.scene.tool_settings.use_snap_align_rotation == (True) :
             bpy.context.scene.tool_settings.use_snap_align_rotation = False
-            
+ 
         elif bpy.context.scene.tool_settings.use_snap_align_rotation == (False) :
-             bpy.context.scene.tool_settings.use_snap_align_rotation = True
-        
+            bpy.context.scene.tool_settings.use_snap_align_rotation = True
+ 
         return {'FINISHED'} 
-
+ 
 class SnapTargetVariable(bpy.types.Operator):
     bl_idname = "object.snaptargetvariable"
     bl_label = "Snap Target Variable"
     bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
-
+ 
     @classmethod
     def poll(cls, context):
         return True
-
+ 
     def execute(self, context):
         bpy.context.scene.tool_settings.snap_target=self.variable
         return {'FINISHED'}
-     
+ 
 ######################
 #    Orientation     #               
 ######################
-
+ 
 class OrientationVariable(bpy.types.Operator):
     bl_idname = "object.orientationvariable"
     bl_label = "Orientation Variable"
     bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
-
+ 
     @classmethod
     def poll(cls, context):
         return True
-
+ 
     def execute(self, context):
         bpy.context.space_data.transform_orientation=self.variable
         return {'FINISHED'} 
-
+ 
 ######################
 #      Shading       #               
 ######################
-
+ 
 class ShadingVariable(bpy.types.Operator):
     bl_idname = "object.shadingvariable"
     bl_label = "Shading Variable"
     bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
-
+ 
     @classmethod
     def poll(cls, context):
         return True
-
+ 
     def execute(self, context):
         bpy.context.space_data.viewport_shade=self.variable
         return {'FINISHED'} 
-    
+ 
 class ShadingSmooth(bpy.types.Operator):
     bl_idname = "shading.smooth"
     bl_label = "Shading Smooth"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         if bpy.context.object.mode == "OBJECT":
             bpy.ops.object.shade_smooth()
-            
+ 
         elif bpy.context.object.mode == "EDIT":
             bpy.ops.object.mode_set(mode = 'OBJECT')
             bpy.ops.object.shade_smooth()
             bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'} 
-    
+ 
 class ShadingFlat(bpy.types.Operator):
     bl_idname = "shading.flat"
     bl_label = "Shading Flat"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         if bpy.context.object.mode == "OBJECT":
             bpy.ops.object.shade_flat()
-            
+ 
         elif bpy.context.object.mode == "EDIT":
             bpy.ops.object.mode_set(mode = 'OBJECT')
             bpy.ops.object.shade_flat()
             bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'} 
-
+ 
 ######################
 #   Object shading   #               
 ######################
-
+ 
 #Wire on selected objects
 class WireSelectedAll(bpy.types.Operator):
     bl_idname = "wire.selectedall"
     bl_label = "Wire Selected All"
     bl_options = {'REGISTER', 'UNDO'}
-
+ 
     @classmethod
     def poll(cls, context):
         return context.active_object is not None
-
+ 
     def execute(self, context):
-             
+ 
         for obj in bpy.data.objects:
             if bpy.context.selected_objects:
                 if obj.select:
@@ -577,35 +588,35 @@ class WireSelectedAll(bpy.types.Operator):
                     obj.show_all_edges = True
                     obj.show_wire = True
         return {'FINISHED'}
-
+ 
 #Grid show/hide with axes
 class ToggleGridAxis(bpy.types.Operator):
     bl_idname = "scene.togglegridaxis"
     bl_label = "Toggle Grid and Axis in 3D view"
     bl_options = {'REGISTER', 'UNDO'}
-
+ 
     def execute(self, context):
         bpy.context.space_data.show_axis_y = not bpy.context.space_data.show_axis_y
         bpy.context.space_data.show_axis_x = not bpy.context.space_data.show_axis_x
         bpy.context.space_data.show_floor = not bpy.context.space_data.show_floor
         return {'FINISHED'}
-
+ 
 #Overlays
 class MeshDisplayOverlays(bpy.types.Menu):
     bl_idname = "meshdisplay.overlays"
     bl_label = "Mesh Display Overlays"
     bl_options = {'REGISTER', 'UNDO'}
-
+ 
     def draw(self, context):
         layout = self.layout
-        
+ 
         with_freestyle = bpy.app.build_options.freestyle
-
+ 
         mesh = context.active_object.data
         scene = context.scene
-
+ 
         split = layout.split()
-
+ 
         col = split.column()
         col.label(text="Overlays:")
         col.prop(mesh, "show_faces", text="Faces")
@@ -617,40 +628,40 @@ class MeshDisplayOverlays(bpy.types.Menu):
         col.prop(mesh, "show_edge_bevel_weight", text="Bevel")
         col.prop(mesh, "show_freestyle_edge_marks", text="Edge Marks")
         col.prop(mesh, "show_freestyle_face_marks", text="Face Marks")
-
-        
+ 
+ 
 ######################
 #    Pivot Point     #               
 ######################
-
+ 
 class PivotPointVariable(bpy.types.Operator):
     bl_idname = "pivotpoint.variable"
     bl_label = "PivotPointVariable"
     bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
-
+ 
     @classmethod
     def poll(cls, context):
         return True
-
+ 
     def execute(self, context):
         bpy.context.space_data.pivot_point = self.variable
         return {'FINISHED'} 
-    
-
+ 
+ 
 class UsePivotAlign(bpy.types.Operator):
     bl_idname = "use.pivotalign"
     bl_label = "Use Pivot Align"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
-        
+ 
         if bpy.context.space_data.use_pivot_point_align == (False) :
             bpy.context.space_data.use_pivot_point_align = True
         elif bpy.context.space_data.use_pivot_point_align == (True) :
-             bpy.context.space_data.use_pivot_point_align = False
+            bpy.context.space_data.use_pivot_point_align = False
         return {'FINISHED'}
-    
+ 
 ######################
 #    Manipulators    #               
 ######################
@@ -658,7 +669,7 @@ class ManipTranslate(bpy.types.Operator):
     bl_idname = "manip.translate"
     bl_label = "Manip Translate"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
         if bpy.context.space_data.show_manipulator == (False) :
@@ -667,12 +678,12 @@ class ManipTranslate(bpy.types.Operator):
         if bpy.context.space_data.transform_manipulators != {'TRANSLATE'}:
             bpy.context.space_data.transform_manipulators = {'TRANSLATE'}
         return {'FINISHED'}
-
+ 
 class ManipRotate(bpy.types.Operator):
     bl_idname = "manip.rotate"
     bl_label = "Manip Rotate"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
         if bpy.context.space_data.show_manipulator == (False) :
@@ -681,12 +692,12 @@ class ManipRotate(bpy.types.Operator):
         if bpy.context.space_data.transform_manipulators != {'ROTATE'}:
             bpy.context.space_data.transform_manipulators = {'ROTATE'}
         return {'FINISHED'}
-    
+ 
 class ManipScale(bpy.types.Operator):
     bl_idname = "manip.scale"
     bl_label = "Manip Scale"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.space_data.show_manipulator == (False) :
@@ -695,12 +706,12 @@ class ManipScale(bpy.types.Operator):
         if bpy.context.space_data.transform_manipulators != {'SCALE'}:
             bpy.context.space_data.transform_manipulators = {'SCALE'}
         return {'FINISHED'}
-
+ 
 class TranslateRotate(bpy.types.Operator):
     bl_idname = "translate.rotate"
     bl_label = "Translate Rotate"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
         if bpy.context.space_data.show_manipulator == (False) :
@@ -709,12 +720,12 @@ class TranslateRotate(bpy.types.Operator):
         if bpy.context.space_data.transform_manipulators != {'TRANSLATE', 'ROTATE'}:
             bpy.context.space_data.transform_manipulators = {'TRANSLATE', 'ROTATE'}
         return {'FINISHED'}
-    
+ 
 class TranslateScale(bpy.types.Operator):
     bl_idname = "translate.scale"
     bl_label = "Translate Scale"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
         if bpy.context.space_data.show_manipulator == (False) :
@@ -723,12 +734,12 @@ class TranslateScale(bpy.types.Operator):
         if bpy.context.space_data.transform_manipulators != {'TRANSLATE', 'SCALE'}:
             bpy.context.space_data.transform_manipulators = {'TRANSLATE', 'SCALE'}
         return {'FINISHED'}
-
+ 
 class RotateScale(bpy.types.Operator):
     bl_idname = "rotate.scale"
     bl_label = "Rotate Scale"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
         if bpy.context.space_data.show_manipulator == (False) :
@@ -737,12 +748,12 @@ class RotateScale(bpy.types.Operator):
         if bpy.context.space_data.transform_manipulators != {'ROTATE', 'SCALE'}:
             bpy.context.space_data.transform_manipulators = {'ROTATE', 'SCALE'}
         return {'FINISHED'}
-    
+ 
 class TranslateRotateScale(bpy.types.Operator):
     bl_idname = "translate.rotatescale"
     bl_label = "Translate Rotate Scale"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
         if bpy.context.space_data.show_manipulator == (False) :
@@ -751,165 +762,165 @@ class TranslateRotateScale(bpy.types.Operator):
         if bpy.context.space_data.transform_manipulators != {'TRANSLATE', 'ROTATE', 'SCALE'}:
             bpy.context.space_data.transform_manipulators = {'TRANSLATE', 'ROTATE', 'SCALE'}
         return {'FINISHED'}
-        
+ 
 class WManupulators(bpy.types.Operator):
     bl_idname = "w.manupulators"
     bl_label = "W Manupulators"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
-        
+ 
         if bpy.context.space_data.show_manipulator == (True):
             bpy.context.space_data.show_manipulator = False
-            
+ 
         elif bpy.context.space_data.show_manipulator == (False):
-             bpy.context.space_data.show_manipulator = True
-
+            bpy.context.space_data.show_manipulator = True
+ 
         return {'FINISHED'}
-
+ 
 ######################
 #       Modes        #               
 ######################
-
+ 
 # Define Class Texture Paint
 class ClassTexturePaint(bpy.types.Operator):
     bl_idname = "class.pietexturepaint"
     bl_label = "Class Texture Paint"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
-        
+ 
         if bpy.context.object.mode == "EDIT":
             bpy.ops.object.mode_set(mode="OBJECT")
             bpy.ops.paint.texture_paint_toggle()
         else:
             bpy.ops.paint.texture_paint_toggle()
         return {'FINISHED'}
-        
+ 
 # Define Class Weight Paint
 class ClassWeightPaint(bpy.types.Operator):
     bl_idname = "class.pieweightpaint"
     bl_label = "Class Weight Paint"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
-        
+ 
         if bpy.context.object.mode == "EDIT":
             bpy.ops.object.mode_set(mode="OBJECT")
             bpy.ops.paint.weight_paint_toggle()
         else:
             bpy.ops.paint.weight_paint_toggle()
         return {'FINISHED'}
-    
+ 
 # Define Class Vertex Paint
 class ClassVertexPaint(bpy.types.Operator):
     bl_idname = "class.pievertexpaint"
     bl_label = "Class Vertex Paint"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
-        
+ 
         if bpy.context.object.mode == "EDIT":
             bpy.ops.object.mode_set(mode="OBJECT")
             bpy.ops.paint.vertex_paint_toggle()
         else:
             bpy.ops.paint.vertex_paint_toggle()
         return {'FINISHED'}
-    
+ 
 # Define Class Particle Edit
 class ClassParticleEdit(bpy.types.Operator):
     bl_idname = "class.pieparticleedit"
     bl_label = "Class Particle Edit"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
-        
+ 
         if bpy.context.object.mode == "EDIT":
             bpy.ops.object.mode_set(mode="OBJECT")
             bpy.ops.particle.particle_edit_toggle()
         else:
             bpy.ops.particle.particle_edit_toggle()
-
+ 
         return {'FINISHED'}    
-
+ 
 # Define Class Object Mode
 class ClassObject(bpy.types.Operator):
     bl_idname = "class.object"
     bl_label = "Class Object"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
-        
+ 
         if bpy.context.object.mode == "OBJECT":
             bpy.ops.object.mode_set(mode="EDIT")
         else:
             bpy.ops.object.mode_set(mode="OBJECT") 
         return {'FINISHED'}
-
+ 
 # Define Class Vertex
 class ClassVertex(bpy.types.Operator):
     bl_idname = "class.vertex"
     bl_label = "Class Vertex"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
-        
+ 
         if bpy.context.object.mode != "EDIT":
             bpy.ops.object.mode_set(mode="EDIT")
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='VERT')
         if bpy.ops.mesh.select_mode != "EDGE, FACE":
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='VERT') 
             return {'FINISHED'}
-
+ 
 # Define Class Edge
 class ClassEdge(bpy.types.Operator):
     bl_idname = "class.edge"
     bl_label = "Class Edge"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
-        
+ 
         if bpy.context.object.mode != "EDIT":
             bpy.ops.object.mode_set(mode="EDIT")
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='EDGE')
         if bpy.ops.mesh.select_mode != "VERT, FACE":
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='EDGE') 
             return {'FINISHED'}
-
+ 
 # Define Class Face
 class ClassFace(bpy.types.Operator):
     bl_idname = "class.face"
     bl_label = "Class Face"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
-        
+ 
         if bpy.context.object.mode != "EDIT":
             bpy.ops.object.mode_set(mode="EDIT")
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE')
         if bpy.ops.mesh.select_mode != "VERT, EDGE":
             bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE')
             return {'FINISHED'}
-
+ 
 ######################
 #   Selection Mode   #               
 ######################
-
+ 
 # Components Selection Mode
 class VertsEdges(bpy.types.Operator):
     bl_idname = "verts.edges"
     bl_label = "Verts Edges"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         if bpy.context.object.mode != "EDIT":
@@ -918,13 +929,13 @@ class VertsEdges(bpy.types.Operator):
         if bpy.context.object.mode == "EDIT":
             bpy.context.tool_settings.mesh_select_mode = (True, True, False)
             return {'FINISHED'}
-        
+ 
  
 class EdgesFaces(bpy.types.Operator):
     bl_idname = "edges.faces"
     bl_label = "EdgesFaces"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout 
         if bpy.context.object.mode != "EDIT":
@@ -933,12 +944,12 @@ class EdgesFaces(bpy.types.Operator):
         if bpy.context.object.mode == "EDIT":
             bpy.context.tool_settings.mesh_select_mode = (False, True, True)
             return {'FINISHED'}
-        
+ 
 class VertsFaces(bpy.types.Operator):
     bl_idname = "verts.faces"
     bl_label = "Verts Faces"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout  
         if bpy.context.object.mode != "EDIT":
@@ -947,12 +958,12 @@ class VertsFaces(bpy.types.Operator):
         if bpy.context.object.mode == "EDIT":
             bpy.context.tool_settings.mesh_select_mode = (True, False, True)
             return {'FINISHED'}
-    
+ 
 class VertsEdgesFaces(bpy.types.Operator):
     bl_idname = "verts.edgesfaces"
     bl_label = "Verts Edges Faces"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout  
         if bpy.context.object.mode != "EDIT":
@@ -961,59 +972,59 @@ class VertsEdgesFaces(bpy.types.Operator):
         if bpy.context.object.mode == "EDIT":
             bpy.context.tool_settings.mesh_select_mode = (True, True, True)
             return {'FINISHED'}
-        
+ 
 #Select All By Selection       
 class SelectAllBySelection(bpy.types.Operator):
     bl_idname = "object.selectallbyselection"
     bl_label = "Verts Edges Faces"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout  
-        
+ 
         bpy.ops.mesh.select_all(action='TOGGLE')
         bpy.ops.mesh.select_all(action='TOGGLE')
         return {'FINISHED'}        
-        
+ 
 ######################
 #       Views        #               
 ######################
-
+ 
 # Split area horizontal
 class SplitHorizontal(bpy.types.Operator):
     bl_idname = "split.horizontal"
     bl_label = "split horizontal"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
-
+ 
         bpy.ops.screen.area_split(direction='HORIZONTAL')
         return {'FINISHED'}
-
+ 
 # Split area vertical
 class SplitVertical(bpy.types.Operator):
     bl_idname = "split.vertical"
     bl_label = "split vertical"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
-
+ 
         bpy.ops.screen.area_split(direction='VERTICAL')
         return {'FINISHED'}
-        
-  
+ 
+ 
 # Join area
 class JoinArea(bpy.types.Operator):
     """Join 2 area, clic on the second area to join"""
     bl_idname = "area.joinarea"
     bl_label = "Join Area"
     bl_options = {'REGISTER', 'UNDO'}
-
+ 
     min_x = IntProperty()
     min_y = IntProperty()
-
+ 
     def modal(self, context, event):
         if event.type == 'LEFTMOUSE':
             self.max_x = event.mouse_x
@@ -1023,13 +1034,13 @@ class JoinArea(bpy.types.Operator):
             bpy.ops.screen.screen_full_area()
             return {'FINISHED'}
         return {'RUNNING_MODAL'}
-
+ 
     def invoke(self, context, event):
         self.min_x = event.mouse_x
         self.min_y = event.mouse_y
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
-    
+ 
 #View Class menu
 class ViewMenu(bpy.types.Operator):
     """Menu to change views"""
@@ -1037,50 +1048,50 @@ class ViewMenu(bpy.types.Operator):
     bl_label = "View_Menu"
     bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
-
+ 
     @classmethod
     def poll(cls, context):
         return True
-
+ 
     def execute(self, context):
         bpy.context.area.type=self.variable
         return {'FINISHED'} 
 ##############
 #   Sculpt   #               
 ##############
-
+ 
 # Sculpt Polish
 class SculptPolish(bpy.types.Operator):
     bl_idname = "sculpt.polish"
     bl_label = "Sculpt Polish"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['Polish']
         return {'FINISHED'} 
-     
+ 
 # Sculpt Polish
 class SculptSculptDraw(bpy.types.Operator):
     bl_idname = "sculpt.sculptraw"
     bl_label = "Sculpt SculptDraw"
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         layout = self.layout
         bpy.context.tool_settings.sculpt.brush=bpy.data.brushes['SculptDraw']
         return {'FINISHED'}
-    
+ 
 ######################
 #   Cursor/Origin    #               
 ###################### 
-
+ 
 #Pivot to selection
 class PivotToSelection(bpy.types.Operator):  
     bl_idname = "object.pivot2selection"  
     bl_label = "Pivot To Selection" 
     bl_options = {'REGISTER', 'UNDO'} 
-  
+ 
     def execute(self, context):  
         saved_location = bpy.context.scene.cursor_location.copy()
         bpy.ops.view3d.snap_cursor_to_selected()
@@ -1088,34 +1099,34 @@ class PivotToSelection(bpy.types.Operator):
         bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
         bpy.context.scene.cursor_location = saved_location 
         return {'FINISHED'}  
-
+ 
 #Pivot to Bottom
 class PivotBottom(bpy.types.Operator):  
     bl_idname = "object.pivotobottom"  
     bl_label = "Pivot To Bottom"  
     bl_options = {'REGISTER', 'UNDO'}
-  
+ 
     def execute(self, context):
-        
+ 
         bpy.ops.object.mode_set(mode = 'OBJECT')
         bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
         bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
         o=bpy.context.active_object
         init=0
         for x in o.data.vertices:
-             if init==0:
-                 a=x.co.z
-                 init=1
-             elif x.co.z<a:
-                 a=x.co.z
-                 
+            if init==0:
+                a=x.co.z
+                init=1
+            elif x.co.z<a:
+                a=x.co.z
+ 
         for x in o.data.vertices:
-             x.co.z-=a
-
+            x.co.z-=a
+ 
         o.location.z+=a 
         bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'}   
-
+ 
 #####################
 #   Simple Align    #               
 #####################
@@ -1124,94 +1135,94 @@ class AlignX(bpy.types.Operator):
     bl_idname = "align.x"  
     bl_label = "Align  X"  
     bl_options = {'REGISTER', 'UNDO'}
-  
+ 
     def execute(self, context):
-
+ 
         for vert in bpy.context.object.data.vertices:
             bpy.ops.transform.resize(value=(0, 1, 1), constraint_axis=(True, False, False), constraint_orientation='GLOBAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
         return {'FINISHED'} 
-    
+ 
 #Align Y
 class AlignY(bpy.types.Operator):  
     bl_idname = "align.y"  
     bl_label = "Align  Y" 
     bl_options = {'REGISTER', 'UNDO'} 
-  
+ 
     def execute(self, context):
-
+ 
         for vert in bpy.context.object.data.vertices:
             bpy.ops.transform.resize(value=(1, 0, 1), constraint_axis=(False, True, False), constraint_orientation='GLOBAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
         return {'FINISHED'}    
-
+ 
 #Align Z
 class AlignZ(bpy.types.Operator):  
     bl_idname = "align.z"  
     bl_label = "Align  Z"  
     bl_options = {'REGISTER', 'UNDO'}
-  
+ 
     def execute(self, context):
-
+ 
         for vert in bpy.context.object.data.vertices:
             bpy.ops.transform.resize(value=(1, 1, 0), constraint_axis=(False, False, True), constraint_orientation='GLOBAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
         return {'FINISHED'}
-
+ 
 #####################
 #    Align To 0     #               
 #####################
-    
+ 
 #Align to X - 0
 class AlignToX0(bpy.types.Operator):  
     bl_idname = "align.2x0"  
     bl_label = "Align To X-0"  
     bl_options = {'REGISTER', 'UNDO'}
-  
+ 
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
-
+ 
         for vert in bpy.context.object.data.vertices:
             if vert.select: 
                 vert.co[0] = 0
         bpy.ops.object.editmode_toggle() 
         return {'FINISHED'}     
-
+ 
 #Align to Z - 0
 class AlignToY0(bpy.types.Operator):  
     bl_idname = "align.2y0"  
     bl_label = "Align To Y-0"  
     bl_options = {'REGISTER', 'UNDO'}
-  
+ 
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
-
+ 
         for vert in bpy.context.object.data.vertices:
             if vert.select: 
                 vert.co[1] = 0
         bpy.ops.object.editmode_toggle() 
         return {'FINISHED'}      
-
+ 
 #Align to Z - 0
 class AlignToZ0(bpy.types.Operator):  
     bl_idname = "align.2z0"  
     bl_label = "Align To Z-0"  
     bl_options = {'REGISTER', 'UNDO'}
-  
+ 
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
-
+ 
         for vert in bpy.context.object.data.vertices:
             if vert.select: 
                 vert.co[2] = 0
         bpy.ops.object.editmode_toggle() 
         return {'FINISHED'}
-
+ 
 #Align X Left
 class AlignXLeft(bpy.types.Operator):  
     bl_idname = "alignx.left"  
     bl_label = "Align X Left" 
     bl_options = {'REGISTER', 'UNDO'} 
-  
+ 
     def execute(self, context):
-        
+ 
         bpy.ops.object.mode_set(mode='OBJECT')
         count = 0
         axe = 0
@@ -1224,22 +1235,22 @@ class AlignXLeft(bpy.types.Operator):
                 count += 1
                 if vert.co[axe] < max:
                     max = vert.co[axe]
-
+ 
         bpy.ops.object.mode_set(mode='OBJECT')
-
+ 
         for vert in bpy.context.object.data.vertices:
             if vert.select:
                 vert.co[axe] = max
         bpy.ops.object.mode_set(mode='EDIT')  
         return {'FINISHED'}
-
+ 
 #Align X Right
 class AlignXRight(bpy.types.Operator):  
     bl_idname = "alignx.right"  
     bl_label = "Align X Right"  
-  
+ 
     def execute(self, context):
-        
+ 
         bpy.ops.object.mode_set(mode='OBJECT')
         count = 0
         axe = 0
@@ -1252,23 +1263,23 @@ class AlignXRight(bpy.types.Operator):
                 count += 1
                 if vert.co[axe] > max:
                     max = vert.co[axe]
-
+ 
         bpy.ops.object.mode_set(mode='OBJECT')
-
+ 
         for vert in bpy.context.object.data.vertices:
             if vert.select:
                 vert.co[axe] = max
         bpy.ops.object.mode_set(mode='EDIT')  
         return {'FINISHED'}
-
+ 
 #Align Y Back
 class AlignYBack(bpy.types.Operator):  
     bl_idname = "aligny.back"  
     bl_label = "Align Y back"
     bl_options = {'REGISTER', 'UNDO'}  
-  
+ 
     def execute(self, context):
-        
+ 
         bpy.ops.object.mode_set(mode='OBJECT')
         count = 0
         axe = 1
@@ -1281,23 +1292,23 @@ class AlignYBack(bpy.types.Operator):
                 count += 1
                 if vert.co[axe] > max:
                     max = vert.co[axe]
-
+ 
         bpy.ops.object.mode_set(mode='OBJECT')
-
+ 
         for vert in bpy.context.object.data.vertices:
             if vert.select:
                 vert.co[axe] = max
         bpy.ops.object.mode_set(mode='EDIT')  
         return {'FINISHED'}
-
+ 
 #Align Y Front
 class AlignYFront(bpy.types.Operator):  
     bl_idname = "aligny.front"  
     bl_label = "Align Y Front" 
     bl_options = {'REGISTER', 'UNDO'} 
-  
+ 
     def execute(self, context):
-        
+ 
         bpy.ops.object.mode_set(mode='OBJECT')
         count = 0
         axe = 1
@@ -1310,23 +1321,23 @@ class AlignYFront(bpy.types.Operator):
                 count += 1
                 if vert.co[axe] < max:
                     max = vert.co[axe]
-
+ 
         bpy.ops.object.mode_set(mode='OBJECT')
-
+ 
         for vert in bpy.context.object.data.vertices:
             if vert.select:
                 vert.co[axe] = max
         bpy.ops.object.mode_set(mode='EDIT')  
         return {'FINISHED'}
-    
+ 
 #Align Z Top
 class AlignZTop(bpy.types.Operator):  
     bl_idname = "alignz.top"  
     bl_label = "Align Z Top"  
     bl_options = {'REGISTER', 'UNDO'}
-  
+ 
     def execute(self, context):
-        
+ 
         bpy.ops.object.mode_set(mode='OBJECT')
         count = 0
         axe = 2
@@ -1339,23 +1350,23 @@ class AlignZTop(bpy.types.Operator):
                 count += 1
                 if vert.co[axe] > max:
                     max = vert.co[axe]
-
+ 
         bpy.ops.object.mode_set(mode='OBJECT')
-
+ 
         for vert in bpy.context.object.data.vertices:
             if vert.select:
                 vert.co[axe] = max
         bpy.ops.object.mode_set(mode='EDIT')  
         return {'FINISHED'}  
-    
+ 
 #Align Z Bottom
 class AlignZBottom(bpy.types.Operator):  
     bl_idname = "alignz.bottom"  
     bl_label = "Align Z Bottom"  
     bl_options = {'REGISTER', 'UNDO'}
-  
+ 
     def execute(self, context):
-        
+ 
         bpy.ops.object.mode_set(mode='OBJECT')
         count = 0
         axe = 2
@@ -1368,141 +1379,141 @@ class AlignZBottom(bpy.types.Operator):
                 count += 1
                 if vert.co[axe] < max:
                     max = vert.co[axe]
-
+ 
         bpy.ops.object.mode_set(mode='OBJECT')
-
+ 
         for vert in bpy.context.object.data.vertices:
             if vert.select:
                 vert.co[axe] = max
         bpy.ops.object.mode_set(mode='EDIT')  
         return {'FINISHED'}  
-  
+ 
 #################
 #    Delete     #               
 #################
-
+ 
 #Limited Dissolve
 class DeleteLimitedDissolve(bpy.types.Operator):  
     bl_idname = "delete.limiteddissolve"  
     bl_label = "Delete Limited Dissolve"  
     bl_options = {'REGISTER', 'UNDO'}
-    
-  
+ 
+ 
     def execute(self, context):
         bpy.ops.mesh.dissolve_limited(angle_limit=3.14159, use_dissolve_boundaries=False)
         return {'FINISHED'} 
-    
+ 
 ####################
 #    Animation     #               
 ####################
-
+ 
 #Insert Auto Keyframe
 class InsertAutoKeyframe(bpy.types.Operator):  
     bl_idname = "insert.autokeyframe"  
     bl_label = "Insert Auto Keyframe"  
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
-        
+ 
         if bpy.context.scene.tool_settings.use_keyframe_insert_auto == True :
             bpy.context.scene.tool_settings.use_keyframe_insert_auto = False
-            
+ 
         if bpy.context.scene.tool_settings.use_keyframe_insert_auto == False : 
             bpy.context.scene.tool_settings.use_keyframe_insert_auto = True
-            
+ 
         return {'FINISHED'}  
-    
+ 
 ###########################
 #    Apply Transforms     #               
 ###########################
-
+ 
 #Apply Transforms
 class ApplyTransformLocation(bpy.types.Operator):  
     bl_idname = "apply.transformlocation"  
     bl_label = "Apply Transform Location"  
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
         return {'FINISHED'}  
-
+ 
 #Apply Transforms
 class ApplyTransformRotation(bpy.types.Operator):  
     bl_idname = "apply.transformrotation"  
     bl_label = "Apply Transform Rotation"  
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
         return {'FINISHED'}   
-    
+ 
 #Apply Transforms
 class ApplyTransformScale(bpy.types.Operator):  
     bl_idname = "apply.transformscale"  
     bl_label = "Apply Transform Scale" 
     bl_options = {'REGISTER', 'UNDO'} 
-    
+ 
     def execute(self, context):
         bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
         return {'FINISHED'}   
-
+ 
 #Apply Transforms
 class ApplyTransformRotationScale(bpy.types.Operator):  
     bl_idname = "apply.transformrotationscale"  
     bl_label = "Apply Transform Rotation Scale"  
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
         return {'FINISHED'}  
-
+ 
 #Apply Transforms
 class ApplyTransformAll(bpy.types.Operator):  
     bl_idname = "apply.transformall"  
     bl_label = "Apply Transform All"  
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
         return {'FINISHED'} 
-    
-    
+ 
+ 
 # Clear Menu
 class ClearMenu(bpy.types.Menu):
     bl_idname = "clear.menu"
     bl_label = "Clear Menu"
-    
+ 
     def draw(self, context):
         layout = self.layout
         layout.operator("object.location_clear", text="Clear Location", icon='MAN_TRANS')
         layout.operator("object.rotation_clear", text="Clear Rotation", icon='MAN_ROT')
         layout.operator("object.scale_clear", text="Clear Scale", icon='MAN_SCALE')
         layout.operator("object.origin_clear", text="Clear Origin", icon='MANIPUL')
-
+ 
 #Clear all
 class ClearAll(bpy.types.Operator):  
     bl_idname = "clear.all"  
     bl_label = "Clear All"  
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         bpy.ops.object.location_clear()
         bpy.ops.object.rotation_clear()
         bpy.ops.object.scale_clear()
         return {'FINISHED'}  
-
+ 
 ########################
 #    Open/Save/...     #               
 ########################
-
+ 
 #External Data
 class ExternalData(bpy.types.Menu):
     bl_idname = "external.data"
     bl_label = "External Data"
-
+ 
     def draw(self, context):
         layout = self.layout
-        
+ 
         layout.operator("file.autopack_toggle", text="Automatically Pack Into .blend")
         layout.separator()
         layout.operator("file.pack_all", text="Pack All Into .blend")
@@ -1512,13 +1523,13 @@ class ExternalData(bpy.types.Menu):
         layout.operator("file.make_paths_absolute", text="Make All Paths Absolute")
         layout.operator("file.report_missing_files", text="Report Missing Files")
         layout.operator("file.find_missing_files", text="Find Missing Files")
-        
+ 
 #Save Incremental
 class FileIncrementalSave(bpy.types.Operator):
     bl_idname = "file.save_incremental"
     bl_label = "Save Incremental"
     bl_options = {"REGISTER"}
-   
+ 
     def execute(self, context):
         f_path = bpy.data.filepath      
         if f_path.find("_") != -1:
@@ -1526,7 +1537,7 @@ class FileIncrementalSave(bpy.types.Operator):
             int_nb = int(str_nb)
             new_nb = str_nb.replace(str(int_nb),str(int_nb+1))   
             output = f_path.replace(str_nb,new_nb)
-            
+ 
             i = 1
             while os.path.isfile(output):
                 str_nb = f_path.rpartition("_")[-1].rpartition(".blend")[0]
@@ -1535,11 +1546,11 @@ class FileIncrementalSave(bpy.types.Operator):
                 output = f_path.replace(str_nb,new_nb)
         else:
             output = f_path.rpartition(".blend")[0]+"_001"+".blend"
-        
+ 
         bpy.ops.wm.save_as_mainfile(filepath=output)
         self.report({'INFO'}, "File: {0} - Created at: {1}".format(output[len(bpy.path.abspath("//")):], output[:len(bpy.path.abspath("//"))]))
         return {'FINISHED'}
-                 
+ 
 ######################
 #    Views Ortho     #               
 ######################
@@ -1548,22 +1559,22 @@ class PerspOrthoView(bpy.types.Operator):
     bl_idname = "persp.orthoview"  
     bl_label = "Persp/Ortho" 
     bl_options = {'REGISTER', 'UNDO'} 
-  
+ 
     def execute(self, context):
         bpy.ops.view3d.view_persportho()
         return {'FINISHED'} 
-    
-
+ 
+ 
 #######################################################
 # Camera                                              #
 ####################################################### 
-
+ 
 #Lock Camera Transforms
 class LockCameraTransforms(bpy.types.Operator):  
     bl_idname = "object.lockcameratransforms"  
     bl_label = "Lock Camera Transforms"  
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         if bpy.context.object.lock_rotation[0] == False:
             bpy.context.object.lock_rotation[0] = True
@@ -1575,54 +1586,54 @@ class LockCameraTransforms(bpy.types.Operator):
             bpy.context.object.lock_scale[0] = True
             bpy.context.object.lock_scale[1] = True
             bpy.context.object.lock_scale[2] = True
-            
+ 
         elif bpy.context.object.lock_rotation[0] == True :
-             bpy.context.object.lock_rotation[0] = False
-             bpy.context.object.lock_rotation[1] = False
-             bpy.context.object.lock_rotation[2] = False
-             bpy.context.object.lock_location[0] = False
-             bpy.context.object.lock_location[1] = False
-             bpy.context.object.lock_location[2] = False
-             bpy.context.object.lock_scale[0] = False
-             bpy.context.object.lock_scale[1] = False
-             bpy.context.object.lock_scale[2] = False
+            bpy.context.object.lock_rotation[0] = False
+            bpy.context.object.lock_rotation[1] = False
+            bpy.context.object.lock_rotation[2] = False
+            bpy.context.object.lock_location[0] = False
+            bpy.context.object.lock_location[1] = False
+            bpy.context.object.lock_location[2] = False
+            bpy.context.object.lock_scale[0] = False
+            bpy.context.object.lock_scale[1] = False
+            bpy.context.object.lock_scale[2] = False
         return {'FINISHED'}
-
+ 
 #Active Camera
 bpy.types.Scene.cameratoto = bpy.props.StringProperty(default="")
-
+ 
 class ActiveCameraSelection(bpy.types.Operator):  
     bl_idname = "object.activecameraselection"  
     bl_label = "Active Camera Selection"  
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
         bpy.data.objects[context.scene.cameratoto].select=True  
         bpy.ops.view3d.object_as_camera()
         return {'FINISHED'}
-
+ 
 #Select Camera
 class CameraSelection(bpy.types.Operator):  
     bl_idname = "object.cameraselection"  
     bl_label = "Camera Selection"  
     bl_options = {'REGISTER', 'UNDO'}
-    
+ 
     def execute(self, context):
-    
+ 
         for cam in bpy.data.cameras:
             bpy.ops.object.select_camera()
-            
+ 
         return {'FINISHED'}
-    
+ 
 #Pie Material
 class MaterialListMenu(bpy.types.Menu): # menu appelé par le pie
     bl_idname = "object.material_list_menu"
     bl_label = "Material_list"
-
+ 
     def draw(self, context):
         layout = self.layout
         col = layout.column(align=True)
-        
+ 
         if len(bpy.data.materials): # "len" retourne le nombre d'occurence donc, si il y a des materiaux dans les datas:
             for mat in bpy.data.materials:  
                 name = mat.name
@@ -1631,30 +1642,30 @@ class MaterialListMenu(bpy.types.Menu): # menu appelé par le pie
                 except:
                     icon_val = 1
                     print ("WARNING [Mat Panel]: Could not get icon value for %s" % name)
-
+ 
                 op = col.operator("object.apply_material", text=name, icon_value=icon_val) # opérateur qui apparait dans le menu pour chaque matériau présent dans les datas materials
                 op.mat_to_assign = name # on "stock" le nom du matériau dans la variable "mat_to_assign" declarée dans la class opérateur "ApplyMaterial"
         else:
             layout.label("No data materials")
-
-        
-        
+ 
+ 
+ 
 class ApplyMaterial(bpy.types.Operator):
     bl_idname = "object.apply_material"
     bl_label = "Apply material"
-
+ 
     mat_to_assign = bpy.props.StringProperty(default="")
-
+ 
     def execute(self, context):
-                         
+ 
         if context.object.mode == 'EDIT':
             obj = context.object
             bm = bmesh.from_edit_mesh(obj.data)
-            
+ 
             selected_face = [f for f in bm.faces if f.select]  # si des faces sont sélectionnées, elles sont stockées dans la liste "selected_faces"          
-            
+ 
             mat_name = [mat.name for mat in bpy.context.object.material_slots if len(bpy.context.object.material_slots)] # pour tout les material_slots, on stock les noms des mat de chaque slots dans la liste "mat_name"
-            
+ 
             if self.mat_to_assign in mat_name: # on test si le nom du mat sélectionné dans le menu est présent dans la liste "mat_name" (donc, si un des slots possède le materiau du même nom). Si oui:
                 context.object.active_material_index = mat_name.index(self.mat_to_assign) # on definit le slot portant le nom du comme comme étant le slot actif
                 bpy.ops.object.material_slot_assign() # on assigne le matériau à la sélection
@@ -1662,41 +1673,41 @@ class ApplyMaterial(bpy.types.Operator):
                 bpy.ops.object.material_slot_add() # on ajout un slot
                 bpy.context.object.active_material = bpy.data.materials[self.mat_to_assign] # on lui assigne le materiau choisi
                 bpy.ops.object.material_slot_assign() # on assigne le matériau à la sélection
-          
+ 
             return {'FINISHED'}
-            
+ 
         elif context.object.mode == 'OBJECT':
-            
+ 
             obj_list = [obj.name for obj in context.selected_objects]
-            
+ 
             for obj in obj_list:
                 bpy.ops.object.select_all(action='DESELECT')
                 bpy.data.objects[obj].select = True                
                 bpy.context.scene.objects.active = bpy.data.objects[obj]
                 bpy.context.object.active_material_index = 0
-                
+ 
                 if self.mat_to_assign == bpy.data.materials:
                     bpy.context.active_object.active_material = bpy.data.materials[mat_name]
-                
+ 
                 else:
                     if not len(bpy.context.object.material_slots):
                         bpy.ops.object.material_slot_add()
-                    
+ 
                     bpy.context.active_object.active_material = bpy.data.materials[self.mat_to_assign]
-            
+ 
             for obj in obj_list:
                 bpy.data.objects[obj].select = True
-            
+ 
             return {'FINISHED'}    
 ######################
 #     Pie Menus      #               
 ######################
-
+ 
 # Pie Edit/Object Others modes - Tab
 class PieObjectEditotherModes(Menu):
     bl_idname = "pie.objecteditmodeothermodes"
     bl_label = "Select Other Modes"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -1712,12 +1723,12 @@ class PieObjectEditotherModes(Menu):
         #9 - TOP - RIGHT
         #1 - BOTTOM - LEFT
         #3 - BOTTOM - RIGHT
-
+ 
 # Pie Vertex/Edges/Faces Modes - Tab
 class PieVertexEdgesFacesModes(Menu):
     bl_idname = "pie.vertexedgesfacesmodes"
     bl_label = "Select Multi Components"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -1733,17 +1744,17 @@ class PieVertexEdgesFacesModes(Menu):
         #9 - TOP - RIGHT
         #1 - BOTTOM - LEFT
         #3 - BOTTOM - RIGHT  
-  
+ 
 # Pie Select Mode - Tab
 class PieObjectEditMode(Menu):
     bl_idname = "pie.objecteditmode"
     bl_label = "Select Mode"
-
+ 
     def draw(self, context):
         layout = self.layout
         toolsettings = context.tool_settings
         ob = context
-        
+ 
         if ob.object.type == 'MESH':
             pie = layout.menu_pie()
             #4 - LEFT
@@ -1766,48 +1777,48 @@ class PieObjectEditMode(Menu):
             row.prop(toolsettings, "use_mesh_automerge", text="Auto Merge")
             row = box.row(align=True)
             row.operator("wm.call_menu_pie", text="V/E/F Modes", icon='UV_VERTEXSEL').name="pie.vertexedgesfacesmodes"
-            
+ 
         elif ob.object.type == 'CURVE':
             pie = layout.menu_pie()
             pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')
-          
+ 
         elif ob.object.type == 'ARMATURE':
             pie = layout.menu_pie()
             pie.operator("object.editmode_toggle", text="Edit Mode", icon='OBJECT_DATAMODE')
             pie.operator("object.posemode_toggle", text="Pose", icon='POSE_HLT')
             pie.operator("class.object", text="Object Mode", icon='OBJECT_DATAMODE')
-            
+ 
         elif ob.object.type == 'FONT':
             pie = layout.menu_pie()
             pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')    
-        
+ 
         elif ob.object.type == 'SURFACE':
             pie = layout.menu_pie()
             pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')
-        
+ 
         elif ob.object.type == 'ARMATURE':
             pie = layout.menu_pie()
             pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')   
-        
+ 
         elif ob.object.type == 'META':
             pie = layout.menu_pie()
             pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE') 
-        
+ 
         elif ob.object.type == 'LATTICE':
             pie = layout.menu_pie()
             pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')
-            
+ 
         elif ob.object.type == 'ARMATURE':
             pie = layout.menu_pie()
             pie.operator("object.editmode_toggle", text="Edit/Object", icon='OBJECT_DATAMODE')     
-            
-            
-
+ 
+ 
+ 
 #Pie View Animation Etc - Space
 class PieAnimationEtc(Menu):
     bl_idname = "pie.animationetc"
     bl_label = "Animation Etc"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -1826,12 +1837,12 @@ class PieAnimationEtc(Menu):
         #1 - BOTTOM - LEFT
         pie.operator("object.view_menu", text="Logic Editor", icon= 'LOGIC').variable="LOGIC_EDITOR"  
         #3 - BOTTOM - RIGHT
-        
+ 
 #Pie View File Properties Etc - Space
 class PieFilePropertiesEtc(Menu):
     bl_idname = "pie.filepropertiesetc"
     bl_label = "Pie File Properties..."
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -1850,12 +1861,12 @@ class PieFilePropertiesEtc(Menu):
         #9 - TOP - RIGHT
         pie.operator("object.view_menu", text="Info", icon= 'INFO').variable="INFO"
         #3 - BOTTOM - RIGHT
-
+ 
 #Pie View All Sel Glob Etc - Q
 class PieViewallSelGlobEtc(Menu):
     bl_idname = "pie.vieallselglobetc"
     bl_label = "Pie View All Sel Glob..."
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -1873,12 +1884,12 @@ class PieViewallSelGlobEtc(Menu):
         pie.operator("screen.screen_full_area", text="Full Screen", icon='FULLSCREEN_ENTER')
         #9 - TOP - RIGHT
         #3 - BOTTOM - RIGHT
-        
+ 
 #Pie Views - Space
 class PieAreaViews(Menu):
     bl_idname = "pie.areaviews"
     bl_label = "Pie Views"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -1899,12 +1910,12 @@ class PieAreaViews(Menu):
         pie.operator("split.vertical", text="Split Vertical", icon= 'TRIA_RIGHT')
         #3 - BOTTOM - RIGHT
         pie.operator("split.horizontal", text="Split Horizontal", icon= 'TRIA_DOWN')
-        
+ 
 #Pie views numpad - Q
 class PieViewNumpad(Menu):
     bl_idname = "pie.viewnumpad"
     bl_label = "Pie Views Ortho"
-
+ 
     def draw(self, context):
         layout = self.layout
         ob = bpy.context.object
@@ -1912,7 +1923,7 @@ class PieViewNumpad(Menu):
         pie = layout.menu_pie()
         scene = context.scene
         rd = scene.render
-        
+ 
         #4 - LEFT
         pie.operator("view3d.viewnumpad", text="Left", icon='TRIA_LEFT').type='LEFT'
         #6 - RIGHT
@@ -1932,15 +1943,15 @@ class PieViewNumpad(Menu):
             row.operator("wm.context_toggle", text="Lock Cam to View", icon='UNLOCKED').data_path = "space_data.lock_camera"
         elif context.space_data.lock_camera == True:
             row.operator("wm.context_toggle", text="Lock Cam to View", icon='LOCKED').data_path = "space_data.lock_camera"
-        
+ 
         row = box.row(align=True)
         row.operator("view3d.viewnumpad", text="View Cam", icon='VISIBLE_IPO_ON').type='CAMERA'
         row.operator("view3d.camera_to_view", text="Cam to view", icon = 'MAN_TRANS')
-        
+ 
         if ob.lock_rotation[0] == False:
             row = box.row(align=True)
             row.operator("object.lockcameratransforms", text="Lock Transforms", icon = 'LOCKED')
-            
+ 
         elif  ob.lock_rotation[0] == True:
             row = box.row(align=True)
             row.operator("object.lockcameratransforms", text="UnLock Transforms", icon = 'UNLOCKED')
@@ -1948,12 +1959,12 @@ class PieViewNumpad(Menu):
         row.prop(rd, "use_border", text="Border")     
         #3 - BOTTOM - RIGHT
         pie.operator("wm.call_menu_pie", text="View All/Sel/Glob...", icon='BBOX').name="pie.vieallselglobetc"
-       
+ 
 #Pie Sculp Pie Menus - W
 class PieSculptPie(Menu):
     bl_idname = "pie.sculpt"
     bl_label = "Pie Sculpt"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -1973,12 +1984,12 @@ class PieSculptPie(Menu):
         pie.operator("paint.brush_select", text='Simplify', icon='BRUSH_DATA').sculpt_tool='SIMPLIFY'
         #3 - BOTTOM - RIGHT
         pie.operator("wm.call_menu_pie", text="Others Brushes", icon='LINE_DATA').name="pie.sculpttwo"
-
+ 
 #Pie Sculp Pie Menus 2 - W       
 class PieSculpttwo(Menu):
     bl_idname = "pie.sculpttwo"
     bl_label = "Pie Sculpt 2"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2008,12 +2019,12 @@ class PieSculpttwo(Menu):
         box.operator("paint.brush_select", text='Nudge', icon='BRUSH_NUDGE').sculpt_tool= 'NUDGE'
         box.operator("paint.brush_select", text='Thumb', icon='BRUSH_THUMB').sculpt_tool= 'THUMB'
         box.operator("paint.brush_select", text='Fill/Deepen', icon='BRUSH_FILL').sculpt_tool='FILL'
-
+ 
 #Pie Origin/Pivot - Shift + S
 class PieOriginPivot(Menu):
     bl_idname = "pie.originpivot"
     bl_label = "Pie Origin/Cursor"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2033,12 +2044,12 @@ class PieOriginPivot(Menu):
         pie.operator("object.origin_set", text="Geometry To Origin", icon='BBOX').type ='GEOMETRY_ORIGIN'
         #3 - BOTTOM - RIGHT
         pie.operator("wm.call_menu_pie", text="Others", icon='CURSOR').name="origin.pivotmenu"
-
+ 
 #Pie Pivot Point - Shit + S        
 class PiePivotPoint(Menu):
     bl_idname = "pie.pivotpoint"
     bl_label = "Pie Pivot Point"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2056,12 +2067,12 @@ class PiePivotPoint(Menu):
         pie.operator("use.pivotalign", text="Use Pivot Align", icon='ALIGN')
         #1 - BOTTOM - LEFT
         #3 - BOTTOM - RIGHT
-                
+ 
 #Origin/Pivot menu1  - Shift + S
 class OriginPivotMenu(Menu):
     bl_idname = "origin.pivotmenu"
     bl_label = "Origin Pivot Menu"
-
+ 
     def draw(self, context):
         layout = self.layout        
         pie = layout.menu_pie()
@@ -2079,12 +2090,12 @@ class OriginPivotMenu(Menu):
         pie.operator("view3d.snap_cursor_to_active", text="Cursor to Active", icon='BBOX')
         #1 - BOTTOM - LEFT
         #3 - BOTTOM - RIGHT
-
+ 
 #Pie Manipulators - Ctrl + Space
 class PieManipulator(Menu):
     bl_idname = "pie.manipulator"
     bl_label = "Pie Manipulator"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2104,12 +2115,12 @@ class PieManipulator(Menu):
         pie.operator("rotate.scale", text="Rotate/Scale")
         #3 - BOTTOM - RIGHT
         pie.operator("translate.rotatescale", text="Translate/Rotate/Scale")
-
+ 
 #Pie Snapping - Shift + Tab
 class PieSnaping(Menu):
     bl_idname = "pie.snapping"
     bl_label = "Pie Snapping"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2129,12 +2140,12 @@ class PieSnaping(Menu):
         pie.operator("snap.alignrotation", text="Align rotation", icon='SNAP_NORMAL')
         #3 - BOTTOM - RIGHT
         pie.operator("wm.call_menu_pie", text="Snap Target", icon='SNAP_SURFACE').name="snap.targetmenu"    
-           
+ 
 #Menu Snap Target - Shift + Tab
 class SnapTargetMenu(Menu):
     bl_idname = "snap.targetmenu"
     bl_label = "Snap Target Menu"
-
+ 
     def draw(self, context):
         layout = self.layout       
         pie = layout.menu_pie()
@@ -2150,15 +2161,15 @@ class SnapTargetMenu(Menu):
         #9 - TOP - RIGHT
         #1 - BOTTOM - LEFT
         #3 - BOTTOM - RIGHT
-
+ 
 #Pie Orientation - Alt + Space
 class PieOrientation(Menu):
     bl_idname = "pie.orientation"
     bl_label = "Pie Orientation"
-
+ 
     def draw(self, context):
         layout = self.layout
-        
+ 
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("object.orientationvariable", text="View").variable = 'VIEW'
@@ -2173,12 +2184,12 @@ class PieOrientation(Menu):
         #9 - TOP - RIGHT
         #1 - BOTTOM - LEFT
         #3 - BOTTOM - RIGHT
-        
+ 
 #Pie Shading - Z
 class PieShadingView(Menu):
     bl_idname = "pie.shadingview"
     bl_label = "Pie Shading"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2188,7 +2199,7 @@ class PieShadingView(Menu):
         pie.operator("object.shadingvariable", text="Wireframe", icon='WIRE').variable = 'WIREFRAME'
         #2 - BOTTOM
         pie.menu("object.material_list_menu", icon='MATERIAL_DATA')
-        
+ 
         #8 - TOP
         pie.operator("object.shadingvariable", text="Solid", icon='SOLID').variable = 'SOLID'
         #7 - TOP - LEFT 
@@ -2199,22 +2210,22 @@ class PieShadingView(Menu):
         pie.operator("shading.smooth", text="Shade Smooth", icon='SOLID')
         #3 - BOTTOM - RIGHT
         pie.operator("shading.flat", text="Shade Flat", icon='MESH_ICOSPHERE')
-
+ 
 #Pie Object Shading- Shift + Z
 class PieObjectShading(Menu):
     bl_idname = "pie.objectshading"
     bl_label = "Pie Shading Object"
-
+ 
     def draw(self, context):
         layout = self.layout
-        
+ 
         toolsettings = context.tool_settings
         view = context.space_data
         obj = context.object
         mesh = context.active_object.data
         fx_settings = view.fx_settings
-        
-        
+ 
+ 
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("scene.togglegridaxis", text="Show/Hide Grid", icon="MESH_GRID")
@@ -2223,7 +2234,7 @@ class PieObjectShading(Menu):
         #2 - BOTTOM
         box = pie.split().column()
         row = box.row(align=True)
-        
+ 
         if view.viewport_shade not in {'BOUNDBOX', 'WIREFRAME'}:
             row = box.row(align=True)
             row.prop(fx_settings, "use_dof")
@@ -2272,7 +2283,7 @@ class PieObjectShading(Menu):
         box.prop(view, "show_world")
         row = box.row(align=True)
         box.prop(view, "show_outline_selected")
-        
+ 
         #3 - BOTTOM - RIGHT
         box = pie.split().column()
         row = box.row(align=True)
@@ -2280,24 +2291,24 @@ class PieObjectShading(Menu):
         if view.use_matcap:
             row = box.row(align=True)
             row.menu("meshdisplay.matcaps", text="Choose Matcaps", icon='MATCAP_02')
-        
+ 
 #Overlays
 class MeshDisplayMatcaps(bpy.types.Menu):
     bl_idname = "meshdisplay.matcaps"
     bl_label = "Mesh Display Matcaps"
     bl_options = {'REGISTER', 'UNDO'}
-
+ 
     def draw(self, context):
         layout = self.layout
         view = context.space_data
         layout.template_icon_view(view, "matcap_icon")
-                
-
+ 
+ 
 #Pie ProportionalEditObj - O
 class PieProportionalObj(Menu):
     bl_idname = "pie.proportional_obj"
     bl_label = "Pie Proportional Edit Obj"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2317,12 +2328,12 @@ class PieProportionalObj(Menu):
         pie.operator("proportional_obj.constant", text="Constant", icon='NOCURVE')
         #3 - BOTTOM - RIGHT
         pie.operator("proportional_obj.random", text="Random", icon='RNDCURVE')
-
+ 
 #Pie ProportionalEditEdt - O
 class PieProportionalEdt(Menu):
     bl_idname = "pie.proportional_edt"
     bl_label = "Pie Proportional Edit"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2346,12 +2357,12 @@ class PieProportionalEdt(Menu):
         box.operator("proportional_edt.linear", text="Linear", icon='LINCURVE')
         box.operator("proportional_edt.sharp", text="Sharp", icon='SHARPCURVE')
         box.operator("proportional_edt.random", text="Random", icon='RNDCURVE')
-
+ 
 # Pie Align - Alt + X
 class PieAlign(Menu):
     bl_idname = "pie.align"
     bl_label = "Pie Align"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2389,12 +2400,12 @@ class PieAlign(Menu):
         box.operator("mesh.vertex_align", icon='ALIGN', text="Align")
         box.operator("retopo.space", icon='ALIGN', text="Distribute")
         box.operator("mesh.vertex_inline", icon='ALIGN', text="Align & Distribute")
-
+ 
 # Pie Delete - X
 class PieDelete(Menu):
     bl_idname = "pie.delete"
     bl_label = "Pie Delete"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2421,12 +2432,12 @@ class PieDelete(Menu):
         row = box.row(align=True)
         box.operator("mesh.delete", text="Only Edge & Faces", icon='SPACE2').type='EDGE_FACE'
         box.operator("mesh.delete", text="Only Faces", icon='UV_FACESEL').type='ONLY_FACE'
-
+ 
 # Pie Apply Transforms - Ctrl + A
 class PieApplyTransforms(Menu):
     bl_idname = "pie.applytranforms"
     bl_label = "Pie Apply Transforms"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2449,12 +2460,12 @@ class PieApplyTransforms(Menu):
         box.operator("object.duplicates_make_real", text="Make Duplicates Real")
         #3 - BOTTOM - RIGHT  
         pie.menu("clear.menu", text="Clear Transforms")  
-
+ 
 # Pie Selection Object Mode - A
 class PieSelectionsOM(Menu):
     bl_idname = "pie.selectionsom"
     bl_label = "Pie Selections Object Mode"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2478,12 +2489,12 @@ class PieSelectionsOM(Menu):
         box.operator("object.select_by_type", text="Select By Type", icon='SNAP_VOLUME')
         box.operator("object.select_grouped", text="Select Grouped", icon='ROTATE')
         box.operator("object.select_linked", text="Select Linked", icon='CONSTRAINT_BONE')
-        
+ 
 # Pie Selection Edit Mode
 class PieSelectionsEM(Menu):
     bl_idname = "pie.selectionsem"
     bl_label = "Pie Selections Edit Mode"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2507,12 +2518,12 @@ class PieSelectionsEM(Menu):
         pie.operator("mesh.loop_multi_select", text="Select Ring", icon='ZOOM_PREVIOUS').ring=True
         #3 - BOTTOM - RIGHT  
         pie.operator("mesh.loop_multi_select", text="Select Loop", icon='ZOOM_PREVIOUS').ring=False
-
+ 
 # Pie Text Editor
 class PieTextEditor(Menu):
     bl_idname = "pie.texteditor"
     bl_label = "Pie Text Editor"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2532,12 +2543,12 @@ class PieTextEditor(Menu):
             #1 - BOTTOM - LEFT
             pie.operator("text.save", text="Save Script", icon='SAVE_COPY')
             #3 - BOTTOM - RIGHT 
-            
+ 
 # Pie Animation            
 class PieAnimation(Menu):
     bl_idname = "pie.animation"
     bl_label = "Pie Animation"
-    
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2561,12 +2572,12 @@ class PieAnimation(Menu):
         pie.operator("screen.keyframe_jump", text="Previous FR", icon='PREV_KEYFRAME').next = False   
         #3 - BOTTOM - RIGHT 
         pie.operator("screen.keyframe_jump", text="Next FR", icon='NEXT_KEYFRAME').next = True
-
+ 
 #Pie Save/Open
 class PieSaveOpen(Menu):
     bl_idname = "pie.saveopen"
     bl_label = "Pie Save/Open"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2600,59 +2611,59 @@ class PieSaveOpen(Menu):
         box.operator("wm.link", text="Link", icon='LINK_BLEND')
         box.operator("wm.append", text="Append", icon='APPEND_BLEND')
         box.menu("external.data", text="External Data", icon='EXTERNAL_DATA')
-        
-       
-
+ 
+ 
+ 
 #Pie UV's Select Mode     
 class PIE_IMAGE_MT_uvs_select_mode(Menu):
     bl_label = "UV Select Mode"
     bl_idname = "pie.uvsselectmode"
-
+ 
     def draw(self, context):
         layout = self.layout
-
+ 
         layout.operator_context = 'INVOKE_REGION_WIN'
         toolsettings = context.tool_settings
         pie = layout.menu_pie()
         # do smart things depending on whether uv_select_sync is on
-
+ 
         if toolsettings.use_uv_select_sync:
-            
+ 
             props = pie.operator("wm.context_set_value", text="Vertex", icon='VERTEXSEL')
             props.value = "(True, False, False)"
             props.data_path = "tool_settings.mesh_select_mode"
-
+ 
             props = pie.operator("wm.context_set_value", text="Edge", icon='EDGESEL')
             props.value = "(False, True, False)"
             props.data_path = "tool_settings.mesh_select_mode"
-
+ 
             props = pie.operator("wm.context_set_value", text="Face", icon='FACESEL')
             props.value = "(False, False, True)"
             props.data_path = "tool_settings.mesh_select_mode"
-
+ 
         else:
             props = pie.operator("wm.context_set_string", text="Vertex", icon='UV_VERTEXSEL')
             props.value = 'VERTEX'
             props.data_path = "tool_settings.uv_select_mode"
-            
+ 
             props = pie.operator("wm.context_set_string", text="Face", icon='UV_FACESEL')
             props.value = 'FACE'
             props.data_path = "tool_settings.uv_select_mode"
-            
+ 
             props = pie.operator("wm.context_set_string", text="Edge", icon='UV_EDGESEL')
             props.value = 'EDGE'
             props.data_path = "tool_settings.uv_select_mode"
-
+ 
             props = pie.operator("wm.context_set_string", text="Island", icon='UV_ISLANDSEL')
             props.value = 'ISLAND'
             props.data_path = "tool_settings.uv_select_mode"
-
-
+ 
+ 
 #Pie UV's Weld/Align
 class Pie_UV_W(Menu):
     bl_idname = "pie.uvsweldalign"
     bl_label = "Pie UV's Welde/Align"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2672,12 +2683,12 @@ class Pie_UV_W(Menu):
         pie.operator("uv.align", text="Straighten X").axis = 'ALIGN_T'
         #3 - BOTTOM - RIGHT
         pie.operator("uv.align", text="Straighten Y").axis = 'ALIGN_U'
-        
+ 
 #Pie Texture Paint Pie Menu - W
 class PieTexturePainttPie(Menu):
     bl_idname = "pie.texturepaint"
     bl_label = "Pie Texture Paint"
-
+ 
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -2693,190 +2704,269 @@ class PieTexturePainttPie(Menu):
         pie.operator("paint.brush_select", text='Smear', icon='BRUSH_SMEAR').texture_paint_tool='SMEAR'
         #9 - TOP - RIGHT
         pie.operator("paint.brush_select", text='Clone', icon='BRUSH_CLONE').texture_paint_tool='CLONE'        
-        
+ 
 #Search Menu
 def SearchMenu(self, context):
     layout = self.layout
-    
+ 
     layout.operator("wm.search_menu", text="", icon ='VIEWZOOM')
-    
+ 
 def view3d_Search_menu(self, context):
     layout = self.layout
-    
+ 
     layout.menu("SearchMenu") 
-                                           
+ 
 addon_keymaps = []
-
+ 
 def register():
     bpy.utils.register_module(__name__)
-    
-    
+ 
+ 
 # Keympa Config   
-    
+ 
     wm = bpy.context.window_manager
-    
+ 
     if wm.keyconfigs.addon:
         #Select Mode
         km = wm.keyconfigs.addon.keymaps.new(name='Object Non-modal')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS')
         kmi.properties.name = "pie.objecteditmode"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Views numpad
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS')
         kmi.properties.name = "pie.viewnumpad"
-       
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Views
         km = wm.keyconfigs.addon.keymaps.new(name='Screen')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS')
         kmi.properties.name = "pie.areaviews"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Sculpt Pie Menu
         km = wm.keyconfigs.addon.keymaps.new(name='Sculpt')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS')
         kmi.properties.name = "pie.sculpt"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Sculpt Pie Menu 2
         km = wm.keyconfigs.addon.keymaps.new(name='Sculpt')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS', alt=True)
         kmi.properties.name = "pie.sculpttwo"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Origin/Pivot
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', shift=True)
         kmi.properties.name = "pie.originpivot"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Manipulators
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', ctrl=True)
         kmi.properties.name = "pie.manipulator"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Snapping
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS', shift=True)
         kmi.properties.name = "pie.snapping"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Orientation
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'SPACE', 'PRESS', alt=True)
         kmi.properties.name = "pie.orientation"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Shading
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS')
         kmi.properties.name = "pie.shadingview"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Object shading
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Z', 'PRESS', shift=True)
         kmi.properties.name = "pie.objectshading"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Pivot Point
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'Q', 'PRESS', alt=True)
         kmi.properties.name = "pie.pivotpoint"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #ProportionalEditObj
         km = wm.keyconfigs.addon.keymaps.new(name = 'Object Mode')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'O', 'PRESS')
         kmi.properties.name = "pie.proportional_obj"
-
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #ProportionalEditEdt
         km = wm.keyconfigs.addon.keymaps.new(name = 'Mesh')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'O', 'PRESS')
         kmi.properties.name = "pie.proportional_edt"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Align
         km = wm.keyconfigs.addon.keymaps.new(name = 'Mesh')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'X', 'PRESS', alt=True)
         kmi.properties.name = "pie.align"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Delete
         km = wm.keyconfigs.addon.keymaps.new(name = 'Mesh')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'X', 'PRESS')
         kmi.properties.name = "pie.delete"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Apply Transform
         km = wm.keyconfigs.addon.keymaps.new(name = 'Object Mode')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS', ctrl=True)
         kmi.properties.name = "pie.applytranforms"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Selection Object Mode
         km = wm.keyconfigs.addon.keymaps.new(name = 'Object Mode')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS')
         kmi.properties.name = "pie.selectionsom"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Selection Edit Mode
         km = wm.keyconfigs.addon.keymaps.new(name = 'Mesh')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS')
         kmi.properties.name = "pie.selectionsem"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Tex Editor
         km = wm.keyconfigs.addon.keymaps.new(name = 'Text', space_type = 'TEXT_EDITOR')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'RIGHTMOUSE', 'PRESS', ctrl=True, alt=True)
         kmi.properties.name = "pie.texteditor"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Animation
         km = wm.keyconfigs.addon.keymaps.new(name='Object Non-modal')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'A', 'PRESS', alt=True)
         kmi.properties.name = "pie.animation"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Save/Open/...
         km = wm.keyconfigs.addon.keymaps.new(name='Window')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'S', 'PRESS', ctrl=True)
         kmi.properties.name = "pie.saveopen"
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #UV's Select Mode
         km = wm.keyconfigs.addon.keymaps.new(name = 'Image', space_type = 'IMAGE_EDITOR')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'TAB', 'PRESS')
         kmi.properties.name = "pie.uvsselectmode" 
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         # Set 2d cursor with double click LMB
         km = bpy.context.window_manager.keyconfigs.addon.keymaps.new(name = 'Image', space_type = 'IMAGE_EDITOR')
         kmi = km.keymap_items.new('uv.cursor_set', 'RIGHTMOUSE', 'DOUBLE_CLICK', ctrl=True)
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #UV's Weld/align
         km = wm.keyconfigs.addon.keymaps.new(name = 'UV Editor')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS')
         kmi.properties.name = "pie.uvsweldalign" 
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
         #Texturepaint Pie Menu
         km = wm.keyconfigs.addon.keymaps.new(name = 'Image Paint')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'W', 'PRESS')
         kmi.properties.name = "pie.texturepaint"
-        
-        addon_keymaps.append(km)
-        
+        kmi.active = True
+        addon_keymaps.append((km, kmi))
+ 
+ 
+#        addon_keymaps.append(km)
+ 
 # Register / Unregister Classes
 def unregister():
     bpy.utils.unregister_module(__name__)
-    
-    
+ 
+ 
     wm = bpy.context.window_manager
-
+ 
     if wm.keyconfigs.addon:
         for km in addon_keymaps:
             for kmi in km.keymap_items:
                 km.keymap_items.remove(kmi)
-
+ 
             wm.keyconfigs.addon.keymaps.remove(km)
-
+ 
     # clear the list
     del addon_keymaps[:]
-
+ 
 if __name__ == "__main__":
     register()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
