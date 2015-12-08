@@ -966,7 +966,7 @@ class View3dRightClicMenu(Menu):
             if is_subsurf == True :
                 pie.operator("remove.subsurf", text="Remove Subsurf", icon='X')
             else :
-            pie.operator("object.subsurf2", text="Add Subsurf", icon='MOD_SUBSURF')
+                pie.operator("object.subsurf2", text="Add Subsurf", icon='MOD_SUBSURF')
  
             #2 - BOTTOM
             box = pie.split().column()
