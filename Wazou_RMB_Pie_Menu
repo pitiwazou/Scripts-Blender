@@ -21,7 +21,7 @@
 bl_info = {
     "name": "Wazou Right clic Pie Menu",
     "author": "Cédric Lepiller",
-    "version": (0, 2, 2),
+    "version": (0, 2, 3),
     "blender": (2, 76, 0),
     "location": "View3D > RMB",
     "description": "Right Click Pie Menu",
@@ -1073,7 +1073,7 @@ class View3dRightClicMenu(Menu):
             if is_subsurf1 == True :
                 pie.operator("remove.subsurf", text="Remove Subsurf", icon='X')
             else :
-            pie.operator("object.subsurf2", text="Add Subsurf", icon='MOD_SUBSURF')
+                pie.operator("object.subsurf2", text="Add Subsurf", icon='MOD_SUBSURF')
             #2 - BOTTOM
             box = pie.split().column()
             row = box.row(align=True) 
