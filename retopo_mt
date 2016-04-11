@@ -1,30 +1,32 @@
-﻿# ###################### BEGIN GPL LICENSE BLOCK ###########################
-#                                                                          #
-#  This program is free software; you can redistribute it and/or           #
-#  modify it under the terms of the GNU General Public License             #
-#  as published by the Free Software Foundation; either version 2          #
-#  of the License, or (at your option) any later version.                  #
-#                                                                          #
-#  This program is distributed in the hope that it will be useful,         #
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of          #
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           #
-#  GNU General Public License for more details.                            #
-#                                                                          #    
-#  You should have received a copy of the GNU General Public License       #
-#  along with this program; if not, write to the Free Software Foundation, #
-#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.      #
-#                                                                          # 
-# ###################### END GPL LICENSE BLOCK #############################
+# ##### BEGIN GPL LICENSE BLOCK #####
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software Foundation,
+#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+# ##### END GPL LICENSE BLOCK #####
 
 bl_info = {
     "name": "Retopo MT",
     "category": "Mesh",
-    "author": "Will Souloumiac aka Pixivore, Cédric Lepiller aka Pitiwazou, Blenderlounge, OrAngE",
+    "author": "Will Souloumiac aka Pixivore, Cédric Lepiller aka Pitiwazou, Blenderlounge",
     "version": (1,0,3),
-    "blender": (2, 73, 0),
+    "blender": (2, 77, 0),
     "location": "Editmode > ctrl+shift+X",
     "description": "Multiple tools for retopology.",
 }
+
+
 
 
 import bpy
@@ -132,6 +134,9 @@ global g_PosSize2d
 global g_PosCut2d
 
 global g_bAutoMerge
+
+global g_SavLens
+global g_SavPersp
 #########################################################################################################
 
 
@@ -2044,9 +2049,9 @@ def Picking(context, self, ray_max = 10000.0, _ray_origin = None, _CTRetopo = Fa
         matrix_inv = matrix.inverted()
         ray_origin_obj = matrix_inv * ray_origin
         ray_target_obj = matrix_inv * ray_target
-        hit, normal, face_index = obj.ray_cast(ray_origin_obj, ray_target_obj)
+        success, hit, normal, face_index = obj.ray_cast(ray_origin_obj, ray_target_obj)
         
-        if face_index != -1:
+        if success:
             return hit, normal, face_index
         else:
             return None, None, None
@@ -2119,17 +2124,18 @@ def draw_callback_px(self, context):
     view_width = context.region.width
     view_height = context.region.height
 
-    blf.size(font_id, 20, 35)
+    blf.size(font_id, 20, 52)
     blf.position(font_id, self.TextPosition + 20, view_height - 50, 0)
     bgl.glColor4f(1.0, 1.0, 1.0, 1.0)
     if(g_bAutoMerge):
-        blf.draw(font_id, "AutoMerge ON")
+        blf.draw(font_id, "AutoMerge ON (A)")
     else:        
-        blf.draw(font_id, "AutoMerge OFF")
+        blf.draw(font_id, "AutoMerge OFF (A)")
 
 
-    blf.size(font_id, 20, 35)
-    blf.position(font_id, self.TextPosition + 20, view_height - 70, 0)
+    bgl.glEnable(bgl.GL_POINT_SMOOTH)
+    blf.size(font_id, 20, 72)
+    blf.position(font_id, self.TextPosition + 20, view_height - 75, 0)
     if(g_PosCutIcon):
         strInfos = "Cut : " + str(int(g_Cursor.BSize))
         blf.draw(font_id, strInfos)
@@ -2195,6 +2201,7 @@ def draw_callback_px(self, context):
     #---------------------------------------------------------------------------------------------------
     # restore opengl defaults
     bgl.glLineWidth(1)
+    bgl.glDisable(bgl.GL_POINT_SMOOTH)
     bgl.glPointSize(1)
     bgl.glDisable(bgl.GL_BLEND)
     bgl.glColor4f(0.0, 0.0, 0.0, 1.0)
@@ -2292,6 +2299,7 @@ class RetopoMT(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         ob = context.active_object
+
         return(ob and ob.type == 'MESH' and context.mode == 'EDIT_MESH')
     #---------------------------------------------------------------------------------------------------
     
@@ -2739,7 +2747,7 @@ class RetopoMT(bpy.types.Operator):
         elif(event.type == 'LEFT_SHIFT'):
             g_SHIFT = event.value
         #---------------------------------------------------------------------------------------------------
-        elif event.type in {'ESC', 'RET'}:
+        elif event.type in {'Q', 'RET'}:
             if(self.bRunning == True):
                 self.finish()
                 return {'FINISHED'}
@@ -2954,7 +2962,31 @@ class RetopoMT(bpy.types.Operator):
             g_CTRL = "RELEASE"
             global g_SHIFT
             g_SHIFT = "RELEASE"
+            global g_SavLens
+            g_SavLens = 35.0
 
+            global g_SavPersp
+            g_SavPersp = bpy.context.space_data.region_3d.is_perspective
+            if(bpy.context.space_data.region_3d.is_perspective == False):
+                global g_SavLens
+                g_SavLens = bpy.context.space_data.lens
+
+                bpy.context.space_data.lens = 250.0
+
+                for area in bpy.context.screen.areas:
+                    if area.type == "VIEW_3D":
+                        break
+
+                for region in area.regions:
+                    if region.type == "WINDOW":
+                        break
+                space = area.spaces[0]
+                contextc = bpy.context.copy()
+                contextc['area'] = area
+                contextc['region'] = region
+                contextc['space_data'] = space
+                bpy.ops.view3d.view_persportho(contextc, 'EXEC_DEFAULT')
+        
             #---------------------------------------------------------------------------------------------------
             theme = bpy.context.user_preferences.themes['Default']
             
@@ -2984,7 +3016,7 @@ class RetopoMT(bpy.types.Operator):
             # Display the operator's instructions in the active area's header.
             context.area.header_text_set(
                 "Draw: LMB     W/X: Nb cuts     Move vertex: Ctrl+LMB     Merge Points : SHIFT+LMB     Extrude selecting: Space+LMB     Brush Size: F     Brush Cut Size: SHIFT+F     AutoMerge: A" +
-                "         Undo: Ctrl+Z    Confirm: Esc/Enter"
+                "         Undo: Ctrl+Z    Confirm: Q/Enter"
             )
 
             context.window_manager.modal_handler_add(self)
@@ -3066,6 +3098,27 @@ class RetopoMT(bpy.types.Operator):
         bpy.context.object.CTNCut       = g_rObject.CTNCut
         bpy.context.object.AutoMerge    = g_bAutoMerge
         
+
+
+        #global g_SavLens
+#        global g_SavPersp
+        bpy.context.space_data.lens = g_SavLens
+
+        if(g_SavPersp == False):
+            for area in bpy.context.screen.areas:
+                if area.type == "VIEW_3D":
+                    break
+
+            for region in area.regions:
+                if region.type == "WINDOW":
+                    break
+            space = area.spaces[0]
+            context = bpy.context.copy()
+            context['area'] = area
+            context['region'] = region
+            context['space_data'] = space
+            bpy.ops.view3d.view_persportho(context, 'EXEC_DEFAULT')
+
         
         bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
         bpy.context.window.cursor_modal_set("DEFAULT")
@@ -3099,7 +3152,7 @@ def register():
     kcfg = bpy.context.window_manager.keyconfigs.addon
     if kcfg:
         km = kcfg.keymaps.new(name='Mesh', space_type='EMPTY')
-        kmi = km.keymap_items.new("mesh.retopomt", 'X', 'PRESS', shift=True, ctrl=True)
+        kmi = km.keymap_items.new("mesh.retopomt", 'Q', 'PRESS')
         addon_keymaps.append((km, kmi))
 #########################################################################################################
 
