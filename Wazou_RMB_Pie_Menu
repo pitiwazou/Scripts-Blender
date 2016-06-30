@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
- 
+
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
@@ -17,24 +17,24 @@
 #  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 # ##### END GPL LICENSE BLOCK #####
- 
+
 bl_info = {
     "name": "Wazou Right clic Pie Menu",
     "author": "Cédric Lepiller",
-    "version": (0, 2, 3),
+    "version": (0, 2, 4),
     "blender": (2, 76, 0),
     "location": "View3D > RMB",
     "description": "Right Click Pie Menu",
     "category": "3D View"}
- 
+
 """
 Right Click Pie Menu
 This adds a the Right Click Pie Menu in the View3D.
 Left mouse is SELECTION.
 Left Alt + Double click sets the 3D cursor.
- 
+
 """
- 
+
 import bpy
 import bmesh
 from bpy.types import Menu
@@ -46,21 +46,22 @@ from bl_ui.properties_paint_common import (
         brush_mask_texture_settings,
         )
 import rna_keymap_ui
- 
+from bpy.types import Curve, SurfaceCurve, TextCurve
+
 ########################
 #      Properties      #               
 ########################
- 
+
 class WazouRightMenuPiePrefs(bpy.types.AddonPreferences):
     """Creates the tools in a Panel, in the scene context of the properties editor"""
     bl_idname = __name__
- 
+
     bpy.types.Scene.Enable_Tab_RMB_01 = bpy.props.BoolProperty(default=False)
     bpy.types.Scene.Enable_Tab_RMB_02 = bpy.props.BoolProperty(default=False)
- 
+    
     def draw(self, context):
         layout = self.layout
- 
+        
         layout.prop(context.scene, "Enable_Tab_RMB_01", text="Keymap", icon="QUESTION")  
         if context.scene.Enable_Tab_RMB_01:
             col = layout.column()
@@ -69,27 +70,27 @@ class WazouRightMenuPiePrefs(bpy.types.AddonPreferences):
                 km = km.active()
                 col.context_pointer_set("keymap", km)
                 rna_keymap_ui.draw_kmi([], kc, km, kmi, col, 0)
- 
- 
+        
+            
         layout.prop(context.scene, "Enable_Tab_RMB_02", text="URL's", icon="URL") 
         if context.scene.Enable_Tab_RMB_02:
             row = layout.row()    
- 
+            
             row.operator("wm.url_open", text="Pitiwazou.com").url = "http://www.pitiwazou.com/"
             row.operator("wm.url_open", text="Wazou's Ghitub").url = "https://github.com/pitiwazou/Scripts-Blender"
             row.operator("wm.url_open", text="BlenderLounge Forum ").url = "http://blenderlounge.fr/forum/"      
- 
+            
 #######################
 #       Classes       #               
 #######################
- 
+
 # Add Mesh #
 class AddMenu(bpy.types.Menu):
     bl_label = "Add Mesh"
- 
+    
     def draw(self, context):
         layout = self.layout
- 
+        
         layout.operator("mesh.primitive_cube_add", text="Cube", icon='MESH_CUBE')
         layout.operator("mesh.primitive_plane_add", text="Plane", icon='MESH_PLANE')
         layout.operator("mesh.primitive_uv_sphere_add", text="UV Sphere", icon='MESH_UVSPHERE')
@@ -118,101 +119,101 @@ class AddMenu(bpy.types.Menu):
         layout.operator("object.add", text="Lattice", icon='OUTLINER_OB_LATTICE').type = 'LATTICE'
         layout.operator("object.text_add", text="Text", icon='OUTLINER_OB_FONT')
         layout.operator("object.armature_add", text="Armature", icon='OUTLINER_OB_ARMATURE')
- 
+
 #Subsurf 2
 class SubSurf2(bpy.types.Operator):  
     bl_idname = "object.subsurf2"  
     bl_label = "SubSurf 2"  
     bl_options = {'REGISTER', 'UNDO'}
- 
+  
     def execute(self, context):
         bpy.ops.object.subdivision_set(level=2)
         bpy.context.object.modifiers["Subsurf"].show_only_control_edges = True
- 
+        
         if bpy.context.object.mode == "EDIT":
             bpy.ops.object.subdivision_set(level=2)
             bpy.context.object.modifiers["Subsurf"].show_on_cage = True
             bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'} 
- 
+
 #Remove Subsurf
 class RemoveSubsurf(bpy.types.Operator):  
     bl_idname = "remove.subsurf"  
     bl_label = "Remove Subsurf"  
     bl_options = {'REGISTER', 'UNDO'}
- 
+  
     def execute(self, context):
         bpy.ops.object.modifier_remove(modifier="Subsurf")
         return {'FINISHED'}     
- 
+
 #Add Mirror Object
 class AddMirrorObject(bpy.types.Operator):  
     bl_idname = "add.mirrorobject"  
     bl_label = "Add Mirror Object" 
     bl_options = {'REGISTER', 'UNDO'} 
- 
+  
     def execute(self, context):
         bpy.ops.object.modifier_add(type='MIRROR')
         bpy.context.object.modifiers["Mirror"].use_clip = True
         return {'FINISHED'}  
- 
+    
 #Add Mirror Edit
 class AddMirrorEdit(bpy.types.Operator):  
     bl_idname = "add.mirroredit"  
     bl_label = "Add Mirror Edit"  
     bl_options = {'REGISTER', 'UNDO'}
- 
+  
     def execute(self, context):
         bpy.ops.object.modifier_add(type='MIRROR')
         bpy.context.object.modifiers["Mirror"].use_clip = True
         bpy.context.object.modifiers["Mirror"].show_on_cage = True
         return {'FINISHED'}   
- 
+
 #Apply Mirror Edit
 class ApplyMirrorEdit(bpy.types.Operator):  
     bl_idname = "apply.mirroredit"  
     bl_label = "Apply Mirror Edit"  
     bl_options = {'REGISTER', 'UNDO'}
- 
+  
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
         bpy.ops.object.modifier_apply(modifier="Mirror")
         bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'} 
- 
+    
 #Apply Subsurf Edit
 class ApplySubsurfEdit(bpy.types.Operator):  
     bl_idname = "apply.subsurfedit"  
     bl_label = "Apply Subsurf Edit"  
     bl_options = {'REGISTER', 'UNDO'}
- 
+  
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'OBJECT')
         bpy.ops.object.modifier_apply(modifier="Subsurf")
         bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'}             
- 
+
 #wazou Symetrize
 class WazouSymetrize(bpy.types.Operator):  
     bl_idname = "wazou.symetrize"  
     bl_label = "Wazou Symetrize"  
     bl_options = {'REGISTER', 'UNDO'}
- 
+  
     def execute(self, context):
         bpy.ops.mesh.select_all(action='TOGGLE')
         bpy.ops.mesh.select_all(action='TOGGLE')
         bpy.ops.mesh.symmetrize(direction='POSITIVE_X')
         bpy.ops.mesh.select_all(action='TOGGLE')
         return {'FINISHED'} 
- 
+
 #Looptools    
 class VIEW3D_MT_edit_mesh_looptools(bpy.types.Menu):
     bl_idname = "loop.tools" 
     bl_label = "LoopTools"
- 
+
     def draw(self, context):
         layout = self.layout
- 
+
         layout.operator("mesh.looptools_bridge", text="Bridge").loft = False
         layout.operator("mesh.looptools_circle")
         layout.operator("mesh.looptools_curve")
@@ -221,26 +222,26 @@ class VIEW3D_MT_edit_mesh_looptools(bpy.types.Menu):
         layout.operator("mesh.looptools_bridge", text="Loft").loft = True
         layout.operator("mesh.looptools_relax")
         layout.operator("mesh.looptools_space") 
- 
+
 #Apply Transforms
 class ApplyTransformAll(bpy.types.Operator):  
     bl_idname = "apply.transformall"  
     bl_label = "Apply Transform All"  
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
         return {'FINISHED'}           
- 
+
 #Delete modifiers
 class DeleteModifiers(bpy.types.Operator):  
     bl_idname = "delete.modifiers"  
     bl_label = "Delete modifiers" 
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         selection = bpy.context.selected_objects
- 
+        
         if not(selection):  
             for obj in bpy.data.objects:
                 for mod in obj.modifiers:
@@ -252,50 +253,50 @@ class DeleteModifiers(bpy.types.Operator):
                     bpy.context.scene.objects.active = obj
                     bpy.ops.object.modifier_remove(modifier = mod.name)  
         return {'FINISHED'}  
- 
+
 #Clear All
 class ClearAll(bpy.types.Operator):  
     bl_idname = "clear.all"  
     bl_label = "Clear All" 
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         selection = bpy.context.selected_objects
         bpy.ops.object.location_clear()
         bpy.ops.object.rotation_clear()
         bpy.ops.object.scale_clear()
         return {'FINISHED'}      
- 
+
 #Separate Loose Parts
 class SeparateLooseParts(bpy.types.Operator):  
     bl_idname = "separate.looseparts"  
     bl_label = "Separate Loose Parts" 
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     @classmethod
     def poll(cls, context):
         return context.active_object is not None
- 
+    
     def execute(self, context):
         bpy.ops.object.mode_set(mode = 'EDIT')
         bpy.ops.mesh.separate(type='LOOSE')
         bpy.ops.object.mode_set(mode = 'OBJECT')
         bpy.ops.object.select_all(action='TOGGLE')
         return {'FINISHED'}  
- 
+
 #Create Hole
 class CreateHole(bpy.types.Operator):                  
     """This Operator create a hole on a selection"""                   
     bl_idname = "object.createhole"                     
     bl_label = "Create Hole on a Selection"   
     bl_options = {'REGISTER', 'UNDO'}     
- 
+
     @classmethod                                     
     def poll(cls, context):                         
         return context.active_object is not None 
- 
+
     def execute(self, context):                     
- 
+        
         bpy.ops.mesh.extrude_region_move()
         bpy.ops.transform.resize(value=(0.6, 0.6, 0.6))
         bpy.ops.mesh.looptools_circle()
@@ -303,190 +304,190 @@ class CreateHole(bpy.types.Operator):
         bpy.ops.transform.resize(value=(0.8, 0.8, 0.8))
         bpy.ops.mesh.delete(type='FACE')
         return {'FINISHED'} 
- 
+    
 #Symetry Lock X
 class SymetryLockX(bpy.types.Operator):
     bl_idname = "object.symetrylockx"
     bl_label = "Symetry Lock X"
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         if bpy.context.scene.tool_settings.sculpt.use_symmetry_x == True:
             bpy.context.scene.tool_settings.sculpt.use_symmetry_x = False
         elif bpy.context.scene.tool_settings.sculpt.use_symmetry_x == False:
             bpy.context.scene.tool_settings.sculpt.use_symmetry_x = True   
         return {'FINISHED'}
- 
+    
 #Symetry Lock Y
 class SymetryLockY(bpy.types.Operator):
     bl_idname = "object.symetrylocky"
     bl_label = "Symetry Lock Y"
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         if bpy.context.scene.tool_settings.sculpt.use_symmetry_y == True:
             bpy.context.scene.tool_settings.sculpt.use_symmetry_y = False
         elif bpy.context.scene.tool_settings.sculpt.use_symmetry_y == False:
             bpy.context.scene.tool_settings.sculpt.use_symmetry_y = True   
         return {'FINISHED'}
- 
+    
 #Symetry Lock Z
 class SymetryLockZ(bpy.types.Operator):
     bl_idname = "object.symetrylockz"
     bl_label = "Symetry Lock Z"
     bl_options = {'REGISTER', 'UNDO'}
- 
- 
+    
+
     def execute(self, context):
         if bpy.context.scene.tool_settings.sculpt.use_symmetry_z == True:
             bpy.context.scene.tool_settings.sculpt.use_symmetry_z = False
         elif bpy.context.scene.tool_settings.sculpt.use_symmetry_z == False:
             bpy.context.scene.tool_settings.sculpt.use_symmetry_z = True   
         return {'FINISHED'}   
- 
+     
 #Dyntopo Shading
 class DyntopoSmoothShading(bpy.types.Operator):
     bl_idname = "object.dtpsmoothshading"
     bl_label = "Dyntopo Smooth Shading"
     bl_options = {'REGISTER', 'UNDO'}
- 
- 
+    
+
     def execute(self, context):
         if bpy.context.scene.tool_settings.sculpt.use_smooth_shading == True:
             bpy.context.scene.tool_settings.sculpt.use_smooth_shading = False
         elif bpy.context.scene.tool_settings.sculpt.use_smooth_shading == False:
             bpy.context.scene.tool_settings.sculpt.use_smooth_shading = True   
         return {'FINISHED'} 
- 
+    
 #detail Variable Constant    
 class DetailSizevariable(bpy.types.Operator):
     bl_idname = "object.detailsizevariable"
     bl_label = "Detail Size Variable"
     bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.FloatProperty()
- 
+
     def execute(self, context):
         bpy.context.scene.tool_settings.sculpt.constant_detail = self.variable
         return {'FINISHED'}  
- 
+    
 #Detail Variable Relative         
 class DetailSizevariableRelative(bpy.types.Operator):
     bl_idname = "object.detailsizevariablerelative"
     bl_label = "Detail Size Variable  Relative"
     bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.FloatProperty()
- 
+
     def execute(self, context):
         bpy.context.scene.tool_settings.sculpt.detail_size = self.variable
         return {'FINISHED'} 
- 
+    
 #Detail Type    
 class DTPDetailType(bpy.types.Operator):
     bl_idname = "object.detailtype"
     bl_label = "Detail Type"
     bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
- 
+
     def execute(self, context):
         bpy.context.scene.tool_settings.sculpt.detail_type_method = self.variable
         return {'FINISHED'} 
- 
+    
 #Detail Refine
 class DTPDetailRefine(bpy.types.Operator):
     bl_idname = "object.detailrefine"
     bl_label = "Detail Refine"
     bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
- 
+
     def execute(self, context):
         bpy.context.scene.tool_settings.sculpt.detail_refine_method = self.variable
         return {'FINISHED'} 
- 
+
 #Enable Dyntopo
 class EnableDyntopo(bpy.types.Operator):  
     bl_idname = "enable.dyntopo"  
     bl_label = "Enable Dyntopo" 
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         bpy.ops.sculpt.dynamic_topology_toggle()
         bpy.context.scene.tool_settings.sculpt.detail_refine_method = 'SUBDIVIDE_COLLAPSE'
         bpy.context.scene.tool_settings.sculpt.detail_type_method = 'CONSTANT'
         bpy.context.scene.tool_settings.sculpt.use_smooth_shading = True
         return {'FINISHED'} 
- 
+
 #Sculpt Symmetrize +X to -X
 class SculptSymmetrizePlusX(bpy.types.Operator):  
     bl_idname = "sculpt.symmetrizeplusx"  
     bl_label = "Sculpt Symmetrize +X to -X" 
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         bpy.ops.sculpt.symmetrize()
         if bpy.context.scene.tool_settings.sculpt.symmetrize_direction ==  'NEGATIVE_X' :
             bpy.context.scene.tool_settings.sculpt.symmetrize_direction = 'POSITIVE_X'
         return {'FINISHED'}     
- 
+
 #Sculpt Symmetrize -X to +X
 class SculptSymmetrizeMoinsX(bpy.types.Operator):  
     bl_idname = "sculpt.symmetrizemoinsx"  
     bl_label = "Sculpt Symmetrize - X to + X" 
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         bpy.ops.sculpt.symmetrize()
         if bpy.context.scene.tool_settings.sculpt.symmetrize_direction ==  'POSITIVE_X' :
             bpy.context.scene.tool_settings.sculpt.symmetrize_direction = 'NEGATIVE_X'
         return {'FINISHED'} 
- 
+
 #Sculpt Use symetry X
 class SculptUseSymmetryX(bpy.types.Operator):  
     bl_idname = "sculpt.sculptusesymmetryx"  
     bl_label = "Sculpt Use symetry X" 
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         if bpy.context.scene.tool_settings.sculpt.use_symmetry_x == (True):
             bpy.context.scene.tool_settings.sculpt.use_symmetry_x = False
- 
+            
         elif bpy.context.scene.tool_settings.sculpt.use_symmetry_x == (False) :
-            bpy.context.scene.tool_settings.sculpt.use_symmetry_x = True
+             bpy.context.scene.tool_settings.sculpt.use_symmetry_x = True
         return {'FINISHED'}     
- 
+
 #Sculpt Use symetry Y
 class SculptUseSymmetryY(bpy.types.Operator):  
     bl_idname = "sculpt.sculptusesymmetryy"  
     bl_label = "Sculpt Use symetry Y" 
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         if bpy.context.scene.tool_settings.sculpt.use_symmetry_y == (True):
             bpy.context.scene.tool_settings.sculpt.use_symmetry_y = False
- 
+            
         elif bpy.context.scene.tool_settings.sculpt.use_symmetry_y == (False) :
-            bpy.context.scene.tool_settings.sculpt.use_symmetry_y = True
+             bpy.context.scene.tool_settings.sculpt.use_symmetry_y = True
         return {'FINISHED'}     
- 
+
 #Sculpt Use symetry Z
 class SculptUseSymmetryZ(bpy.types.Operator):  
     bl_idname = "sculpt.sculptusesymmetryz"  
     bl_label = "Sculpt Use symetry Z" 
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         if bpy.context.scene.tool_settings.sculpt.use_symmetry_z == (True):
             bpy.context.scene.tool_settings.sculpt.use_symmetry_z = False
- 
+            
         elif bpy.context.scene.tool_settings.sculpt.use_symmetry_z == (False) :
-            bpy.context.scene.tool_settings.sculpt.use_symmetry_z = True
+             bpy.context.scene.tool_settings.sculpt.use_symmetry_z = True
         return {'FINISHED'} 
- 
+
 #Pivot to selection
 class PivotToSelection(bpy.types.Operator):  
     bl_idname = "object.pivot2selection"  
     bl_label = "Pivot To Selection"  
     bl_options = {'REGISTER', 'UNDO'}
- 
+  
     def execute(self, context):  
         saved_location = bpy.context.scene.cursor_location.copy()
         bpy.ops.view3d.snap_cursor_to_selected()
@@ -494,50 +495,50 @@ class PivotToSelection(bpy.types.Operator):
         bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
         bpy.context.scene.cursor_location = saved_location 
         return {'FINISHED'}  
- 
+    
 #Pivot to Bottom
 class PivotBottom(bpy.types.Operator):  
     bl_idname = "object.pivotobottom"  
     bl_label = "Pivot To Bottom"  
     bl_options = {'REGISTER', 'UNDO'}
- 
+  
     def execute(self, context):
- 
+        
         bpy.ops.object.mode_set(mode = 'OBJECT')
         bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
         bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
         o=bpy.context.active_object
         init=0
         for x in o.data.vertices:
-            if init==0:
-                a=x.co.z
-                init=1
-            elif x.co.z<a:
-                a=x.co.z
- 
+             if init==0:
+                 a=x.co.z
+                 init=1
+             elif x.co.z<a:
+                 a=x.co.z
+                 
         for x in o.data.vertices:
-            x.co.z-=a
- 
+             x.co.z-=a
+
         o.location.z+=a 
         bpy.ops.object.mode_set(mode = 'EDIT')
         return {'FINISHED'} 
- 
+
 #Space
 class RetopoSpace(bpy.types.Operator):  
     bl_idname = "retopo.space"  
     bl_label = "Retopo Space"  
     bl_options = {'REGISTER', 'UNDO'}
- 
+  
     def execute(self, context):
         bpy.ops.mesh.looptools_space(influence=100, input='selected', interpolation='cubic', lock_x=False, lock_y=False, lock_z=False)
         return {'FINISHED'}  
- 
+    
 #Freeze and keep pivot
 class FreezeAndKeepPivot(bpy.types.Operator):  
     bl_idname = "object.freezeandkeeppivot"  
     bl_label = "Freeze And Keep Pivot"  
     bl_options = {'REGISTER', 'UNDO'}
- 
+  
     def execute(self, context): 
         #Save the cursor first position
         saved_location_0 = bpy.context.scene.cursor_location.copy() 
@@ -554,29 +555,29 @@ class FreezeAndKeepPivot(bpy.types.Operator):
         #Move the cursor to his first location
         bpy.context.scene.cursor_location = saved_location_0
         return {'FINISHED'}     
- 
- 
+    
+     
 #--------------------------------------------------------------------------
 #Particles
 #--------------------------------------------------------------------------
- 
+
 #Particle Path Steps
 class ParticlePathSteps(bpy.types.Operator):
     bl_idname = "object.particlepathsteps"
     bl_label = "Particle Path Steps"
     bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.IntProperty()
- 
+
     def execute(self, context):
         bpy.context.scene.tool_settings.particle_edit.draw_step = self.variable
         return {'FINISHED'} 
- 
+
 #Particle Childrens
 class ParticleChildrens(bpy.types.Operator):
     bl_idname = "object.particlechildren"
     bl_label = "Particle Childrens"
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         if bpy.context.scene.tool_settings.particle_edit.show_particles == True:
             bpy.context.scene.tool_settings.particle_edit.show_particles = False
@@ -585,13 +586,13 @@ class ParticleChildrens(bpy.types.Operator):
             bpy.context.scene.tool_settings.particle_edit.show_particles = True 
             bpy.context.area.type = 'VIEW_3D' 
         return {'FINISHED'}            
- 
+
 #Particle Length
 class ParticleLength(bpy.types.Operator):
     bl_idname = "object.particlelength"
     bl_label = "Particle Length"
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         if bpy.context.scene.tool_settings.particle_edit.use_preserve_length == True:
             bpy.context.scene.tool_settings.particle_edit.use_preserve_length = False
@@ -600,13 +601,13 @@ class ParticleLength(bpy.types.Operator):
             bpy.context.scene.tool_settings.particle_edit.use_preserve_length = True  
             bpy.context.area.type = 'VIEW_3D' 
         return {'FINISHED'}  
- 
+
 #Particle X Mirror
 class ParticleXMirror(bpy.types.Operator):
     bl_idname = "object.particlexmirror"
     bl_label = "Particle X Mirror"
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         if bpy.context.object.data.use_mirror_x == True:
             bpy.context.object.data.use_mirror_x = False
@@ -615,13 +616,13 @@ class ParticleXMirror(bpy.types.Operator):
             bpy.context.object.data.use_mirror_x = True  
             bpy.context.area.type = 'VIEW_3D' 
         return {'FINISHED'}  
- 
+    
 #Particle Root
 class ParticleRoot(bpy.types.Operator):
     bl_idname = "object.particleroot"
     bl_label = "Particle Root"
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         if bpy.context.scene.tool_settings.particle_edit.use_preserve_root == True:
             bpy.context.scene.tool_settings.particle_edit.use_preserve_root = False
@@ -630,37 +631,37 @@ class ParticleRoot(bpy.types.Operator):
             bpy.context.scene.tool_settings.particle_edit.use_preserve_root = True  
             bpy.context.area.type = 'VIEW_3D' 
         return {'FINISHED'} 
- 
+    
 #Selection Particles Mode
 class SelectionParticlesMode(bpy.types.Operator):
     bl_idname = "object.spm"
     bl_label = "Selection Particles Mode"
     bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
- 
+
     def execute(self, context):
         bpy.context.scene.tool_settings.particle_edit.select_mode = self.variable
         return {'FINISHED'}             
- 
+
 #Selection Particles Brushes
 class SelectionParticlesBrushes(bpy.types.Operator):
     bl_idname = "object.spb"
     bl_label = "Selection Particles Brushes"
     bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.StringProperty()
- 
+
     def execute(self, context):
         bpy.context.scene.tool_settings.particle_edit.tool = self.variable
         bpy.context.area.type = 'VIEW_3D'
         return {'FINISHED'}  
- 
+
 #Particles Interpolate
 class ParticlesInterpolate(bpy.types.Operator):
     bl_idname = "object.particleinterpolate"
     bl_label = "Particles Interpolate"
     bl_options = {'REGISTER', 'UNDO'}
     variable = bpy.props.IntProperty()
- 
+
     def execute(self, context):
         if bpy.context.scene.tool_settings.particle_edit.use_default_interpolate == True:
             bpy.context.scene.tool_settings.particle_edit.use_default_interpolate = False
@@ -669,13 +670,13 @@ class ParticlesInterpolate(bpy.types.Operator):
             bpy.context.scene.tool_settings.particle_edit.use_default_interpolate = True  
             bpy.context.area.type = 'VIEW_3D' 
         return {'FINISHED'} 
- 
+
 #Make Object An Empty
 class MakeObjectAnEmpty(bpy.types.Operator):
     bl_idname = "object.makeempty"
     bl_label = "Make Object An Empty"
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     def execute(self, context):
         if bpy.context.object.hide_render == False:
             bpy.context.object.hide_render = True
@@ -696,17 +697,17 @@ class MakeObjectAnEmpty(bpy.types.Operator):
             bpy.context.object.cycles_visibility.transmission = True
             bpy.context.object.cycles_visibility.shadow = True   
         return {'FINISHED'} 
- 
+
 #Clear Empty
 class ClearEmpty(bpy.types.Operator):
     bl_idname = "object.clearempty"
     bl_label = "Clear Empty"
     bl_options = {'REGISTER', 'UNDO'}
- 
+    
     @classmethod
     def poll(cls, context):
         return context.active_object is not None
- 
+    
     def execute(self, context):
         C = bpy.context
         for obj in C.object.children: 
@@ -714,66 +715,132 @@ class ClearEmpty(bpy.types.Operator):
             bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
             bpy.ops.object.select_all(action='TOGGLE')
         return {'FINISHED'}
- 
+
 #Mark Seam
 class MarkSeam(bpy.types.Operator):  
     bl_idname = "mark.seam"  
     bl_label = "Mark Seam" 
     bl_options = {'REGISTER', 'UNDO'} 
- 
+  
     def execute(self, context):
         bpy.ops.mesh.mark_seam()
         return {'FINISHED'}
- 
+        
 #Clear Seam
 class ClearSeam(bpy.types.Operator):  
     bl_idname = "clear.seam"  
     bl_label = "Clear Seam" 
     bl_options = {'REGISTER', 'UNDO'} 
- 
+  
     def execute(self, context):
         bpy.ops.mesh.mark_seam(clear=True)
         return {'FINISHED'}  
- 
+
+class Unwrap(bpy.types.Operator):
+    bl_idname = "object.unwrap"
+    bl_label = "Unwrap"
+    bl_description = ""
+    bl_options = {"REGISTER", "UNDO"}
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        
+        
+        if bpy.context.object.mode != "EDIT":
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE')
+            bpy.ops.mesh.select_all(action='TOGGLE')
+            bpy.ops.uv.unwrap(method='ANGLE_BASED', margin=0.001)
+        else:
+            bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='FACE')
+            bpy.ops.mesh.select_all(action='TOGGLE')
+            bpy.ops.uv.unwrap(method='ANGLE_BASED', margin=0.001)
+        
+        return {"FINISHED"}    
+    
 #Join - Separate
 class Join_Separate(bpy.types.Operator):  
     bl_idname = "join.separate"  
     bl_label = "Join Separate" 
     bl_options = {'REGISTER', 'UNDO'} 
- 
+  
     def execute(self, context):    
         if len(bpy.context.selected_objects) == 1:
             bpy.ops.separate.looseparts()
             bpy.context.active_object.select = True  
         else:
             bpy.ops.Object.join()  
- 
+            
         return {'FINISHED'}  
- 
+    
 #Simplify Circle       
 class Simplify_Circle(bpy.types.Operator):
     bl_idname = "simplify.circle"
     bl_label = "Simplify Circle"
     bl_description = ""
     bl_options = {"REGISTER", 'UNDO'} 
- 
- 
+    
+    
     def execute(self, context):
         bpy.ops.mesh.select_nth()
         bpy.ops.mesh.edge_collapse()
         return {"FINISHED"}
- 
- 
- 
+        
+
+class Create_Tube(bpy.types.Operator):
+    bl_idname = "object.create_tube"
+    bl_label = "Create Tube"
+    bl_description = ""
+    bl_options = {"REGISTER"}
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+       
+        bpy.ops.mesh.primitive_grid_add(x_subdivisions=3, y_subdivisions=3, radius=1, view_align=False, enter_editmode=False, location=(0, 0, 0), layers=(True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False))
+
+        bpy.ops.object.mode_set(mode='EDIT')  
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.mesh.select_all(action='TOGGLE')
+
+        bpy.ops.transform.resize(value=(0, 1, 1), constraint_axis=(True, False, False), constraint_orientation='GLOBAL', mirror=False, proportional='DISABLED', proportional_edit_falloff='SMOOTH', proportional_size=1)
+        bpy.ops.mesh.remove_doubles()
+
+        bpy.ops.object.mode_set(mode='OBJECT')  
+
+        bpy.ops.object.convert(target='CURVE')
+
+        bpy.context.object.data.fill_mode = 'FULL'
+        bpy.context.object.data.bevel_resolution = 2
+        bpy.context.object.data.bevel_depth = 0.6
+        bpy.context.object.data.show_normal_face = False
+
+        bpy.ops.object.mode_set(mode='EDIT') 
+        bpy.ops.curve.select_all(action='TOGGLE')
+        bpy.ops.curve.select_all(action='TOGGLE')
+
+        bpy.ops.curve.spline_type_set(type='BEZIER')
+        bpy.ops.curve.handle_type_set(type='AUTOMATIC')
+        bpy.ops.curve.select_all(action='DESELECT')
+
+        bpy.ops.shading.smooth()
+        bpy.ops.object.subdivision_set(level=2)
+        
+        return {"FINISHED"}                                                     
 ######################
 #        Pies        #               
 ######################  
- 
+      
 #Pie Sculpt Mirror
 class PieSculptMirror(Menu):
     bl_idname = "pie.sculptmirror"
     bl_label = "Pie Sculpt Mirror"
- 
+
     def draw(self, context):
         layout = self.layout
         pie = layout.menu_pie()
@@ -803,15 +870,15 @@ class PieSculptMirror(Menu):
             pie.operator("sculpt.sculptusesymmetryz", text="Unlock Z", icon='LOCKED')
         else:
             pie.operator("sculpt.sculptusesymmetryz", text="Lock Z", icon='UNLOCKED') 
- 
+     
 #Pie Particle Brushes    
 class PieParticleBrushes(Menu):
     bl_idname = "pie.particleparameters"
     bl_label = "Pie Particle Parameters"
- 
+
     def draw(self, context):
         layout = self.layout
- 
+
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("object.spm", text="Path", icon='PARTICLE_PATH').variable = 'PATH'
@@ -838,16 +905,16 @@ class PieParticleBrushes(Menu):
             pie.operator("wm.context_toggle", text="Occlude Geo ON", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
         else:
             pie.operator("wm.context_toggle", text="Occlude Geo OFF", icon="ORTHO").data_path = "space_data.use_occlude_geometry"
- 
- 
+
+
 #Pie Particle Options  
 class PieParticleOptions(Menu):
     bl_idname = "pie.particleoptions"
     bl_label = "Pie Particle Options"
- 
+
     def draw(self, context):
         layout = self.layout
- 
+
         pie = layout.menu_pie()
         #4 - LEFT
         pie.operator("object.particlepathsteps", text="Path Steps = 6", icon='PARTICLE_POINT').variable = 6
@@ -874,28 +941,28 @@ class PieParticleOptions(Menu):
         pie.operator("object.particlepathsteps", text="Path Steps = 5", icon='PARTICLE_POINT').variable = 5 
         #3 - BOTTOM - RIGHT
         pie.operator("object.particlepathsteps", text="Path Steps = 3", icon='PARTICLE_POINT').variable = 3 
- 
- 
- 
+
+
+              
 ########################################################################
- 
+
 ########################################################################
 #RMB          
 class View3dRightClicMenu(Menu):
     bl_idname = "pie.rightclicmenu"
     bl_label = "Right Clic Menu"
- 
- 
+    
+
     def draw(self, context):
         layout = self.layout
- 
+
         pie = layout.menu_pie()
- 
+        
         ################################################
         # No Objects                                   #
         ################################################
         if bpy.context.area.type == 'VIEW_3D' and not bpy.context.object:
- 
+            
             #4 - LEFT
             pie.operator("wm.read_homefile", text="New", icon='NEW')
             #6 - RIGHT
@@ -913,7 +980,8 @@ class View3dRightClicMenu(Menu):
             row = box.row(align=True)
             row = box.split(align=True)
             row.operator("mesh.primitive_grid_add", text=" ", icon='MESH_GRID')
-            row.operator("mesh.primitive_circle_add", text=" ", icon='MESH_CIRCLE')
+            
+            row.operator("object.create_tube", text=" ", icon='IPO_BEZIER')
             row.operator("mesh.primitive_cone_add", text=" ", icon='MESH_CONE')
             row.operator("mesh.primitive_torus_add", text=" ", icon='MESH_TORUS')
             row = box.row(align=True)
@@ -943,21 +1011,21 @@ class View3dRightClicMenu(Menu):
             row = box.split(align=True)
             row.operator("wm.link", text="Link", icon='LINK_BLEND')
             row.operator("wm.append", text="Append", icon='APPEND_BLEND')
- 
+        
         ################################################
         # Object Mode                                  #
         ################################################    
         elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'OBJECT':
             #4 - LEFT
- 
+
             selection = bpy.context.selected_objects
- 
+
             if len(bpy.context.selected_objects) == 1:
                 pie.operator("join.separate", text="Separate", icon='FULLSCREEN_ENTER')
- 
+                
             else:
                 pie.operator("join.separate", text="Join", icon='FULLSCREEN_EXIT')
- 
+        
             #6 - RIGHT
             is_subsurf = False
             for mode in bpy.context.object.modifiers :
@@ -967,7 +1035,7 @@ class View3dRightClicMenu(Menu):
                 pie.operator("remove.subsurf", text="Remove Subsurf", icon='X')
             else :
                 pie.operator("object.subsurf2", text="Add Subsurf", icon='MOD_SUBSURF')
- 
+                
             #2 - BOTTOM
             box = pie.split().column()
             row = box.split(align=True)
@@ -978,7 +1046,7 @@ class View3dRightClicMenu(Menu):
             row = box.row(align=True)
             row = box.split(align=True)
             row.operator("mesh.primitive_grid_add", text=" ", icon='MESH_GRID')
-            row.operator("mesh.primitive_circle_add", text=" ", icon='MESH_CIRCLE')
+            row.operator("object.create_tube", text=" ", icon='IPO_BEZIER')
             row.operator("mesh.primitive_cone_add", text=" ", icon='MESH_CONE')
             row.operator("mesh.primitive_torus_add", text=" ", icon='MESH_TORUS')
             row = box.row(align=True)
@@ -1001,7 +1069,7 @@ class View3dRightClicMenu(Menu):
                 row.operator("object.modifier_remove", text="Del Mirror",icon='X').modifier="Mirror"   
             else:
                 row.operator("add.mirrorobject", text="Add Mirror", icon='MOD_MIRROR')
- 
+                  
             row.operator("object.automirror", icon = 'MOD_MIRROR')
             row = box.row(align=True)
             row = box.split(align=True)
@@ -1026,7 +1094,7 @@ class View3dRightClicMenu(Menu):
             #1 - BOTTOM - LEFT
             box = pie.split().column()
             row = box.row(align=True)
- 
+            
             row.operator("object.freezeandkeeppivot", text="Apply T Keep Origin", icon='FILE_TICK')
             row = box.row(align=True)
             row.operator("apply.transformall", text="Apply T", icon='FILE_TICK')
@@ -1042,12 +1110,12 @@ class View3dRightClicMenu(Menu):
             else :
                 row.operator("object.makeempty", text="Make Normal", icon='MESH_CUBE')
                 row.operator("object.clearempty", text="Clear Empty", icon='MESH_DATA')
- 
+        
         ################################################
         # Edit Mode                                    #
         ################################################    
         elif bpy.context.object.mode == 'EDIT':    
- 
+
             #4 - LEFT
             box = pie.split().column()
             row = box.split(align=True)
@@ -1063,8 +1131,8 @@ class View3dRightClicMenu(Menu):
             row = box.row(align=True)
             row = box.split(align=True)
             row.operator("simplify.circle", text="Simplify Circle", icon='MESH_CIRCLE')
- 
- 
+            
+            
             #6 - RIGHT
             is_subsurf1 = False
             for mode in bpy.context.object.modifiers :
@@ -1112,10 +1180,10 @@ class View3dRightClicMenu(Menu):
                     is_mirror1 = True
             if is_mirror1 == True :
                 row.operator("object.modifier_remove", text="Del Mirror", icon='X_VEC').modifier="Mirror"
- 
+                
             else:
                 row.operator("add.mirroredit", text="Add Mirror", icon='MOD_MIRROR')
- 
+            
             row.operator("object.automirror", icon = 'MOD_MIRROR')
             row = box.row(align=True)
             row = box.split(align=True)
@@ -1137,6 +1205,10 @@ class View3dRightClicMenu(Menu):
             row = box.split(align=True)
             row.operator("mark.seam", "Mark Seam", icon='UV_EDGESEL')
             row.operator("clear.seam", "Clear Seam", icon='UV_EDGESEL')
+            row = box.row(align=True)
+            row = box.split(align=True)
+            row.operator("object.unwrap", "Unwrap", icon='MOD_UVPROJECT')
+            
             #1 - BOTTOM - LEFT
             box = pie.split().column()
             row = box.split(align=True)
@@ -1148,7 +1220,7 @@ class View3dRightClicMenu(Menu):
             row.operator("mesh.vertex_align", icon='ALIGN', text="Align")
             row.operator("retopo.space", icon='ALIGN', text="Distribute")
             row.operator("mesh.vertex_inline", icon='ALIGN', text="Ali & Dis")
- 
+            
             #3 - BOTTOM - RIGHT
             box = pie.split().column()
             row = box.split(align=True)
@@ -1162,24 +1234,24 @@ class View3dRightClicMenu(Menu):
             row = box.split(align=True)
             row.operator("mesh.separate")
             row.menu("AddMenu", text="Add Obj", icon="OBJECT_DATA")
- 
+        
         ################################################
         # Sculpt                                       #
         ################################################    
         elif bpy.context.area.type == 'VIEW_3D' and bpy.context.object.mode == 'SCULPT':
- 
- 
+            
+            
             #------Dyntopo
- 
+            
             if context.sculpt_object.use_dynamic_topology_sculpting:
                 #4 - LEFT
                 pie.operator("sculpt.dynamic_topology_toggle", icon='X', text="Disable Dyntopo")
                 #6 - RIGHT
                 box = pie.split().column()
                 row = box.split(align=True)
- 
+                
                 row.label(text="Curves:")      
- 
+                
                 row = box.row(align=True)
                 row = box.split(align=True)
                 row.operator("brush.curve_preset", icon='SMOOTHCURVE', text="").shape = 'SMOOTH'
@@ -1188,99 +1260,99 @@ class View3dRightClicMenu(Menu):
                 row.operator("brush.curve_preset", icon='SHARPCURVE', text="").shape = 'SHARP'
                 row.operator("brush.curve_preset", icon='LINCURVE', text="").shape = 'LINE'
                 row.operator("brush.curve_preset", icon='NOCURVE', text="").shape = 'MAX'
- 
+                
                 #2 - BOTTOM
                 brush = context.tool_settings.sculpt.brush
                 capabilities = brush.sculpt_capabilities
                 if capabilities.has_auto_smooth:
                     col = pie.column()
                     row = col.row(align=True)
- 
+                    
                     row.prop(brush, "auto_smooth_factor", slider=True)
                     row.prop(brush, "use_inverse_smooth_pressure", toggle=True, text="")
- 
+                    
                     # normal_weight
                 if capabilities.has_normal_weight:
- 
+                    
                     row = col.row(align=True)
                     row.prop(brush, "normal_weight", slider=True)
- 
+
                 # crease_pinch_factor
                 if capabilities.has_pinch_factor:
- 
+                    
                     row = col.row(align=True)
                     row.prop(brush, "crease_pinch_factor", slider=True, text="Pinch")
- 
+
                 # use_original_normal and sculpt_plane
                 if capabilities.has_sculpt_plane:
- 
+                    
                     row = col.row(align=True)
- 
+
                     row.prop(brush, "use_original_normal", toggle=True, icon_only=True)
- 
+
                     row.prop(brush, "sculpt_plane", text="")
- 
+
                 if brush.sculpt_tool == 'MASK':
                     col.prop(brush, "mask_tool", text="")
- 
+
                 # plane_offset, use_offset_pressure, use_plane_trim, plane_trim
                 if capabilities.has_plane_offset:
                     row = col.row(align=True)
                     row.prop(brush, "plane_offset", slider=True)
                     row.prop(brush, "use_offset_pressure", text="")
- 
+
                     #col.separator()
- 
+
                     row = col.row()
                     row.prop(brush, "use_plane_trim", text="Trim")
                     row = col.row()
                     row.active = brush.use_plane_trim
                     row.prop(brush, "plane_trim", slider=True, text="Distance")
- 
+
                 # height
                 if capabilities.has_height:
                     row = col.row()
                     row.prop(brush, "height", slider=True, text="Height")
- 
+
                 # use_frontface
                 row = col.row()
                 row.prop(brush, "use_frontface", text="Front Faces Only")
- 
+
                 # use_accumulate
                 if capabilities.has_accumulate:
                     col.prop(brush, "use_accumulate")
- 
+              
                 #8 - TOP
                 ups = context.tool_settings.unified_paint_settings
                 brush = context.tool_settings.sculpt.brush
- 
+                
                 col = pie.column(align=True)      
                 col.prop(ups, "size", text="Radius", slider=False)
                 col.prop(brush, "strength",  slider=True)
- 
+                
                 #7 - TOP - LEFT
                 if bpy.context.tool_settings.sculpt.detail_type_method == 'CONSTANT':
- 
+                    
                     sculpt = context.tool_settings.sculpt
- 
+                    
                     col = pie.column(align=True)        
                     col.operator("sculpt.sample_detail_size", text="Pick Detail Size", icon='EYEDROPPER')
                     col.prop(sculpt, "constant_detail")
                     col.prop(sculpt, "detail_refine_method", text="")
                     col.prop(sculpt, "detail_type_method", text="")
- 
+                    
                 elif bpy.context.tool_settings.sculpt.detail_type_method == 'RELATIVE':
- 
- 
+                    
+                    
                     toolsettings = context.tool_settings
                     sculpt_relative = toolsettings.sculpt
                     sculpt = context.tool_settings.sculpt
- 
+                    
                     col = pie.column(align=True)     
                     col.prop(sculpt_relative, "detail_size")
                     col.prop(sculpt, "detail_refine_method", text="")
                     col.prop(sculpt, "detail_type_method", text="")
- 
+                  
                 #9 - TOP - RIGHT
                 col = pie.column(align=True) 
                 col.operator("sculpt.optimize", text="Optimize") 
@@ -1289,7 +1361,7 @@ class View3dRightClicMenu(Menu):
                     col.operator("object.dtpsmoothshading", text="flat Shading", icon='MESH_ICOSPHERE')
                 else:
                     col.operator("object.dtpsmoothshading", text="Smooth Shading", icon='SOLID')
- 
+                
                 #1 - BOTTOM - LEFT
                 sculpt = context.tool_settings.sculpt
                 box = pie.split().column()
@@ -1303,26 +1375,26 @@ class View3dRightClicMenu(Menu):
                 #3 - BOTTOM - RIGHT
                 box = pie.split().column()
                 row = box.split(align=True)
- 
+                
                 row.label(text="Stroke Method:")
                 row = box.row(align=True)
                 row = box.split(align=True)
                 row.prop(brush, "stroke_method", text="", icon='IPO_CONSTANT')
- 
- 
+                
+           
             #------Normal Sculpt
- 
+                 
             else:
- 
- 
+                
+                
                 #4 - LEFT
                 pie.operator("enable.dyntopo", text="Enable Dyntopo", icon='LINE_DATA')
                 #6 - RIGHT
                 box = pie.split().column()
                 row = box.split(align=True)
- 
+                
                 row.label(text="Curves:")      
- 
+                
                 row = box.row(align=True)
                 row = box.split(align=True)
                 row.operator("brush.curve_preset", icon='SMOOTHCURVE', text="").shape = 'SMOOTH'
@@ -1331,79 +1403,79 @@ class View3dRightClicMenu(Menu):
                 row.operator("brush.curve_preset", icon='SHARPCURVE', text="").shape = 'SHARP'
                 row.operator("brush.curve_preset", icon='LINCURVE', text="").shape = 'LINE'
                 row.operator("brush.curve_preset", icon='NOCURVE', text="").shape = 'MAX'
- 
+                
                 #2 - BOTTOM
- 
+                 
                 brush = context.tool_settings.sculpt.brush
                 capabilities = brush.sculpt_capabilities
                 if capabilities.has_auto_smooth:
                     col = pie.column()
                     row = col.row(align=True)
- 
+                    
                     row.prop(brush, "auto_smooth_factor", slider=True)
                     row.prop(brush, "use_inverse_smooth_pressure", toggle=True, text="")
- 
+                    
                     # normal_weight
                 if capabilities.has_normal_weight:
- 
+                    
                     row = col.row(align=True)
                     row.prop(brush, "normal_weight", slider=True)
- 
+
                 # crease_pinch_factor
                 if capabilities.has_pinch_factor:
- 
+                    
                     row = col.row(align=True)
                     row.prop(brush, "crease_pinch_factor", slider=True, text="Pinch")
- 
+
                 # use_original_normal and sculpt_plane
                 if capabilities.has_sculpt_plane:
- 
+                    
                     row = col.row(align=True)
- 
+
                     row.prop(brush, "use_original_normal", toggle=True, icon_only=True)
- 
+
                     row.prop(brush, "sculpt_plane", text="")
- 
+
                 #if brush.sculpt_tool == 'MASK':
- 
+                    
                     #row = col.row(align=True)
                     #row.prop(brush, "mask_tool", text="")
- 
+
                 # plane_offset, use_offset_pressure, use_plane_trim, plane_trim
                 if capabilities.has_plane_offset:
                     row = col.row(align=True)
                     row.prop(brush, "plane_offset", slider=True)
                     row.prop(brush, "use_offset_pressure", text="")
- 
+
                     #col.separator()
- 
+
                     row = col.row()
                     row.prop(brush, "use_plane_trim", text="Trim")
                     row = col.row()
                     row.active = brush.use_plane_trim
                     row.prop(brush, "plane_trim", slider=True, text="Distance")
- 
+
                 # height
                 if capabilities.has_height:
                     row = col.row()
                     row.prop(brush, "height", slider=True, text="Height")
- 
+
                 # use_frontface
                 row = col.row()
                 row.prop(brush, "use_frontface", text="Front Faces Only")
- 
+
                 # use_accumulate
                 if capabilities.has_accumulate:
                     col.prop(brush, "use_accumulate")
- 
+              
                 #8 - TOP
                 ups = context.tool_settings.unified_paint_settings
                 brush = context.tool_settings.sculpt.brush
- 
+                
                 col = pie.column(align=True)      
                 col.prop(ups, "size", text="Radius", slider=False)
                 col.prop(brush, "strength",  slider=True)
- 
+                
                 #7 - TOP - LEFT
                 sculpt = context.tool_settings.sculpt
                 box = pie.split().column()
@@ -1414,24 +1486,24 @@ class View3dRightClicMenu(Menu):
                 row.prop(sculpt, "use_symmetry_x", text="X", toggle=True)
                 row.prop(sculpt, "use_symmetry_y", text="Y", toggle=True)
                 row.prop(sculpt, "use_symmetry_z", text="Z", toggle=True)
- 
+             
                 #9 - TOP - RIGHT
                 box = pie.split().column()
                 row = box.split(align=True)
- 
+                
                 row.label(text="Stroke Method:")
                 row = box.row(align=True)
                 row = box.split(align=True)
                 row.prop(brush, "stroke_method", text="", icon='IPO_CONSTANT')
- 
+             
                 #1 - BOTTOM - LEFT
- 
+                
                 #3 - BOTTOM - RIGHT
- 
- 
- 
- 
- 
+        
+        
+        
+        
+                
         ################################################
         # Particles                                    #
         ################################################    
@@ -1452,70 +1524,69 @@ class View3dRightClicMenu(Menu):
             pie.operator("object.spb", text="None", icon='BRUSH_DATA').variable = 'NONE'
             #3 - BOTTOM - RIGHT
             pie.operator("object.spb", text="Weight", icon='BRUSH_DATA').variable = 'WEIGHT'
- 
- 
- 
+            
+            
+          
 addon_keymaps = []
 def register():
     bpy.utils.register_module(__name__)
- 
- 
+    
+    
 # Keympa Config   
- 
+    
     wm = bpy.context.window_manager
- 
+    
     if wm.keyconfigs.addon:
- 
+        
         # Set 3d cursor with double click LMB
         km = bpy.context.window_manager.keyconfigs.addon.keymaps.new("3D View", space_type="VIEW_3D")
         kmi = km.keymap_items.new('view3d.cursor3d', 'LEFTMOUSE', 'DOUBLE_CLICK', alt=True)
- 
+        
         #Right Clic
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS')
         kmi.properties.name = "pie.rightclicmenu"  
         kmi.active = True
         addon_keymaps.append((km, kmi))
- 
- 
+        
+        
         #ALT + Right Clic
         km = wm.keyconfigs.addon.keymaps.new(name = '3D View Generic', space_type = 'VIEW_3D')
         kmi = km.keymap_items.new('wm.call_menu_pie', 'ACTIONMOUSE', 'PRESS', alt=True)
         kmi.properties.name = "pie.particleparameters"  
         kmi.active = True
         addon_keymaps.append((km, kmi))
- 
- 
+        
+        
 def unregister():
     bpy.utils.unregister_module(__name__)
     wm = bpy.context.window_manager
- 
+     
     if wm.keyconfigs.addon:
         for km in addon_keymaps:
             for kmi in km.keymap_items:
                 km.keymap_items.remove(kmi)
- 
+     
             wm.keyconfigs.addon.keymaps.remove(km)
- 
+     
     # clear the list
     del addon_keymaps[:]
- 
- 
- 
+    
+    
+    
 if __name__ == "__main__":
     register()
- 
+
     #bpy.ops.wm.call_menu_pie(name="View3dRightClicMenu")
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
+
+
+
+
+
