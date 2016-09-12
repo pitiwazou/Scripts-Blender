@@ -17,10 +17,10 @@
 # ##### END GPL LICENSE BLOCK #####
 
 bl_info = {
-    "name": "Retopo MT",
+    "name": "Retopo MT V1.0.4",
     "category": "Mesh",
     "author": "Will Souloumiac aka Pixivore, Cédric Lepiller aka Pitiwazou, Blenderlounge",
-    "version": (1,0,3),
+    "version": (1,0,4),
     "blender": (2, 77, 0),
     "location": "Editmode > ctrl+shift+X",
     "description": "Multiple tools for retopology.",
@@ -2609,26 +2609,26 @@ class RetopoMT(bpy.types.Operator):
                 g_bLeftBM = False
                 g_bPtMoving = False
         #---------------------------------------------------------------------------------------------------
-        elif(event.type == 'RIGHTMOUSE'):
-            if(event.value == 'RELEASE'):
-                if(g_PosCutIcon != None):
-                    if(g_hit != None):
-                        dist = (g_PosCutIcon - g_hit).length_squared
-                        if(dist < 0.02):
-                            self.CutIcon = True
-                            self.Icon = True
-                            if(g_Cursor.BSize > 1.0):
-                                g_Cursor.BSize -= 1.0
-                                if(g_Cursor.BSize < 1.0):
-                                    g_Cursor.BSize = 1.0
-                                    
-                                g_rObject.Undo('BACK')
-                                # Update geometry
-                                g_rObject.CreateGeometry()
+#        elif(event.type == 'RIGHTMOUSE'):
+#            if(event.value == 'RELEASE'):
+#                if(g_PosCutIcon != None):
+#                    if(g_hit != None):
+#                        dist = (g_PosCutIcon - g_hit).length_squared
+#                        if(dist < 0.02):
+#                            self.CutIcon = True
+#                            self.Icon = True
+#                            if(g_Cursor.BSize > 1.0):
+#                                g_Cursor.BSize -= 1.0
+#                                if(g_Cursor.BSize < 1.0):
+#                                    g_Cursor.BSize = 1.0
+#                                    
+#                                g_rObject.Undo('BACK')
+#                                # Update geometry
+#                                g_rObject.CreateGeometry()
 
-                g_bRightBM = False
-                self.CutIcon = False
-                self.Icon = False
+#                g_bRightBM = False
+#                self.CutIcon = False
+#                self.Icon = False
         #---------------------------------------------------------------------------------------------------
         elif(event.type == 'SPACE'):
             if(event.value == 'PRESS'):
@@ -2747,12 +2747,11 @@ class RetopoMT(bpy.types.Operator):
         elif(event.type == 'LEFT_SHIFT'):
             g_SHIFT = event.value
         #---------------------------------------------------------------------------------------------------
-        elif event.type in {'Q', 'RET'}:
-            if(self.bRunning == True):
-                self.finish()
-                return {'FINISHED'}
-            if(event.value == 'RELEASE'):
-                self.bRunning = True
+        elif event.type in {'Q', 'RIGHTMOUSE'}:
+            self.finish()
+            bpy.ops.object.mode_set(mode = 'EDIT')
+            bpy.ops.mesh.select_mode(use_extend=False, use_expand=False, type='VERT')
+            return {'FINISHED'}
                 
         #---------------------------------------------------------------------------------------------------
         return {'RUNNING_MODAL'}
@@ -2963,7 +2962,7 @@ class RetopoMT(bpy.types.Operator):
             global g_SHIFT
             g_SHIFT = "RELEASE"
             global g_SavLens
-            g_SavLens = 35.0
+            g_SavLens = 85.0
 
             global g_SavPersp
             g_SavPersp = bpy.context.space_data.region_3d.is_perspective
@@ -2971,7 +2970,7 @@ class RetopoMT(bpy.types.Operator):
                 global g_SavLens
                 g_SavLens = bpy.context.space_data.lens
 
-                bpy.context.space_data.lens = 250.0
+#                bpy.context.space_data.lens = 250.0
 
                 for area in bpy.context.screen.areas:
                     if area.type == "VIEW_3D":
@@ -3016,7 +3015,7 @@ class RetopoMT(bpy.types.Operator):
             # Display the operator's instructions in the active area's header.
             context.area.header_text_set(
                 "Draw: LMB     W/X: Nb cuts     Move vertex: Ctrl+LMB     Merge Points : SHIFT+LMB     Extrude selecting: Space+LMB     Brush Size: F     Brush Cut Size: SHIFT+F     AutoMerge: A" +
-                "         Undo: Ctrl+Z    Confirm: Q/Enter"
+                "         Undo: Ctrl+Z    Confirm: RMB/Enter"
             )
 
             context.window_manager.modal_handler_add(self)
@@ -3152,7 +3151,7 @@ def register():
     kcfg = bpy.context.window_manager.keyconfigs.addon
     if kcfg:
         km = kcfg.keymaps.new(name='Mesh', space_type='EMPTY')
-        kmi = km.keymap_items.new("mesh.retopomt", 'Q', 'PRESS')
+        kmi = km.keymap_items.new("mesh.retopomt", 'W', 'PRESS', ctrl=True, alt=True, shift=True)
         addon_keymaps.append((km, kmi))
 #########################################################################################################
 
