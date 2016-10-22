@@ -22,7 +22,7 @@ bl_info = {
     "author": "Will Souloumiac aka Pixivore, Cédric Lepiller aka Pitiwazou, Blenderlounge",
     "version": (1,0,4),
     "blender": (2, 77, 0),
-    "location": "Editmode > ctrl+shift+X",
+    "location": "Editmode > Ctrl+Shift+Alt+X",
     "description": "Multiple tools for retopology.",
 }
 
@@ -3151,7 +3151,7 @@ def register():
     kcfg = bpy.context.window_manager.keyconfigs.addon
     if kcfg:
         km = kcfg.keymaps.new(name='Mesh', space_type='EMPTY')
-        kmi = km.keymap_items.new("mesh.retopomt", 'W', 'PRESS', ctrl=True, alt=True, shift=True)
+        kmi = km.keymap_items.new("mesh.retopomt", 'X', 'PRESS', ctrl=True, alt=True, shift=True)
         addon_keymaps.append((km, kmi))
 #########################################################################################################
 
