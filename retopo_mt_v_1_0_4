@@ -2045,11 +2045,12 @@ def Picking(context, self, ray_max = 10000.0, _ray_origin = None, _CTRetopo = Fa
 
     #---------------------------------------------------------------------------------------------------
     def obj_ray_cast(obj, matrix):
+    	
         # toggle mode, to force correct drawing
         matrix_inv = matrix.inverted()
         ray_origin_obj = matrix_inv * ray_origin
         ray_target_obj = matrix_inv * ray_target
-	ray_direction_obj = ray_target_obj - ray_origin_obj
+        ray_direction_obj = ray_target_obj - ray_origin_obj
 	
         success, hit, normal, face_index = obj.ray_cast(ray_origin_obj, ray_direction_obj)
         
